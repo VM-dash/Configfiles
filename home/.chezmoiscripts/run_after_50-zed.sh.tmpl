@@ -1,0 +1,32 @@
+{{ template "lib.sh" . }}
+
+{{ template "gui-only.sh" . }}
+
+step "Installing Zed"
+
+if has zed; then
+	ok "zed already installed"
+	exit 0
+fi
+
+if is_container; then
+	info "container detected — skipping Zed"
+	exit 0
+fi
+
+if is_arch; then
+	# Zed is a first-class Arch package; prefer it over the vendor script.
+	if [ -n "$SUDO" ] && $SUDO pacman -Sy --needed --noconfirm zed; then
+		ok "zed installed from [extra]"
+		exit 0
+	fi
+fi
+
+# Official first-party installer. Deliberately not the Flathub build, which is
+# an unverified community repackage and would be sandboxed away from mise's
+# toolchain and the Docker socket.
+if curl -fsSL https://zed.dev/install.sh | sh; then
+	ok "zed installed to ~/.local/bin"
+else
+	warn "Zed install failed — non-fatal, continuing"
+fi

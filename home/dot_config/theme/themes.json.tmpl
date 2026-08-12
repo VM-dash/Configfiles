@@ -1,0 +1,6 @@
+{{/*
+   Rendered from .chezmoidata/themes.yaml so that ~/.local/bin/theme (and
+   Neovim) can read the catalog at runtime with plain jq / vim.json.decode,
+   without needing a YAML parser or chezmoi itself to be installed.
+*/ -}}
+{{ dict "order" .theme_order "themes" .themes | toPrettyJson }}

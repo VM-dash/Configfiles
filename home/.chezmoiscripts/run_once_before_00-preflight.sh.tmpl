@@ -1,0 +1,26 @@
+{{ template "lib.sh" . }}
+
+step "Preflight"
+
+info "distro family : $DISTRO_FAMILY ($DISTRO_ID ${VERSION_ID:-})"
+info "desktop       : $TARGET_DESKTOP (running: ${XDG_CURRENT_DESKTOP:-none})"
+info "container     : $(is_container && echo yes || echo no)"
+info "theme         : {{ .theme }}"
+info "gui apps      : {{ .gui }}"
+info "docker        : {{ .docker }}"
+
+case "$DISTRO_FAMILY" in
+	fedora|arch) ;;
+	*)
+		warn "Distro family '$DISTRO_FAMILY' is not explicitly supported."
+		warn "Dotfiles will still apply; package installation steps will skip."
+		;;
+esac
+
+mkdir -p "$HOME/.local/bin" "$XDG_DATA_HOME/fonts"
+
+# The active theme is seeded by dot_config/theme/create_current.tmpl —
+# chezmoi's `create_` attribute means "write if absent, never touch again",
+# which is exactly the semantics wanted here, so no script logic is needed.
+
+ok "preflight complete"

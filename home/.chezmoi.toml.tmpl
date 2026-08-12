@@ -1,0 +1,40 @@
+{{/*
+   Asked once, on the very first `chezmoi init`. The answers are written to
+   ~/.config/chezmoi/chezmoi.toml, so re-running init never re-prompts.
+   To change an answer later: `chezmoi init --prompt` (re-asks everything) or
+   edit ~/.config/chezmoi/chezmoi.toml directly.
+*/ -}}
+
+{{- $name   := promptStringOnce . "name"  "Full name (used for git)" "Victor MASSON" -}}
+{{- $email  := promptStringOnce . "email" "Email (used for git)" -}}
+{{- $theme  := promptStringOnce . "theme" "Default theme [catppuccin-mocha|catppuccin-macchiato|catppuccin-frappe|catppuccin-latte|rose-pine|rose-pine-moon|rose-pine-dawn]" "catppuccin-mocha" -}}
+{{- $gui    := promptBoolOnce   . "gui"     "Install GUI applications (flatpaks, browsers, editors)" true -}}
+{{- $docker := promptBoolOnce   . "docker"  "Install Docker" true -}}
+
+{{/*
+   Desktop is DECLARED, not detected. It decides which configs materialise
+   (GNOME vs Hyprland) and which packages install, and runtime detection is
+   wrong precisely when it matters most — the first apply, possibly over SSH
+   or from a TTY, before gnome-shell exists. Detection only seeds the default.
+*/ -}}
+{{- $detected := "gnome" -}}
+{{- if or (contains "Hyprland" (env "XDG_CURRENT_DESKTOP" | default "")) (ne (lookPath "Hyprland") "") -}}
+{{-   $detected = "hyprland" -}}
+{{- end -}}
+{{- $desktop := promptStringOnce . "desktop" "Desktop environment [gnome|hyprland|none]" $detected -}}
+
+encryption = "none"
+
+[data]
+name    = {{ $name    | quote }}
+email   = {{ $email   | quote }}
+theme   = {{ $theme   | quote }}
+desktop = {{ $desktop | quote }}
+gui     = {{ $gui }}
+docker  = {{ $docker }}
+
+[diff]
+exclude = ["scripts"]
+
+[status]
+exclude = ["scripts"]

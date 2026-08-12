@@ -1,0 +1,43 @@
+{{ template "lib.sh" . }}
+
+{{ if not .docker -}}
+echo "Docker disabled for this machine — skipping."
+exit 0
+{{ end -}}
+
+step "Installing Docker"
+
+can_root || { warn "no sudo — skipping Docker"; exit 0; }
+
+# The docker packages themselves are declared in packages.yaml and installed by
+# 20-system-packages, in the same dnf transaction as everything else. This
+# script owns only the parts that are not package installation.
+if ! has docker; then
+	warn "docker not installed — check 20-system-packages output"
+	exit 0
+fi
+
+# --- daemon -----------------------------------------------------------------
+if has_systemd && ! is_container; then
+	step "Enabling the Docker daemon"
+	try $SUDO systemctl enable --now docker.service
+	try $SUDO systemctl enable --now containerd.service
+else
+	info "no systemd (container?) — not starting the daemon"
+fi
+
+# --- rootless group ---------------------------------------------------------
+getent group docker >/dev/null 2>&1 || try $SUDO groupadd docker
+
+if id -nG "$(id -un)" | tr ' ' '\n' | grep -qx docker; then
+	ok "$(id -un) is already in the docker group"
+else
+	step "Adding $(id -un) to the docker group"
+	try $SUDO usermod -aG docker "$(id -un)"
+	# `newgrp` would only affect a subshell that dies with this script, so it
+	# is deliberately not used. Be honest about what is required instead.
+	warn "Group change takes effect at your NEXT LOGIN."
+	warn "Until then, 'docker' commands need sudo. Log out and back in."
+fi
+
+ok "Docker installed"

@@ -1,0 +1,75 @@
+# ~/.config/ghostty/config
+#
+# Managed by chezmoi. Colours are NOT set here — see the bottom of this file.
+
+# --- Font -------------------------------------------------------------------
+# Family and size come from .chezmoidata/fonts.yaml, shared with VS Code, Zed,
+# Neovim, GNOME and fontconfig.
+# Ghostty derives the bold/italic faces from this family automatically.
+font-family = {{ .font.mono }}
+font-size = {{ .font.size_terminal }}
+font-feature = calt
+font-feature = liga
+font-thicken = true
+adjust-cell-height = 12%
+
+# --- Window -----------------------------------------------------------------
+window-padding-x = 10
+window-padding-y = 8
+window-padding-balance = true
+window-decoration = auto
+window-theme = auto
+window-save-state = always
+background-opacity = 0.97
+unfocused-split-opacity = 0.85
+
+# --- Cursor -----------------------------------------------------------------
+cursor-style = block
+cursor-style-blink = false
+mouse-hide-while-typing = true
+
+# --- Shell ------------------------------------------------------------------
+shell-integration = zsh
+# cursor: shape reporting · sudo: keep the terminfo when sudo-ing
+# title: let the shell set the window title
+shell-integration-features = cursor,sudo,title
+
+# --- Scrollback -------------------------------------------------------------
+scrollback-limit = 100000
+copy-on-select = clipboard
+
+# --- Behaviour --------------------------------------------------------------
+confirm-close-surface = false
+quit-after-last-window-closed = true
+auto-update = check
+
+# --- Keybindings ------------------------------------------------------------
+keybind = ctrl+shift+enter=new_split:right
+keybind = ctrl+shift+minus=new_split:down
+keybind = ctrl+shift+h=goto_split:left
+keybind = ctrl+shift+j=goto_split:bottom
+keybind = ctrl+shift+k=goto_split:top
+keybind = ctrl+shift+l=goto_split:right
+keybind = ctrl+shift+e=equalize_splits
+keybind = ctrl+shift+z=toggle_split_zoom
+
+# ============================================================================
+#  Theme
+#
+#  `theme` writes theme.conf next to this file; the `?` prefix makes the
+#  include optional, so Ghostty still starts on a fresh checkout before the
+#  first `theme` run.
+#
+#  Two Ghostty rules worth knowing before editing:
+#    1. config-file is processed at the END of this file, so anything in
+#       theme.conf WINS over keys written above it. That is intentional here.
+#    2. A file registered as a Ghostty *theme* may not set `theme` or
+#       `config-file` — which is exactly why theme.conf is a plain config
+#       fragment rather than a theme.
+#
+#  To change theme:  theme catppuccin-mocha   (or just: theme)
+# ============================================================================
+config-file = ?theme.conf
+
+# Machine-specific overrides, untracked.
+config-file = ?local.conf

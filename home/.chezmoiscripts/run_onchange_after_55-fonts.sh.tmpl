@@ -1,0 +1,84 @@
+{{ template "lib.sh" . }}
+
+# fonts hash: {{ .font.install | toJson | sha256sum }}
+
+step "Installing Nerd Fonts"
+
+# Required, not cosmetic: Starship's prompt symbols, `eza --icons` and the
+# Neovim statusline all render as tofu without a patched font.
+
+FONT_DIR="$XDG_DATA_HOME/fonts"
+REPO="{{ .externals.nerd_fonts_repo }}"
+mkdir -p "$FONT_DIR"
+
+has unzip || die "unzip is required to install fonts"
+
+install_font() {
+	local name="$1"
+	local dest="$FONT_DIR/${name}NerdFont"
+
+	if [ -d "$dest" ] && [ -n "$(ls -A "$dest" 2>/dev/null)" ]; then
+		ok "$name Nerd Font already present"
+		return 0
+	fi
+
+	local url="https://github.com/${REPO}/releases/latest/download/${name}.zip"
+	local tmp; tmp="$(mktemp -d)"
+	trap 'rm -rf "$tmp"' RETURN
+
+	info "downloading ${name}.zip"
+	curl -fsSL -o "$tmp/${name}.zip" "$url" || {
+		warn "could not download $name Nerd Font"
+		return 1
+	}
+
+	mkdir -p "$dest"
+	# Keep only the fonts; the archives also ship licences and Windows-
+	# compatible duplicates we do not need.
+	unzip -qo "$tmp/${name}.zip" -d "$dest" -x 'README*' 'LICENSE*' 'OFL*' || true
+	printf 'installed\n' > "$dest/.installed"
+	ok "$name Nerd Font installed"
+}
+
+# These downloads are tens of MB each and share nothing, so fetch them
+# concurrently rather than one after the other.
+{{ range .font.install }}
+install_font {{ .archive | quote }} &
+{{- end }}
+wait
+
+# --- cache ------------------------------------------------------------------
+# Only rebuild if something actually landed; `fc-cache -f` forces a full
+# re-scan of every font directory regardless of timestamps.
+if [ -n "$(find "$FONT_DIR" -name '.installed' -newer "$FONT_DIR" -print -quit 2>/dev/null)" ] \
+	|| [ ! -f "$XDG_CACHE_HOME/fontconfig/CACHEDIR.TAG" ]; then
+	step "Rebuilding the font cache"
+	if has fc-cache; then
+		try fc-cache "$FONT_DIR"
+		ok "font cache rebuilt"
+	else
+		warn "fc-cache not found — fonts may not be visible until you log out"
+	fi
+fi
+
+# --- verify -----------------------------------------------------------------
+# The family names the app configs reference must actually resolve. A silent
+# mismatch here is what produces tofu boxes everywhere instead of icons.
+if has fc-list; then
+	# One enumeration of the system font set, not one per family.
+	FAMILIES="$(fc-list : family)"
+	{{ range .font.install }}
+	if printf '%s' "$FAMILIES" | tr ',' '\n' | grep -qxF {{ .family | quote }}; then
+		ok "font family available: {{ .family }}"
+	else
+		warn "font family NOT found: {{ .family | quote }}"
+		warn "  .chezmoidata/fonts.yaml references it — check the real name with"
+		warn "  'fc-list : family | tr , '\\''\\n'\\'' | grep -i nerd'"
+	fi
+	{{- end }}
+fi
+
+# Flatpak apps see the host's fonts through a read-only bind mount of
+# ~/.local/share/fonts, so DBeaver, Bruno and Obsidian pick these up too. What
+# makes them actually USE the font is the monospace alias in
+# ~/.config/fontconfig/fonts.conf.

@@ -1,0 +1,64 @@
+[user]
+	name = {{ .name }}
+	email = {{ .email }}
+
+[init]
+	defaultBranch = main
+
+[core]
+	pager = delta
+	editor = nvim
+	autocrlf = input
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+	line-numbers = true
+	hyperlinks = true
+	# delta follows BAT_THEME, which `theme` exports — so diffs match whatever
+	# colour scheme is active without any extra wiring.
+
+[merge]
+	conflictstyle = zdiff3
+	tool = nvimdiff
+
+[diff]
+	colorMoved = default
+	algorithm = histogram
+
+[pull]
+	rebase = true
+
+[push]
+	autoSetupRemote = true
+	default = current
+
+[rebase]
+	autoStash = true
+
+[fetch]
+	prune = true
+
+[rerere]
+	enabled = true
+
+[column]
+	ui = auto
+
+[branch]
+	sort = -committerdate
+
+[alias]
+	st = status --short --branch
+	co = checkout
+	sw = switch
+	br = branch
+	lg = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all
+	last = log -1 HEAD --stat
+	unstage = restore --staged
+
+[include]
+	# Machine-specific overrides (work identity, proxies) — untracked.
+	path = ~/.config/git/local

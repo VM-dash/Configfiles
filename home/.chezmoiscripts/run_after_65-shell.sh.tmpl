@@ -1,0 +1,34 @@
+{{ template "lib.sh" . }}
+
+step "Setting zsh as the login shell"
+
+ZSH_PATH="$(command -v zsh || true)"
+
+if [ -z "$ZSH_PATH" ]; then
+	warn "zsh is not installed — cannot change the login shell"
+	exit 0
+fi
+
+CURRENT_SHELL="$(getent passwd "$(id -un)" | cut -d: -f7)"
+if [ "$CURRENT_SHELL" = "$ZSH_PATH" ]; then
+	ok "login shell is already $ZSH_PATH"
+	exit 0
+fi
+
+# chsh refuses a shell that is not listed in /etc/shells.
+if [ -n "$SUDO" ] && ! grep -qxF "$ZSH_PATH" /etc/shells 2>/dev/null; then
+	info "registering $ZSH_PATH in /etc/shells"
+	printf '%s\n' "$ZSH_PATH" | $SUDO tee -a /etc/shells >/dev/null
+fi
+
+# Via sudo so it does not prompt for a password mid-provision.
+if [ -n "$SUDO" ]; then
+	if $SUDO chsh -s "$ZSH_PATH" "$(id -un)"; then
+		ok "login shell changed to $ZSH_PATH"
+		warn "Takes effect at your NEXT LOGIN."
+	else
+		warn "chsh failed — run manually: chsh -s $ZSH_PATH"
+	fi
+else
+	warn "no sudo — run manually: chsh -s $ZSH_PATH"
+fi

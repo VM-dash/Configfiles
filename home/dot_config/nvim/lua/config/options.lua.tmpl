@@ -1,0 +1,47 @@
+-- Loaded by LazyVim before lazy.nvim starts.
+-- LazyVim's own defaults are in lazyvim.config.options; only deltas go here.
+
+local opt = vim.opt
+
+opt.relativenumber = true
+opt.number = true
+opt.scrolloff = 8
+opt.sidescrolloff = 8
+
+-- Indentation: 4 spaces suits the C#/.NET work; LazyVim defaults to 2.
+opt.tabstop = 4
+opt.shiftwidth = 4
+opt.softtabstop = 4
+opt.expandtab = true
+
+opt.wrap = false
+opt.linebreak = true
+
+opt.splitbelow = true
+opt.splitright = true
+
+-- Keep the sign column always visible so the buffer does not shift when
+-- diagnostics or git signs appear.
+opt.signcolumn = "yes"
+
+-- Wayland/X11 system clipboard.
+opt.clipboard = "unnamedplus"
+
+opt.undofile = true
+opt.updatetime = 200
+opt.timeoutlen = 400
+
+opt.ignorecase = true
+opt.smartcase = true
+
+opt.termguicolors = true
+opt.cursorline = true
+opt.colorcolumn = "120"
+
+-- Only used by GUI clients (Neovide, nvim-qt). In a terminal Neovim inherits
+-- Ghostty's font. Family comes from .chezmoidata/fonts.yaml.
+opt.guifont = "{{ .font.mono }}:h{{ .font.size_editor_px }}"
+
+-- Show whitespace that usually causes diff noise.
+opt.list = true
+opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }

@@ -1,0 +1,41 @@
+{{ template "lib.sh" . }}
+
+step "Applying theme"
+
+# Runs on EVERY apply (plain run_, not run_once_) because it regenerates the
+# files chezmoi deliberately does not manage: starship.toml, ghostty/theme.conf,
+# tmux/theme.conf and the shell colour exports. If the catalog or the starship
+# template changes, this is what propagates it.
+
+THEME_BIN="$HOME/.local/bin/theme"
+
+if [ ! -x "$THEME_BIN" ]; then
+	warn "$THEME_BIN not found or not executable — skipping"
+	exit 0
+fi
+
+# `theme reload` is exactly "re-apply whatever is in theme/current", so there
+# is no need to re-derive the active theme here — that only created a second
+# copy of the switcher's own current_theme() that could drift from it.
+# --quiet keeps apply output tidy; drop it when debugging the switcher.
+if "$THEME_BIN" reload --quiet; then
+	ok "theme applied: $("$THEME_BIN" current)"
+else
+	warn "could not apply the active theme — run 'theme list' to see valid names"
+fi
+
+# ---------------------------------------------------------------- summary ---
+cat <<EOF
+
+  ${_C_GREEN}Provisioning complete.${_C_RESET}
+
+  Next steps:
+    1. ${_C_YELLOW}Log out and back in${_C_RESET} — required for:
+         · zsh as your login shell
+         · the docker group
+         · newly installed GNOME extensions
+    2. Open Ghostty and run:  theme            (interactive picker)
+    3. Re-provision any time: chezmoi apply
+    4. Pull upstream updates: chezmoi update
+
+EOF

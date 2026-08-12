@@ -1,0 +1,17 @@
+{{ template "lib.sh" . }}
+
+step "Bootstrapping Neovim plugins (LazyVim)"
+
+have_tool nvim || { warn "neovim not installed yet — skipping plugin sync"; exit 0; }
+
+# First run clones lazy.nvim and every plugin. Can take a minute or two.
+info "running :Lazy! sync headlessly (this may take a while)"
+if run_tool nvim --headless "+Lazy! sync" +qa 2>&1 | tail -n 20; then
+	ok "Neovim plugins installed"
+else
+	warn "Neovim plugin sync reported errors — open nvim and run :Lazy to inspect"
+fi
+
+# Treesitter parsers are compiled on demand; pre-building avoids a stall on the
+# first real edit.
+try run_tool nvim --headless "+TSUpdateSync" +qa

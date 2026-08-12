@@ -1,0 +1,32 @@
+{{ template "lib.sh" . }}
+
+# flatpak list hash: {{ .packages.common.flatpak | toJson | sha256sum }}
+
+{{ template "gui-only.sh" . }}
+
+step "Installing GUI applications (Flatpak)"
+
+if ! has flatpak; then
+	warn "flatpak not installed — skipping GUI apps"
+	exit 0
+fi
+
+if is_container; then
+	info "container detected — skipping Flatpaks"
+	exit 0
+fi
+
+APPS="{{ .packages.common.flatpak | join " " }}"
+
+# One transaction for all of them: these apps share the GNOME/freedesktop
+# runtimes, and installing one-by-one re-resolves the remote and the runtime
+# graph for every app. Already-installed apps are skipped by flatpak itself,
+# so no `flatpak info` probing is needed either.
+step "flatpak install: $APPS"
+# shellcheck disable=SC2086
+try flatpak install --user --noninteractive --assumeyes flathub $APPS
+
+# Deliberately no `flatpak update` here: the install above already fetches the
+# latest, and this script only re-runs when the app list itself changed.
+
+ok "GUI applications ready"

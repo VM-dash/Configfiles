@@ -1,0 +1,51 @@
+{
+  // Managed by chezmoi — edit via `chezmoi edit --apply ~/.config/zed/settings.json`.
+  // Font family and sizes come from .chezmoidata/fonts.yaml.
+
+  // ------------------------------------------------------------- fonts --
+  "buffer_font_family": "{{ .font.mono }}",
+  "buffer_font_size": {{ .font.size_editor_px }},
+  "buffer_font_features": {
+    "calt": true,
+    "liga": true
+  },
+
+  "ui_font_family": "{{ .font.mono }}",
+  "ui_font_size": {{ .font.size_ui }},
+
+  "terminal": {
+    "font_family": "{{ .font.mono }}",
+    "font_size": {{ .font.size_terminal_px }},
+    // Login shell, so mise shims and the theme exports are available.
+    "shell": {
+      "program": "{{ lookPath "zsh" | default "/usr/bin/zsh" }}"
+    },
+    "blinking": "off",
+    "copy_on_select": true
+  },
+
+  // -------------------------------------------------------------- theme --
+  // Zed follows the system light/dark preference, which `theme` sets through
+  // org.gnome.desktop.interface color-scheme.
+  "theme": {
+    "mode": "system",
+    "dark": "Catppuccin Mocha",
+    "light": "Catppuccin Latte"
+  },
+
+  // ------------------------------------------------------------- editor --
+  "relative_line_numbers": true,
+  "tab_size": 4,
+  "format_on_save": "on",
+  "remove_trailing_whitespace_on_save": true,
+  "ensure_final_newline_on_save": true,
+  "wrap_guides": [120],
+  "show_whitespaces": "selection",
+
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+
+  "auto_update": false
+}

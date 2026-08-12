@@ -1,0 +1,265 @@
+## Starship template.
+##
+## `theme` renders this file to ~/.config/starship.toml, substituting the
+## placeholder on the `palette` line below with the active theme's palette
+## name. Edit THIS file, never ~/.config/starship.toml — that one is
+## regenerated, so edits there are lost on the next `theme` or `chezmoi apply`.
+##
+## (The placeholder token is deliberately not repeated in this comment: the
+## substitution is global, so it would be rewritten here too.)
+##
+## After editing, run:  theme reload
+
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Selected by `theme`. Every palette is defined at the bottom of this file.
+palette = "@THEME_PALETTE@"
+
+# Inserts a blank line between shell prompts
+add_newline = true
+
+[cmd_duration]
+min_time = 0 #2_000  # Montre le temps d'exécution pour les commandes prenant plus de 2 secondes
+show_milliseconds = true
+format = '[󰔟 $duration]($style) '
+style = 'fg:peach'
+
+# Replace the '❯' symbol in the prompt with '➜'
+[character] # The name of the module we are configuring is 'character'
+success_symbol = '[➜](bold green)' # The 'success_symbol' segment is being set to '➜' with the color 'bold green'
+error_symbol = '[➜](bold red)'
+vimcmd_symbol = '[❮](bold green)'
+
+# ---------------------------------------------------------------------------
+# Modules below are palette-aware, so they follow whichever theme is active.
+# ---------------------------------------------------------------------------
+
+[directory]
+style = 'bold fg:blue'
+truncation_length = 4
+truncate_to_repo = true
+read_only = ' 󰌾'
+
+[git_branch]
+symbol = ' '
+style = 'fg:mauve'
+format = 'on [$symbol$branch]($style) '
+
+[git_status]
+style = 'fg:red'
+format = '([\[$all_status$ahead_behind\]]($style) )'
+
+[git_state]
+style = 'fg:peach'
+
+[hostname]
+ssh_only = true
+style = 'bold fg:teal'
+format = '[@$hostname]($style) '
+
+[username]
+show_always = false
+style_user = 'fg:subtext'
+style_root = 'bold fg:red'
+
+[dotnet]
+symbol = ' '
+style = 'fg:mauve'
+heuristic = true
+
+[nodejs]
+symbol = ' '
+style = 'fg:green'
+
+[docker_context]
+symbol = ' '
+style = 'fg:blue'
+
+[python]
+symbol = ' '
+style = 'fg:yellow'
+
+[rust]
+symbol = ' '
+style = 'fg:peach'
+
+[golang]
+symbol = ' '
+style = 'fg:teal'
+
+[package]
+symbol = '󰏗 '
+style = 'fg:yellow'
+
+# ===========================================================================
+#  Palettes
+#
+#  Catppuccin palettes follow upstream's naming (catppuccin/starship).
+#  Rose Pine does NOT publish a Starship palette — upstream ships whole
+#  configs instead — so the three Rose Pine palettes below were extracted by
+#  hand from the official colour spec and aliased onto the Catppuccin key
+#  names (mauve, peach, teal, …) so that one set of module styles works for
+#  every theme. Do not expect them to match a file in rose-pine/starship.
+# ===========================================================================
+
+# ------------------------------------------------------ Catppuccin Mocha ---
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo  = "#f2cdcd"
+pink      = "#f5c2e7"
+mauve     = "#cba6f7"
+red       = "#f38ba8"
+maroon    = "#eba0ac"
+peach     = "#fab387"
+yellow    = "#f9e2af"
+green     = "#a6e3a1"
+teal      = "#94e2d5"
+sky       = "#89dceb"
+sapphire  = "#74c7ec"
+blue      = "#89b4fa"
+lavender  = "#b4befe"
+text      = "#cdd6f4"
+subtext   = "#a6adc8"
+overlay   = "#6c7086"
+surface   = "#313244"
+base      = "#1e1e2e"
+crust     = "#11111b"
+
+# -------------------------------------------------- Catppuccin Macchiato ---
+[palettes.catppuccin_macchiato]
+rosewater = "#f4dbd6"
+flamingo  = "#f0c6c6"
+pink      = "#f5bde6"
+mauve     = "#c6a0f6"
+red       = "#ed8796"
+maroon    = "#ee99a0"
+peach     = "#f5a97f"
+yellow    = "#eed49f"
+green     = "#a6da95"
+teal      = "#8bd5ca"
+sky       = "#91d7e3"
+sapphire  = "#7dc4e4"
+blue      = "#8aadf4"
+lavender  = "#b7bdf8"
+text      = "#cad3f5"
+subtext   = "#a5adcb"
+overlay   = "#6e738d"
+surface   = "#363a4f"
+base      = "#24273a"
+crust     = "#181926"
+
+# ----------------------------------------------------- Catppuccin Frappe ---
+[palettes.catppuccin_frappe]
+rosewater = "#f2d5cf"
+flamingo  = "#eebebe"
+pink      = "#f4b8e4"
+mauve     = "#ca9ee6"
+red       = "#e78284"
+maroon    = "#ea999c"
+peach     = "#ef9f76"
+yellow    = "#e5c890"
+green     = "#a6d189"
+teal      = "#81c8be"
+sky       = "#99d1db"
+sapphire  = "#85c1dc"
+blue      = "#8caaee"
+lavender  = "#babbf1"
+text      = "#c6d0f5"
+subtext   = "#a5adce"
+overlay   = "#737994"
+surface   = "#414559"
+base      = "#303446"
+crust     = "#232634"
+
+# ------------------------------------------------------ Catppuccin Latte ---
+[palettes.catppuccin_latte]
+rosewater = "#dc8a78"
+flamingo  = "#dd7878"
+pink      = "#ea76cb"
+mauve     = "#8839ef"
+red       = "#d20f39"
+maroon    = "#e64553"
+peach     = "#fe640b"
+yellow    = "#df8e1d"
+green     = "#40a02b"
+teal      = "#179299"
+sky       = "#04a5e5"
+sapphire  = "#209fb5"
+blue      = "#1e66f5"
+lavender  = "#7287fd"
+text      = "#4c4f69"
+subtext   = "#6c6f85"
+overlay   = "#9ca0b0"
+surface   = "#ccd0da"
+base      = "#eff1f5"
+crust     = "#dce0e8"
+
+# ----------------------------------------------------------- Rose Pine ----
+[palettes.rose_pine]
+rosewater = "#ebbcba"
+flamingo  = "#ebbcba"
+pink      = "#eb6f92"
+mauve     = "#c4a7e7"
+red       = "#eb6f92"
+maroon    = "#eb6f92"
+peach     = "#f6c177"
+yellow    = "#f6c177"
+green     = "#9ccfd8"
+teal      = "#9ccfd8"
+sky       = "#31748f"
+sapphire  = "#31748f"
+blue      = "#31748f"
+lavender  = "#c4a7e7"
+text      = "#e0def4"
+subtext   = "#908caa"
+overlay   = "#6e6a86"
+surface   = "#1f1d2e"
+base      = "#191724"
+crust     = "#16141f"
+
+# ------------------------------------------------------ Rose Pine Moon ----
+[palettes.rose_pine_moon]
+rosewater = "#ea9a97"
+flamingo  = "#ea9a97"
+pink      = "#eb6f92"
+mauve     = "#c4a7e7"
+red       = "#eb6f92"
+maroon    = "#eb6f92"
+peach     = "#f6c177"
+yellow    = "#f6c177"
+green     = "#9ccfd8"
+teal      = "#9ccfd8"
+sky       = "#3e8fb0"
+sapphire  = "#3e8fb0"
+blue      = "#3e8fb0"
+lavender  = "#c4a7e7"
+text      = "#e0def4"
+subtext   = "#908caa"
+overlay   = "#6e6a86"
+surface   = "#2a273f"
+base      = "#232136"
+crust     = "#1f1d30"
+
+# ------------------------------------------------------ Rose Pine Dawn ----
+[palettes.rose_pine_dawn]
+rosewater = "#d7827e"
+flamingo  = "#d7827e"
+pink      = "#b4637a"
+mauve     = "#907aa9"
+red       = "#b4637a"
+maroon    = "#b4637a"
+peach     = "#ea9d34"
+yellow    = "#ea9d34"
+green     = "#56949f"
+teal      = "#56949f"
+sky       = "#286983"
+sapphire  = "#286983"
+blue      = "#286983"
+lavender  = "#907aa9"
+text      = "#575279"
+subtext   = "#797593"
+overlay   = "#9893a5"
+surface   = "#fffaf3"
+base      = "#faf4ed"
+crust     = "#f2e9e1"

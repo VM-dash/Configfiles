@@ -1,0 +1,65 @@
+{
+  // Managed by chezmoi — edits made through the VS Code settings UI are
+  // reverted on the next `chezmoi apply`. Change this file instead:
+  //   chezmoi edit --apply ~/.config/Code/User/settings.json
+  // Font family and sizes come from .chezmoidata/fonts.yaml.
+
+  // ------------------------------------------------------------- fonts --
+  "editor.fontFamily": "'{{ .font.mono }}', '{{ .font.mono_fallback }}', monospace",
+  "editor.fontSize": {{ .font.size_editor_px }},
+  "editor.fontLigatures": true,
+  "editor.lineHeight": 1.6,
+
+  "terminal.integrated.fontFamily": "'{{ .font.mono }}', monospace",
+  "terminal.integrated.fontSize": {{ .font.size_terminal_px }},
+
+  "debug.console.fontFamily": "'{{ .font.mono }}', monospace",
+  "debug.console.fontSize": {{ .font.size_terminal_px }},
+
+  "scm.inputFontFamily": "editor",
+  "chat.editor.fontFamily": "'{{ .font.mono }}', monospace",
+  "notebook.output.fontFamily": "'{{ .font.mono }}', monospace",
+  "markdown.preview.fontFamily": "'{{ .font.sans }}', system-ui, sans-serif",
+
+  // ----------------------------------------------------------- terminal --
+  // Use the login shell so mise shims, aliases and the theme exports are all
+  // present in the integrated terminal.
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "terminal.integrated.profiles.linux": {
+    "zsh": {
+      "path": "{{ lookPath "zsh" | default "/usr/bin/zsh" }}",
+      "args": ["-l"]
+    }
+  },
+
+  // -------------------------------------------------------------- theme --
+  // VS Code cannot follow the system `theme` command live, so it is set to
+  // follow the OS light/dark preference, which `theme` does update via
+  // org.gnome.desktop.interface color-scheme.
+  "window.autoDetectColorScheme": true,
+  // These require the Catppuccin extension (`code --install-extension
+  // Catppuccin.catppuccin-vsc`); VS Code falls back to its default theme if
+  // it is absent. Unlike the terminal apps, VS Code cannot follow the live
+  // `theme` switch — only the OS light/dark preference, which `theme` sets.
+  "workbench.preferredDarkColorTheme": "Catppuccin Mocha",
+  "workbench.preferredLightColorTheme": "Catppuccin Latte",
+
+  // ------------------------------------------------------------- editor --
+  "editor.renderWhitespace": "boundary",
+  "editor.rulers": [120],
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.minimap.enabled": false,
+  "editor.formatOnSave": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.confirmDelete": false,
+
+  // ---------------------------------------------------------------- git --
+  "git.autofetch": true,
+  "git.confirmSync": false,
+
+  "telemetry.telemetryLevel": "off",
+  "update.mode": "none",
+  "window.titleBarStyle": "custom"
+}

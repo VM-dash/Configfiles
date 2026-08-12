@@ -1,0 +1,93 @@
+{{ template "lib.sh" . }}
+
+# brave.yaml hash: {{ include ".chezmoidata/brave.yaml" | sha256sum }}
+
+{{ template "gui-only.sh" . }}
+
+step "Configuring Brave"
+
+if ! has brave-browser && ! has brave; then
+	warn "Brave not installed yet — skipping configuration"
+	exit 0
+fi
+
+# ============================================================== policies ====
+# Chromium reads every .json file in this directory at startup. This is the
+# only declarative way to force-install extensions and lock settings, and it
+# requires the NATIVE package: a Flatpak Brave cannot see /etc/brave
+# (flatpak/flatpak#4709).
+POLICY_DIR="/etc/brave/policies/managed"
+
+if can_root; then
+	step "Writing managed policy"
+	$SUDO mkdir -p "$POLICY_DIR"
+
+	# Built from .chezmoidata/brave.yaml so the policy and the extension list
+	# have exactly one source of truth.
+	$SUDO tee "$POLICY_DIR/configfiles.json" >/dev/null <<'POLICY_EOF'
+{{ $ext := list -}}
+{{ range .brave.extensions -}}
+{{ $ext = append $ext (printf "%s;%s" .id $.brave.update_url) -}}
+{{ end -}}
+{{ $policy := merge (dict "ExtensionInstallForcelist" $ext) .brave.policies -}}
+{{ $policy | toPrettyJson }}
+POLICY_EOF
+
+	$SUDO chmod 0644 "$POLICY_DIR/configfiles.json"
+	ok "policy written to $POLICY_DIR/configfiles.json"
+	info "verify at brave://policy after launching Brave"
+
+	{{ range .brave.extensions }}
+	info "force-install: {{ .name }}"
+	{{- end }}
+else
+	warn "no sudo — cannot write $POLICY_DIR (extensions/settings not applied)"
+fi
+
+# ============================================================= bookmarks ====
+# Seeded ONCE into a fresh profile, then never touched again, so bookmarks you
+# add on Linux are never clobbered by a later `chezmoi apply`.
+#
+# The seed is committed in plaintext by deliberate choice. Note that this
+# repository is public and the bookmarks include internal company and client
+# hostnames. To store them encrypted instead, re-export with
+# `scripts/export-brave.ps1 -Encrypt` and set an age passphrase in
+# .chezmoi.toml.tmpl. If the seed is absent this block simply skips.
+PROFILE_DIR="$XDG_CONFIG_HOME/BraveSoftware/Brave-Browser/{{ .brave.profile_dir }}"
+SEED="$XDG_CONFIG_HOME/brave/bookmarks.json"
+
+if [ ! -r "$SEED" ]; then
+	info "no bookmark seed present — skipping (nothing to import)"
+elif [ -f "$PROFILE_DIR/Bookmarks" ]; then
+	ok "profile already has bookmarks — leaving them alone"
+else
+	step "Seeding bookmarks into a fresh profile"
+	mkdir -p "$PROFILE_DIR"
+	cp "$SEED" "$PROFILE_DIR/Bookmarks"
+	# Brave recomputes the checksum on load; a stale Bookmarks.bak would
+	# override the seed on the first run, so make sure there isn't one.
+	rm -f "$PROFILE_DIR/Bookmarks.bak"
+	ok "bookmarks seeded ({{ .brave.profile_name }} profile)"
+	info "Brave must NOT be running when this happens, or it will overwrite them."
+fi
+
+# ---------------------------------------------------------------------------
+cat <<EOF
+
+  ${_C_YELLOW}Brave: what this does and does not carry over${_C_RESET}
+
+    applied here : extensions, settings, bookmarks (first run only)
+    NOT carried  : passwords, cookies, sessions, history, open tabs
+
+  Passwords and cookies are sealed with Windows DPAPI on the source machine
+  and cannot be decrypted on Linux — this is a hard cryptographic limit, not
+  a missing feature. Your credentials live in Dashlane / LockSelf, so just
+  sign in to those two extensions once.
+
+  For history, open tabs and continuous two-way sync, enable Brave Sync on
+  BOTH machines (brave://settings/braveSync). Keep the 24-word seed in
+  Dashlane — never in this repo.
+
+EOF
+
+ok "Brave configured"

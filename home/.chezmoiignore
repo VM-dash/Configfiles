@@ -1,0 +1,31 @@
+{{/*
+   .chezmoiignore is ALWAYS a template, even without a .tmpl suffix.
+   Patterns match the TARGET path, not the source path.
+   Gotcha: in chezmoi every exclude beats every include regardless of order,
+   so this file only ever excludes — it never uses `!` to re-include.
+   Second gotcha: excluding a path here also disables any .chezmoiexternal
+   entry for it, so external targets (tmux plugins, bat themes) are NOT listed.
+*/ -}}
+
+# --- Desktop-specific -------------------------------------------------------
+# Driven by the DECLARED desktop from .chezmoi.toml.tmpl, not by sniffing the
+# environment — see the comment there for why.
+{{ if ne .desktop "hyprland" -}}
+.config/hypr/**
+{{ end -}}
+
+# --- Headless / container ---------------------------------------------------
+{{ if not .gui -}}
+.config/ghostty/**
+{{ end -}}
+
+# --- Generated at runtime by `theme` ----------------------------------------
+# chezmoi must not fight the theme switcher over these.
+.config/starship.toml
+.config/ghostty/theme.conf
+.config/tmux/theme.conf
+.config/theme/current.sh
+
+# --- Runtime state ----------------------------------------------------------
+.config/nvim/lazy-lock.json
+.local/share/nvim/**

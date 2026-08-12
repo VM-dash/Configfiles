@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<!--
+  Managed by chezmoi. Family names come from .chezmoidata/fonts.yaml.
+
+  This is the highest-leverage part of the font setup: every GTK, Qt and
+  Electron application that asks fontconfig for "monospace" gets the Nerd Font
+  without needing its own configuration. That covers DBeaver, Bruno, Obsidian
+  and anything else installed later, including Flatpaks — Flatpak bind-mounts
+  the host's ~/.local/share/fonts and this config into the sandbox, so themed
+  fonts work there too.
+
+  Applications with an explicit font setting (Ghostty, VS Code, Zed, Neovim)
+  are configured directly instead; see their own config files.
+-->
+<fontconfig>
+
+  <!-- Where run_onchange_after_55-fonts.sh installs the patched fonts. -->
+  <dir prefix="xdg">fonts</dir>
+
+  <!-- ================================================== generic aliases == -->
+  <alias>
+    <family>monospace</family>
+    <prefer>
+      <family>{{ .font.mono }}</family>
+      <family>{{ .font.mono_fallback }}</family>
+      <family>Noto Sans Mono</family>
+    </prefer>
+  </alias>
+
+  <alias>
+    <family>sans-serif</family>
+    <prefer>
+      <family>{{ .font.sans }}</family>
+      <family>Noto Sans</family>
+    </prefer>
+  </alias>
+
+  <alias>
+    <family>serif</family>
+    <prefer>
+      <family>{{ .font.serif }}</family>
+      <family>Noto Serif</family>
+    </prefer>
+  </alias>
+
+  <!-- ============================================= common family names == -->
+  <!-- Applications that hardcode one of these get the patched font instead,
+       so icons and powerline glyphs render rather than showing tofu. -->
+  <match target="pattern">
+    <test name="family"><string>JetBrains Mono</string></test>
+    <edit name="family" mode="assign" binding="same">
+      <string>{{ .font.mono }}</string>
+    </edit>
+  </match>
+
+  <match target="pattern">
+    <test name="family"><string>JetBrainsMono</string></test>
+    <edit name="family" mode="assign" binding="same">
+      <string>{{ .font.mono }}</string>
+    </edit>
+  </match>
+
+  <match target="pattern">
+    <test name="family"><string>Menlo</string></test>
+    <edit name="family" mode="assign" binding="same">
+      <string>{{ .font.mono }}</string>
+    </edit>
+  </match>
+
+  <match target="pattern">
+    <test name="family"><string>Consolas</string></test>
+    <edit name="family" mode="assign" binding="same">
+      <string>{{ .font.mono }}</string>
+    </edit>
+  </match>
+
+  <!-- Append the Nerd Font to every monospace request as a last-resort
+       fallback, so glyphs still resolve when an app insists on another font. -->
+  <match target="pattern">
+    <test name="spacing" compare="eq"><const>mono</const></test>
+    <edit name="family" mode="append" binding="weak">
+      <string>{{ .font.mono }}</string>
+    </edit>
+  </match>
+
+  <!-- ======================================================== rendering == -->
+  <match target="font">
+    <edit name="antialias" mode="assign"><bool>true</bool></edit>
+    <edit name="hinting" mode="assign"><bool>true</bool></edit>
+    <edit name="hintstyle" mode="assign"><const>hintslight</const></edit>
+    <edit name="rgba" mode="assign"><const>rgb</const></edit>
+    <edit name="lcdfilter" mode="assign"><const>lcddefault</const></edit>
+  </match>
+
+  <!-- Disable synthetic emboldening/italics for the patched font: the family
+       ships real weights and faux styles wreck the glyph metrics. -->
+  <match target="font">
+    <test name="family"><string>{{ .font.mono }}</string></test>
+    <edit name="embolden" mode="assign"><bool>false</bool></edit>
+    <edit name="matrix" mode="assign">
+      <matrix><double>1</double><double>0</double><double>0</double><double>1</double></matrix>
+    </edit>
+  </match>
+
+</fontconfig>

@@ -1,0 +1,98 @@
+{{ template "lib.sh" . }}
+
+# =========================================================== Claude Code ====
+step "Installing Claude Code CLI"
+
+if has claude; then
+	ok "claude already installed ($(claude --version 2>/dev/null || echo present))"
+elif is_fedora && [ -n "$SUDO" ]; then
+	# Anthropic publishes a signed RPM repo (configured in 10-repos).
+	# Trade-off vs the curl installer: dnf-installed Claude Code does NOT
+	# self-update; use `sudo dnf upgrade claude-code`.
+	if $SUDO dnf install -y claude-code; then
+		ok "claude-code installed from the official RPM repo"
+	else
+		warn "RPM install failed — falling back to the official installer"
+		try sh -c 'curl -fsSL https://claude.ai/install.sh | bash'
+	fi
+else
+	curl -fsSL https://claude.ai/install.sh | bash
+	ok "claude installed to ~/.local/bin"
+fi
+
+# ======================================================== Claude Desktop ====
+{{ if .gui }}
+step "Installing Claude Desktop (best-effort)"
+
+# Anthropic's official Claude Desktop for Linux is currently DEBIAN-ONLY —
+# their docs state Fedora/RHEL are not yet supported, and there is no Flatpak.
+# aaddrick/claude-desktop-debian repackages Anthropic's own official build as
+# an RPM/AppImage under the name `claude-desktop-unofficial`, so it will not
+# collide with an official package when one eventually ships.
+#
+# This entire section is best-effort: it must never fail the apply.
+
+install_claude_desktop() {
+	if has claude-desktop || rpm -q claude-desktop-unofficial >/dev/null 2>&1; then
+		ok "Claude Desktop already installed"
+		return 0
+	fi
+	if is_container; then
+		info "container detected — skipping Claude Desktop"
+		return 0
+	fi
+	has curl || return 1
+
+	local repo="{{ .externals.claude_desktop_repo }}"
+	local arch; arch="$(uname -m)"
+
+	local pattern url tmp
+	if is_fedora; then
+		pattern="\\.${arch}\\.rpm$"
+	else
+		pattern="${arch}\\.AppImage$|amd64\\.AppImage$"
+	fi
+
+	url="$(gh_latest_asset "$repo" "$pattern")" || return 1
+	if [ -z "$url" ]; then
+		warn "no asset matching /$pattern/ in the latest $repo release"
+		return 1
+	fi
+
+	tmp="$(mktemp -d)"
+	trap 'rm -rf "$tmp"' RETURN
+	info "downloading $(basename "$url")"
+	curl -fsSL -o "$tmp/$(basename "$url")" "$url" || return 1
+
+	if is_fedora; then
+		[ -n "$SUDO" ] || return 1
+		$SUDO dnf install -y "$tmp"/*.rpm || return 1
+	else
+		# AppImage path (Arch: the AUR package was removed as a duplicate).
+		local dest="$XDG_DATA_HOME/claude-desktop"
+		mkdir -p "$dest"
+		install -m 0755 "$tmp"/*.AppImage "$dest/claude-desktop.AppImage" || return 1
+		mkdir -p "$XDG_DATA_HOME/applications"
+		cat > "$XDG_DATA_HOME/applications/claude-desktop.desktop" <<-EOF
+			[Desktop Entry]
+			Type=Application
+			Name=Claude
+			Comment=Claude Desktop (unofficial Linux build)
+			Exec=${dest}/claude-desktop.AppImage %U
+			Icon=claude-desktop
+			Terminal=false
+			Categories=Utility;Development;
+			StartupWMClass=Claude
+		EOF
+		try update-desktop-database "$XDG_DATA_HOME/applications"
+	fi
+	ok "Claude Desktop installed (unofficial repackage of the official build)"
+}
+
+if ! install_claude_desktop; then
+	warn "Claude Desktop was not installed. This is non-fatal."
+	warn "There is no official Fedora build yet — the CLI is unaffected."
+fi
+{{ end }}
+
+ok "Claude tooling done"

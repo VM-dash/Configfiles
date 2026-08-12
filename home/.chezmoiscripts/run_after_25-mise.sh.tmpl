@@ -1,0 +1,15 @@
+{{ template "lib.sh" . }}
+
+step "Installing mise"
+
+if has mise; then
+	ok "mise already installed ($(mise --version))"
+	exit 0
+fi
+
+# The single-binary install is mise's own preferred method and supports
+# `mise self-update`, unlike the distro packages.
+curl -fsSL https://mise.run | MISE_INSTALL_PATH="$HOME/.local/bin/mise" sh
+
+has mise || die "mise install failed — $HOME/.local/bin/mise not found"
+ok "mise installed ($(mise --version))"

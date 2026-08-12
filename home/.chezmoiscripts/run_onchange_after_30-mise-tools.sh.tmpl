@@ -1,0 +1,35 @@
+{{ template "lib.sh" . }}
+
+# Scoped to the mise list alone, so unrelated package edits do not trigger a
+# full `mise install` pass.
+# mise tools hash: {{ .packages.common.mise | toJson | sha256sum }}
+
+step "Installing dev toolchain via mise"
+
+has mise || die "mise not found — run 25-mise first"
+
+# Some backends (vfox, used for neovim) still gate behind this on older mise.
+try mise settings set experimental true
+
+# `mise use -g` is intentionally used instead of a chezmoi-managed
+# ~/.config/mise/config.toml, so that ad-hoc `mise use -g <tool>` additions you
+# make later are not silently reverted on the next apply.
+TOOLS="{{ .packages.common.mise | join " " }}"
+
+info "mise use -g $TOOLS"
+# shellcheck disable=SC2086
+mise use --global --yes $TOOLS
+
+step "Resolving and installing tool versions"
+mise install --yes
+
+# .NET is the one that most often needs a nudge: the SDK is fetched by
+# Microsoft's install script rather than a static tarball.
+if mise which dotnet >/dev/null 2>&1; then
+	ok "dotnet: $(mise exec -- dotnet --version 2>/dev/null || echo 'installed')"
+else
+	warn "dotnet not resolvable via mise — check 'mise doctor'"
+fi
+
+mise ls --installed || true
+ok "dev toolchain ready"

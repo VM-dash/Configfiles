@@ -1,0 +1,35 @@
+# Upstream repos cloned straight into the target state.
+#
+# `chezmoi apply` clones anything missing; `chezmoi update` pulls (--ff-only).
+# refreshPeriod keeps apply fast by not hitting the network more than weekly.
+#
+# .chezmoiexternal.<format> is always interpreted as a template, so the seven
+# entries are generated from one table rather than repeated verbatim.
+#
+# Why the tmux colour themes are cloned here rather than left to TPM:
+# catppuccin/tmux explicitly recommends AGAINST TPM (plugin name conflicts)
+# while rose-pine/tmux expects it. Cloning both to fixed paths and sourcing
+# only the active one from theme.conf sidesteps the disagreement entirely.
+# TPM is still used for the functional plugins (yank, fingers).
+#
+# NOTE: there is no rose-pine/bat repo — its .tmTheme files live in tm-theme.
+
+{{- $repos := dict
+      ".config/tmux/plugins/tpm"          "https://github.com/tmux-plugins/tpm.git"
+      ".config/tmux/plugins/tmux-yank"    "https://github.com/tmux-plugins/tmux-yank.git"
+      ".config/tmux/plugins/tmux-fingers" "https://github.com/Morantron/tmux-fingers.git"
+      ".config/tmux/themes/catppuccin"    "https://github.com/catppuccin/tmux.git"
+      ".config/tmux/themes/rose-pine"     "https://github.com/rose-pine/tmux.git"
+      ".config/bat/themes/catppuccin"     "https://github.com/catppuccin/bat.git"
+      ".config/bat/themes/rose-pine"      "https://github.com/rose-pine/tm-theme.git" -}}
+
+{{ range $dest, $url := $repos }}
+[{{ $dest | quote }}]
+    type = "git-repo"
+    url = {{ $url | quote }}
+    refreshPeriod = "168h"
+    [{{ $dest | quote }}.clone]
+        args = ["--depth", "1"]
+    [{{ $dest | quote }}.pull]
+        args = ["--ff-only"]
+{{ end -}}

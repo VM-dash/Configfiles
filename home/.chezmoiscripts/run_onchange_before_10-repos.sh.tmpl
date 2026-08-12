@@ -1,0 +1,129 @@
+{{ template "lib.sh" . }}
+
+# This script consumes packages.yaml (the COPR list), so it must re-run when
+# that file changes — otherwise adding a COPR here would silently never take
+# effect while 20-system-packages re-ran and then failed to find the package.
+# packages.yaml hash: {{ include ".chezmoidata/packages.yaml" | sha256sum }}
+
+step "Enabling third-party repositories"
+
+can_root || { warn "no sudo — skipping repository setup"; exit 0; }
+
+# ============================================================== Fedora ======
+if is_fedora; then
+	# dnf5 needs the copr/config-manager plugins. Present by default on
+	# Workstation, but a minimal/container image may not have them.
+	if ! $SUDO dnf -y install dnf5-plugins >/dev/null 2>&1; then
+		try $SUDO dnf -y install 'dnf-command(copr)' 'dnf-command(config-manager)'
+	fi
+
+	# Write a .repo file unless it already exists. Body comes from stdin, so
+	# each repo below is data rather than another copy of this logic.
+	add_repo() { # add_repo <label> <filename>   (repo body on stdin)
+		local label="$1" file="/etc/yum.repos.d/$2"
+		if [ -f "$file" ]; then
+			ok "$label repo already configured"
+			cat >/dev/null   # drain stdin so the heredoc does not block
+			return 0
+		fi
+		step "Repo: $label"
+		$SUDO tee "$file" >/dev/null
+	}
+
+	# --- Ghostty ------------------------------------------------------------
+	# Not in Fedora repos at any release. The widely-cited pgdev/ghostty COPR
+	# no longer exists; scottames/ghostty is the maintained one and has F44.
+	{{ range .packages.fedora.copr }}
+	if $SUDO dnf copr list 2>/dev/null | grep -q {{ . | quote }}; then
+		ok "COPR {{ . }} already enabled"
+	else
+		step "COPR: {{ . }}"
+		try $SUDO dnf -y copr enable {{ . | quote }}
+	fi
+	{{ end }}
+
+	# --- Claude Code (official, signed) -------------------------------------
+	add_repo "Claude Code" claude-code.repo <<-'EOF'
+		[claude-code]
+		name=Claude Code
+		baseurl=https://downloads.claude.ai/claude-code/rpm/stable
+		enabled=1
+		gpgcheck=1
+		gpgkey=https://downloads.claude.ai/keys/claude-code.asc
+	EOF
+
+{{ if .gui }}
+	# --- Visual Studio Code (Microsoft) -------------------------------------
+	# Native rather than Flatpak so the C# extension can see mise's dotnet SDK
+	# and the editor can reach the host Docker socket.
+	try $SUDO rpm --import https://packages.microsoft.com/keys/microsoft.asc
+	add_repo "Microsoft VS Code" vscode.repo <<-'EOF'
+		[code]
+		name=Visual Studio Code
+		baseurl=https://packages.microsoft.com/yumrepos/vscode
+		enabled=1
+		autorefresh=1
+		type=rpm-md
+		gpgcheck=1
+		gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+	EOF
+
+	# --- Brave (official) ---------------------------------------------------
+	# Native because the Flatpak sandbox cannot read /etc/brave/policies/managed
+	# (flatpak#4709), so extensions and settings could not be managed
+	# declaratively. Native messaging and gnome-keyring also work properly.
+	try $SUDO rpm --import https://brave-browser-rpm-release.s3.brave.com/brave-core.asc
+	add_repo "Brave Browser" brave-browser.repo <<-'EOF'
+		[brave-browser]
+		name=Brave Browser
+		baseurl=https://brave-browser-rpm-release.s3.brave.com/x86_64/
+		enabled=1
+		gpgcheck=1
+		gpgkey=https://brave-browser-rpm-release.s3.brave.com/brave-core.asc
+	EOF
+{{ end }}
+
+{{ if .docker }}
+	# --- Docker CE ----------------------------------------------------------
+	# Uses config-manager rather than add_repo: Docker publishes a .repo file
+	# and dnf5 can consume it directly.
+	if [ -f /etc/yum.repos.d/docker-ce.repo ]; then
+		ok "Docker repo already configured"
+	else
+		step "Repo: Docker CE"
+		try $SUDO dnf -y config-manager addrepo \
+			--from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
+	fi
+{{ end }}
+fi
+
+# ================================================================ Arch ======
+if is_arch; then
+	info "Arch: ghostty is in [extra], no extra repos needed"
+{{ if .gui }}
+	if ! aur_helper >/dev/null; then
+		warn "No AUR helper (paru/yay) found — these will be skipped on Arch:"
+		warn "  {{ .packages.arch.aur_gui | join ", " }}"
+		warn "Install one, then re-run: chezmoi apply"
+	fi
+{{ end }}
+fi
+
+# ============================================================= Flathub ======
+{{ if .gui }}
+if ! has flatpak; then
+	warn "flatpak not installed — GUI apps will be skipped"
+elif is_container; then
+	info "container detected — skipping Flathub setup"
+else
+	step "Flathub remote"
+	# Fedora ships Flathub disabled (and historically filtered), so both
+	# calls are needed on a fresh Workstation install.
+	try flatpak remote-add --if-not-exists --user \
+		flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+	try flatpak remote-modify --user --no-filter --enable flathub
+	ok "Flathub enabled for the user installation"
+fi
+{{ end }}
+
+ok "repositories ready"

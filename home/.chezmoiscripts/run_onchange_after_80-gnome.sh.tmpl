@@ -1,0 +1,88 @@
+{{ template "lib.sh" . }}
+
+# extensions hash: {{ .packages.common.gnome_extensions | toJson | sha256sum }}
+# mono font hash:  {{ printf "%s %v" .font.mono .font.size_ui | sha256sum }}
+
+step "Configuring GNOME"
+
+if ! is_gnome; then
+	info "target desktop is not GNOME — skipping"
+	exit 0
+fi
+
+if is_container; then
+	info "container detected — skipping GNOME configuration"
+	exit 0
+fi
+
+# ======================================================== Shell extensions ==
+# The built-in `gnome-extensions` tool can only install from a local .zip, so
+# it cannot fetch from extensions.gnome.org. `gext` can.
+if ! has gext; then
+	step "Installing gnome-extensions-cli"
+	if has pipx; then
+		try pipx install --system-site-packages gnome-extensions-cli
+		export PATH="$HOME/.local/bin:$PATH"
+	else
+		warn "pipx not available — cannot install gext"
+	fi
+fi
+
+if has gext; then
+	{{ range .packages.common.gnome_extensions }}
+	step "Extension: {{ . }}"
+	# --filesystem installs without needing a live D-Bus session, which also
+	# avoids the GUI confirmation dialog the D-Bus backend triggers.
+	try gext --filesystem install {{ . | quote }}
+	try gext --filesystem enable  {{ . | quote }}
+	{{- end }}
+else
+	warn "gext unavailable — install extensions manually from extensions.gnome.org"
+fi
+
+# User Themes: required for a custom GNOME Shell theme (reads ~/.themes only).
+USER_THEME_UUID="user-theme@gnome-shell-extensions.gcampax.github.com"
+if [ -d "/usr/share/gnome-shell/extensions/$USER_THEME_UUID" ]; then
+	try gnome-extensions enable "$USER_THEME_UUID"
+	ok "User Themes enabled"
+fi
+
+# ============================================================== gsettings ===
+# Theme-related keys are intentionally NOT set here — `theme` owns those, so
+# that switching theme does not require a re-apply.
+step "Applying GNOME preferences"
+
+gset() {
+	if gsettings writable "$1" "$2" >/dev/null 2>&1; then
+		gsettings set "$1" "$2" "$3" 2>/dev/null || warn "could not set $1 $2"
+	fi
+}
+
+# --- Interface --------------------------------------------------------------
+gset org.gnome.desktop.interface clock-show-weekday        true
+gset org.gnome.desktop.interface clock-show-seconds        false
+gset org.gnome.desktop.interface show-battery-percentage   true
+gset org.gnome.desktop.interface enable-hot-corners        false
+gset org.gnome.desktop.interface monospace-font-name       '{{ .font.mono }} {{ .font.size_ui }}'
+
+# --- Files ------------------------------------------------------------------
+gset org.gtk.gtk4.Settings.FileChooser sort-directories-first true
+gset org.gtk.Settings.FileChooser      sort-directories-first true
+gset org.gnome.nautilus.preferences    default-folder-viewer  "'list-view'"
+
+# --- Input ------------------------------------------------------------------
+gset org.gnome.desktop.peripherals.touchpad tap-to-click     true
+gset org.gnome.desktop.peripherals.touchpad natural-scroll   true
+
+# --- Window management ------------------------------------------------------
+gset org.gnome.mutter center-new-windows          true
+gset org.gnome.mutter dynamic-workspaces          true
+gset org.gnome.desktop.wm.preferences button-layout "'appmenu:minimize,maximize,close'"
+
+# --- Privacy ----------------------------------------------------------------
+gset org.gnome.desktop.privacy remember-recent-files true
+gset org.gnome.desktop.screensaver lock-enabled      true
+
+ok "GNOME configured"
+warn "Newly installed extensions need a LOG OUT and back in to activate."
+warn "(Fedora 44 is Wayland-only, so the shell cannot be restarted in place.)"

@@ -1,0 +1,21 @@
+{{ template "lib.sh" . }}
+
+step "Installing tmux plugins"
+
+TPM="$XDG_CONFIG_HOME/tmux/plugins/tpm"
+
+if [ ! -x "$TPM/bin/install_plugins" ]; then
+	warn "TPM not found at $TPM — externals may not have been fetched"
+	exit 0
+fi
+
+have_tool tmux || { warn "tmux not installed yet — skipping plugin install"; exit 0; }
+
+# TPM shells out to tmux, so it must be on PATH (mise shims cover this).
+export TMUX_PLUGIN_MANAGER_PATH="$XDG_CONFIG_HOME/tmux/plugins/"
+
+# The colour themes are cloned directly by .chezmoiexternal.toml, so TPM only
+# has the functional plugins (yank, fingers) to deal with here.
+try "$TPM/bin/install_plugins"
+
+ok "tmux plugins installed"

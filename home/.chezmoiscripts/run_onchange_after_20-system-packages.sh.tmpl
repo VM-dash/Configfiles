@@ -1,0 +1,61 @@
+{{ template "lib.sh" . }}
+
+# Re-runs only when the lists THIS script consumes change. Hashing the whole of
+# packages.yaml would make adding one Flatpak re-run a full dnf transaction.
+# dnf packages hash: {{ dict "f" .packages.fedora "a" .packages.arch | toJson | sha256sum }}
+
+step "Installing system packages"
+
+can_root || { warn "no sudo — skipping system packages"; exit 0; }
+
+# ============================================================== Fedora ======
+if is_fedora; then
+	PKGS="{{ .packages.fedora.dnf | join " " }}"
+{{- if .gui }}
+	PKGS="$PKGS {{ .packages.fedora.dnf_gui | join " " }}"
+{{- end }}
+{{- if .docker }}
+	PKGS="$PKGS {{ .packages.fedora.dnf_docker | join " " }}"
+{{- end }}
+{{- if eq .desktop "gnome" }}
+	PKGS="$PKGS {{ .packages.fedora.dnf_gnome | join " " }}"
+{{- end }}
+
+	info "dnf install: $PKGS"
+	# --skip-unavailable keeps one bad package name from aborting everything
+	# (e.g. a COPR that has not built for this Fedora release yet).
+	$SUDO dnf install -y --skip-unavailable $PKGS
+
+# ================================================================ Arch ======
+elif is_arch; then
+	PKGS="{{ .packages.arch.pacman | join " " }}"
+{{- if .gui }}
+	PKGS="$PKGS {{ .packages.arch.pacman_gui | join " " }}"
+{{- end }}
+{{- if .docker }}
+	PKGS="$PKGS {{ .packages.arch.pacman_docker | join " " }}"
+{{- end }}
+{{- if eq .desktop "gnome" }}
+	PKGS="$PKGS {{ .packages.arch.pacman_gnome | join " " }}"
+{{- end }}
+
+	info "pacman install: $PKGS"
+	$SUDO pacman -Sy --needed --noconfirm $PKGS
+
+{{- if .gui }}
+	# VS Code and Brave are AUR-only on Arch.
+	AUR_HELPER="$(aur_helper || true)"
+	if [ -n "$AUR_HELPER" ]; then
+		step "AUR packages (via $AUR_HELPER)"
+		try "$AUR_HELPER" -S --needed --noconfirm {{ .packages.arch.aur_gui | join " " }}
+	else
+		warn "No AUR helper (paru/yay) — skipped: {{ .packages.arch.aur_gui | join ", " }}"
+	fi
+{{- end }}
+
+else
+	warn "unsupported distro family '$DISTRO_FAMILY' — skipping system packages"
+	exit 0
+fi
+
+ok "system packages installed"

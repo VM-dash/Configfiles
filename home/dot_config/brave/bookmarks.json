@@ -1,0 +1,231 @@
+{
+   "checksum": "e455761ade31698655195702f29e4d36",
+   "roots": {
+      "bookmark_bar": {
+         "children": [ {
+            "date_added": "13414068348415871",
+            "date_last_used": "13425747266153616",
+            "guid": "947a2c94-029e-4371-a153-96ccdae22be2",
+            "id": "17",
+            "name": "kardham RH",
+            "type": "url",
+            "url": "https://amsycom.sharepoint.com/sites/kardhamRH"
+         }, {
+            "children": [ {
+               "date_added": "13413917736000000",
+               "date_last_used": "13429812853125480",
+               "guid": "f567e5e3-a6a1-4183-8864-ade89668078c",
+               "id": "5",
+               "name": "Nibelis",
+               "type": "url",
+               "url": "https://client.nibelis.com/servlet/Gestion?CONVERSATION=SA_HomeSalarieV3&MAJ=N&ID=1&ACTION=MODI"
+            }, {
+               "date_added": "13427970721197867",
+               "date_last_used": "13428678736699371",
+               "guid": "e1d4def3-f534-40fd-94f9-2e27b5494241",
+               "id": "42",
+               "name": "TT",
+               "type": "url",
+               "url": "https://client.nibelis.com/servlet/Gestion?CONVERSATION=AccueilCongeV2&TYPE_DEMA=TELE"
+            }, {
+               "date_added": "13427970768905005",
+               "date_last_used": "13428077742523936",
+               "guid": "f6eebd6a-4075-44bd-bc57-5c6e165c9dd9",
+               "id": "43",
+               "name": "CP",
+               "type": "url",
+               "url": "https://client.nibelis.com/servlet/Gestion?CONVERSATION=AccueilCongeV2&MAJ=N&EXEC=N&ACTION=MODI&AFFI_ANNE=&TYPE_DEMA=ABSE"
+            } ],
+            "date_added": "13427970705373080",
+            "date_last_used": "0",
+            "date_modified": "13427970768905005",
+            "guid": "44aa6153-38d6-450f-8b36-36320acaf165",
+            "id": "41",
+            "name": "Nibelis",
+            "type": "folder"
+         }, {
+            "date_added": "13418908160915214",
+            "date_last_used": "13429265922599346",
+            "guid": "9f78bbcb-dfb7-4540-bcdc-9ffa5975eed4",
+            "id": "37",
+            "name": "N2F",
+            "type": "url",
+            "url": "https://app.n2f.com/legacy/Reports/Edit/MTEyNzEwNDQ="
+         }, {
+            "date_added": "13416941706976669",
+            "date_last_used": "13427392631951929",
+            "guid": "71ea6932-cc15-42a1-9567-911e500e7c73",
+            "id": "33",
+            "name": "Account",
+            "type": "url",
+            "url": "https://myaccount.microsoft.com/"
+         }, {
+            "date_added": "13413918744000000",
+            "date_last_used": "13427392606008280",
+            "guid": "661d18eb-8218-45a9-a427-e54d150eebbe",
+            "id": "6",
+            "name": "",
+            "type": "url",
+            "url": "https://outlook.office.com/mail/0/"
+         }, {
+            "date_added": "13413982974000000",
+            "date_last_used": "13415128406794483",
+            "guid": "f729360c-5018-41a5-9542-5b264735254e",
+            "id": "7",
+            "name": "Wimi",
+            "type": "url",
+            "url": "https://kd.wimi.pro/#/@home"
+         }, {
+            "date_added": "13426266651066004",
+            "date_last_used": "13429705848440080",
+            "guid": "6ecad905-a60e-41bc-9878-05565fafe495",
+            "id": "39",
+            "name": "CFL OpenProject",
+            "type": "url",
+            "url": "https://kardham-digital.openproject.com/projects/cfl-gestion-des-demandes/work_packages?query_id=360"
+         }, {
+            "date_added": "13413983198000000",
+            "date_last_used": "13426603993208582",
+            "guid": "8744257b-921d-4f50-8f23-746d501329ba",
+            "id": "9",
+            "name": "Miro",
+            "type": "url",
+            "url": "https://miro.com/app/board/uXjVGKSHr7k=/"
+         }, {
+            "date_added": "13413983351000000",
+            "date_last_used": "13425739771228495",
+            "guid": "321ecaad-c835-4440-9d7b-da5315de7cb4",
+            "id": "10",
+            "name": "Atlassian",
+            "type": "url",
+            "url": "https://kardham-digital.atlassian.net/wiki/home"
+         }, {
+            "date_added": "13413983653000000",
+            "date_last_used": "13425739766889550",
+            "guid": "ab4ba7ce-516e-49fc-8e00-e5b45753e68e",
+            "id": "11",
+            "name": "Projects",
+            "type": "url",
+            "url": "https://tevolys.visualstudio.com/"
+         }, {
+            "children": [ {
+               "date_added": "13413984228000000",
+               "date_last_used": "13415386730588890",
+               "guid": "57c61df3-7aa3-42a7-948b-29f977885aa4",
+               "id": "13",
+               "name": "OPC Foundation · GitHub",
+               "type": "url",
+               "url": "https://github.com/OPCFoundation"
+            } ],
+            "date_added": "13413995380509808",
+            "date_last_used": "0",
+            "date_modified": "0",
+            "guid": "b8905749-77c7-4669-b97f-d189c7e7c605",
+            "id": "12",
+            "name": "Docs",
+            "type": "folder"
+         }, {
+            "children": [ {
+               "date_added": "13415992317292558",
+               "date_last_used": "13427971839453327",
+               "guid": "6ccad6b4-37b4-42a9-966f-afcf3476f01b",
+               "id": "27",
+               "name": "Blazor: UI Components | DevExpress",
+               "type": "url",
+               "url": "https://demos.devexpress.com/blazor/"
+            }, {
+               "date_added": "13416415138627693",
+               "date_last_used": "0",
+               "guid": "a3917eb7-fd24-4b24-993d-8f746521d91c",
+               "id": "29",
+               "name": "Clearfix · Bootstrap v5.3",
+               "type": "url",
+               "url": "https://getbootstrap.com/docs/5.3/helpers/clearfix/"
+            }, {
+               "date_added": "13416499567881590",
+               "date_last_used": "0",
+               "guid": "64d4c937-bf13-47b5-80ec-9b0ba8634d8b",
+               "id": "31",
+               "name": "Pages - Admin Dashboard UI Kit - Email",
+               "type": "url",
+               "url": "https://pages.revox.io/dashboard/latest/html/condensed/email.html"
+            } ],
+            "date_added": "13415992314224684",
+            "date_last_used": "0",
+            "date_modified": "13416499567881591",
+            "guid": "af23bef2-5de0-427f-aa8b-f1e9da152071",
+            "id": "26",
+            "name": "UI",
+            "type": "folder"
+         }, {
+            "date_added": "13414001562005881",
+            "date_last_used": "13423671612647299",
+            "guid": "619032d5-9239-4963-bb7c-b47bcf184826",
+            "id": "15",
+            "name": "Trombi",
+            "type": "url",
+            "url": "https://amsycom.sharepoint.com/sites/kardhamRH/Shared%20Documents/Forms/AllItems.aspx?viewid=cd14fb8f-6a7f-4d43-b47b-fe06afe5cf90&id=%2Fsites%2FkardhamRH%2FShared%20Documents%2FPage%20de%20garde%2FKardham-Trombinoscope%2Epdf&parent=%2Fsites%2FkardhamRH%2FShared%20Documents%2FPage%20de%20garde"
+         }, {
+            "date_added": "13414149222467223",
+            "date_last_used": "0",
+            "guid": "bd596ce8-448d-42fb-b000-61f0e2cce235",
+            "id": "19",
+            "name": "KD Convergence - 2.4.3",
+            "type": "url",
+            "url": "https://auditoriumsquare.kd-convergence.io/"
+         }, {
+            "date_added": "13414510472887758",
+            "date_last_used": "13420027494243923",
+            "guid": "a36e0372-e669-4ac9-9966-204ce3df4e03",
+            "id": "21",
+            "name": "KD Cockpit - Miro",
+            "type": "url",
+            "url": "https://miro.com/app/board/uXjVOoUFRDc=/?userEmail=vmasson@kardham-digital.com&track=true&utm_source=notification&utm_medium=email&utm_campaign=add-to-board&utm_content=go-to-board&share_link_id=372806744956&lid=v3cxf29akkzr"
+         }, {
+            "date_added": "13414579921544351",
+            "date_last_used": "13426158872612159",
+            "guid": "850018e9-fcaf-441d-8bf8-dbf00ee9198c",
+            "id": "22",
+            "name": "Génération",
+            "type": "url",
+            "url": "https://assure.generation.fr/adherent"
+         }, {
+            "date_added": "13415096565694367",
+            "date_last_used": "13425739773131260",
+            "guid": "d6acfeeb-031a-4468-b11f-7d5ae4982973",
+            "id": "24",
+            "name": "Développer un connecteur - Produit KD Convergence - Confluence",
+            "type": "url",
+            "url": "https://kardham-digital.atlassian.net/wiki/spaces/GB/pages/15303096/D+velopper+un+connecteur"
+         } ],
+         "date_added": "13413995310038042",
+         "date_last_used": "0",
+         "date_modified": "13427970708813834",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "Bookmarks bar",
+         "type": "folder"
+      },
+      "other": {
+         "children": [  ],
+         "date_added": "13413995310038042",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "Other bookmarks",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [  ],
+         "date_added": "13413995310038042",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "Mobile bookmarks",
+         "type": "folder"
+      }
+   },
+   "version": 1
+}

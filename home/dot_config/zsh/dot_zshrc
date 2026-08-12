@@ -1,0 +1,138 @@
+# Set up the prompt
+
+autoload -Uz promptinit
+promptinit
+# prompt adam1
+
+setopt histignorealldups sharehistory
+
+# Use emacs keybindings even if our EDITOR is set to vi
+bindkey -e
+bindkey "^[[1;5C" forward-word
+bindkey "^[[1;5D" backward-word
+
+# Keep 1000 lines of history within the shell and save it to ~/.zsh_history:
+HISTSIZE=1000
+SAVEHIST=1000
+HISTFILE=~/.zsh_history
+
+# Use modern completion system
+autoload -Uz compinit
+# The dump file is kept in the cache dir rather than beside this config, so
+# that chezmoi does not see a stray generated file in a managed directory.
+[[ -d ${XDG_CACHE_HOME:-$HOME/.cache}/zsh ]] || mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+compinit -d "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-${ZSH_VERSION}"
+
+zstyle ':completion:*' auto-description 'specify: %d'
+zstyle ':completion:*' completer _expand _complete _correct _approximate
+zstyle ':completion:*' format 'Completing %d'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' menu select=2
+# dircolors output depends only on the binary, so cache it rather than forking
+# a process on every single shell start.
+_zcache="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+if [[ ! -s $_zcache/dircolors.zsh || $commands[dircolors] -nt $_zcache/dircolors.zsh ]]; then
+  dircolors -b >| $_zcache/dircolors.zsh 2>/dev/null
+fi
+source $_zcache/dircolors.zsh 2>/dev/null
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
+zstyle ':completion:*' menu select=long
+zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+zstyle ':completion:*' use-compctl false
+zstyle ':completion:*' verbose true
+
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
+
+
+
+########################################
+#
+########################################
+
+
+export EDITOR=nvim
+export VISUAL=nvim
+
+alias '..'='cd ..'
+alias '...'='cd ../..'
+alias '....'='cd ../../..'
+alias '.....'='cd ../../../..'
+
+# eza comes from mise. Fall back to coreutils ls if it is not installed yet,
+# so a half-provisioned machine still has a usable shell.
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza --color=always --group-directories-first --icons'
+  alias ll='eza -la --icons --octal-permissions --group-directories-first'
+  alias tree='eza --tree --level=2 --color=always --group-directories-first --icons'
+else
+  alias ls='ls --color=auto --group-directories-first'
+  alias ll='ls -la --color=auto --group-directories-first'
+fi
+
+## Open with current path
+# Original version used `wslpath`, which only exists under WSL. On Linux the
+# portable equivalent is OSC 7: it tells the terminal (Ghostty, and most
+# others) the current directory, so a new tab or split opens in the same place.
+keep_current_path() {
+  printf '\e]7;file://%s%s\e\\' "${HOST:-$HOSTNAME}" "$PWD"
+}
+precmd_functions+=(keep_current_path)
+
+# `starship init zsh` prints a stub that then re-runs starship with
+# --print-full-init, so the plain form executes the binary twice on every
+# shell start. Going straight to the full init is byte-identical and halves it.
+eval "$(starship init zsh --print-full-init)"
+
+# typeset -U keeps PATH deduplicated: .zshrc is re-sourced by nested shells and
+# by `exec zsh` (which `theme` tells you to run), and duplicates accumulate.
+typeset -U path PATH
+export PATH=$HOME/.local/bin:$PATH
+
+########################################
+# Added for this machine
+########################################
+
+# --- mise: dev toolchain (node, dotnet, neovim, tmux, cli tools) ------------
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
+
+# --- Colours from the active theme ------------------------------------------
+# Written by `theme`; sets BAT_THEME, FZF_DEFAULT_OPTS, THEME_NAME, ...
+[[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/theme/current.sh" ]] \
+  && source "${XDG_CONFIG_HOME:-$HOME/.config}/theme/current.sh"
+
+# --- zoxide: smarter cd ------------------------------------------------------
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+  alias cd='z'
+fi
+
+# --- fzf: Ctrl-R history search, Ctrl-T file search --------------------------
+if command -v fzf >/dev/null 2>&1; then
+  source <(fzf --zsh) 2>/dev/null || true
+  if command -v fd >/dev/null 2>&1; then
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  fi
+fi
+
+# --- Convenience -------------------------------------------------------------
+alias v='nvim'
+alias lg='lazygit'
+alias g='git'
+alias dc='docker compose'
+alias cm='chezmoi'
+alias cme='chezmoi edit --apply'
+alias cma='chezmoi apply'
+
+# `mkcd foo/bar` — make a directory and enter it.
+mkcd() { mkdir -p "$1" && cd "$1"; }
+
+# --- Local, untracked overrides ---------------------------------------------
+# Machine-specific secrets and tweaks that must not go in the git repo.
+[[ -r "$ZDOTDIR/local.zsh" ]] && source "$ZDOTDIR/local.zsh"

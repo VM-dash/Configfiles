@@ -1,0 +1,77 @@
+# Brave browser configuration, applied as a Chromium enterprise policy.
+#
+# Written to /etc/brave/policies/managed/configfiles.json by
+# run_once_after_47-brave.sh. This only works with the NATIVE Brave package —
+# the Flatpak sandbox cannot read /etc/brave (flatpak#4709), which is why
+# Brave is in packages.fedora.dnf_gui rather than the flatpak list.
+#
+# Nothing in this file is sensitive: extension IDs are public Chrome Web Store
+# identifiers. Bookmarks are handled separately (see the brave script) because
+# they contain internal URLs and this repo is public.
+#
+# Full policy reference: https://chromeenterprise.google/policies/
+
+brave:
+  # Profile folder that corresponds to the "KD" profile on the Windows machine.
+  # Brave names the first profile "Default" on disk regardless of display name.
+  profile_dir: Default
+  profile_name: KD
+
+  # ---------------------------------------------------------- extensions --
+  # Force-installed from the Chrome Web Store on first launch.
+  #
+  # TRADE-OFF: force-installed extensions cannot be removed from within the
+  # browser — to drop one, delete it here and re-run `chezmoi apply`. That is
+  # the price of declarative installation; Chromium has no "install once, then
+  # let the user manage it" policy.
+  extensions:
+    - id: jcokkipkhhgiakinbnnplhkdbjbgcgpe
+      name: uBlock Origin
+    - id: fdjamakpfbbddfjaooikfcpapjohcfmg
+      name: Dashlane — Password Manager
+    - id: keafkoopbkbjlbbedmonhnfgfciaphdb
+      name: LockSelf - Professional Password Manager
+    - id: blgipgnbmnikbdecnjmgckmndlkebhid
+      name: PDF-XChange
+    - id: lmhkpmbekcpmknklioeibfkpmmfibljd
+      name: Redux DevTools
+    - id: pfddbenemjnlceffaemllejnjbobadhp
+      name: Blazor Developer Tools
+
+  # Chrome Web Store update endpoint. Brave pulls CWS extensions from here.
+  update_url: "https://clients2.google.com/service/update2/crx"
+
+  # ------------------------------------------------------------- policies --
+  # Merged verbatim into the managed policy JSON. Keys are Chromium/Brave
+  # policy names, so anything from chromeenterprise.google/policies works here.
+  policies:
+    # --- privacy ---
+    BraveRewardsDisabled: true
+    BraveWalletDisabled: true
+    BraveVPNDisabled: true
+    BraveAIChatEnabled: false
+    MetricsReportingEnabled: false
+    SafeBrowsingProtectionLevel: 1        # 1 = standard, 0 = off
+    SearchSuggestEnabled: false
+    UrlKeyedAnonymizedDataCollectionEnabled: false
+
+    # --- passwords ---
+    # Off deliberately: credentials live in Dashlane / LockSelf, and Brave's
+    # own store would prompt for a keyring password on every launch.
+    PasswordManagerEnabled: false
+
+    # --- startup / UX ---
+    RestoreOnStartup: 1                   # 1 = restore last session
+    BookmarkBarEnabled: true
+    ShowHomeButton: true
+    DefaultBrowserSettingEnabled: true
+    PromotionalTabsEnabled: false
+    BackgroundModeEnabled: false
+
+    # --- updates ---
+    # The dnf repo handles updates; the in-browser updater is redundant and
+    # would fail without write access to /opt/brave.com.
+    ComponentUpdatesEnabled: true
+
+    # --- downloads ---
+    PromptForDownloadLocation: true

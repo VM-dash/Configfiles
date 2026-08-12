@@ -1,0 +1,35 @@
+# Single source of truth for fonts.
+#
+# Referenced by the Ghostty config, VS Code, Zed, Neovim's guifont, the GNOME
+# gsettings pass and the fontconfig rules. Change the family here and every
+# application follows on the next `chezmoi apply`.
+#
+# The families must match what `fc-list : family` reports after
+# run_onchange_after_55-fonts.sh has installed them.
+
+font:
+  # Patched Nerd Font — required for Starship glyphs, `eza --icons` and the
+  # Neovim statusline.
+  mono: "JetBrainsMono Nerd Font"
+  mono_fallback: "FiraCode Nerd Font"
+
+  # Nerd Fonts release archive names (the .zip stem), paired with the family
+  # each one installs. Both facets live here rather than the archive name
+  # sitting in packages.yaml — they are one fact about one font, and splitting
+  # them is what made the install script need a "did these drift apart?" check.
+  install:
+    - archive: JetBrainsMono
+      family: "JetBrainsMono Nerd Font"
+    - archive: FiraCode
+      family: "FiraCode Nerd Font"
+
+  # Terminal / editor sizes. Ghostty and GTK use points; VS Code and Zed use
+  # pixels, so they get their own value.
+  size_terminal: 11
+  size_ui: 11
+  size_editor_px: 14
+  size_terminal_px: 13
+
+  # Proportional families, left as the system defaults on Fedora 44.
+  sans: "Adwaita Sans"
+  serif: "Adwaita Serif"

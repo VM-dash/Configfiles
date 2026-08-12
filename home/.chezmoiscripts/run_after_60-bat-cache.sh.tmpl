@@ -1,0 +1,27 @@
+{{ template "lib.sh" . }}
+
+# Plain `run_` rather than run_onchange_ on themes.yaml: nothing in that file
+# causes new .tmTheme files to appear — the external clones do, on their own
+# refresh period. `bat cache --build` is cheap and idempotent, so just run it.
+
+step "Building the bat theme cache"
+
+# bat only sees .tmTheme files after an explicit cache build. The theme repos
+# themselves are cloned by .chezmoiexternal.toml into ~/.config/bat/themes/.
+have_tool bat || { warn "bat not installed yet — skipping cache build"; exit 0; }
+
+THEME_SRC="$XDG_CONFIG_HOME/bat/themes"
+if [ ! -d "$THEME_SRC" ]; then
+	warn "$THEME_SRC missing — externals may not have been fetched yet"
+	exit 0
+fi
+
+try run_tool bat cache --build
+
+# Surface what actually landed. The exact theme names in themes.yaml must match
+# these, and upstream occasionally renames them.
+info "available themes:"
+run_tool bat --list-themes 2>/dev/null | grep -iE 'catppuccin|ros' | sed 's/^/      /' || \
+	warn "no Catppuccin/Rose Pine themes found in bat — check the external clones"
+
+ok "bat theme cache built"

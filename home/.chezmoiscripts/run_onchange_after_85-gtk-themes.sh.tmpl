@@ -1,0 +1,95 @@
+{{ template "lib.sh" . }}
+
+# gtk theme names hash: {{ .themes | toJson | sha256sum }}
+
+{{ template "gui-only.sh" . }}
+
+step "Installing GTK themes (best-effort)"
+
+# ---------------------------------------------------------------------------
+# Read this before debugging anything here.
+#
+# GTK is the weakest link in the whole theme story and this script is written
+# to fail quietly rather than block a provision:
+#
+#   * catppuccin/gtk is ARCHIVED upstream, frozen at v1.0.3. Their own README
+#     calls consistent GTK theming "a nightmare to maintain".
+#   * rose-pine/gtk warns that its GTK3 theme shows inverted colours unless the
+#     system style is Light.
+#   * On GNOME 50 most apps are libadwaita and ignore `gtk-theme` entirely.
+#
+# So the real levers for a coherent desktop are `color-scheme` and
+# `accent-color`, which the `theme` script sets directly. What follows only
+# improves legacy GTK3 apps.
+# ---------------------------------------------------------------------------
+
+THEMES_XDG="$XDG_DATA_HOME/themes"   # read by gtk-theme
+THEMES_HOME="$HOME/.themes"          # the ONLY path the User Themes ext reads
+mkdir -p "$THEMES_XDG" "$THEMES_HOME"
+
+has unzip || { warn "unzip missing — skipping GTK themes"; exit 0; }
+has tar   || { warn "tar missing — skipping GTK themes"; exit 0; }
+
+# ========================================================== Catppuccin ======
+# The directory name is taken verbatim from themes.yaml rather than rebuilt
+# from a flavour list and an accent variable. Those were a second copy of the
+# same strings, so changing the accent in the catalog silently installed the
+# wrong directory and `theme` then found nothing to apply.
+install_catppuccin_gtk() {
+	local name="$1"
+
+	if [ -d "$THEMES_XDG/$name" ]; then
+		ok "GTK theme $name already present"
+		return 0
+	fi
+
+	local url="https://github.com/{{ .externals.catppuccin_gtk_repo }}/releases/download/{{ .externals.catppuccin_gtk_version }}/${name}.zip"
+	local tmp; tmp="$(mktemp -d)"
+	trap 'rm -rf "$tmp"' RETURN
+
+	curl -fsSL -o "$tmp/theme.zip" "$url" || { warn "download failed: $name"; return 1; }
+	unzip -qo "$tmp/theme.zip" -d "$THEMES_XDG" || return 1
+	ok "GTK theme $name installed"
+}
+
+{{ range .theme_order }}{{ $t := index $.themes . -}}
+{{ if eq $t.family "catppuccin" }}
+try install_catppuccin_gtk {{ $t.gtk | quote }}
+{{- end }}{{ end }}
+
+# ============================================================ Rose Pine =====
+# One tarball ships all three variants, so this runs once rather than per theme.
+install_rose_pine_gtk() {
+	if [ -d "$THEMES_XDG/rose-pine" ]; then
+		ok "Rose Pine GTK themes already present"
+		return 0
+	fi
+
+	local url tmp
+	url="$(gh_latest_asset "{{ .externals.rose_pine_gtk_repo }}" 'gtk3.*\.tar\.gz$')" || return 1
+	[ -n "$url" ] || { warn "no gtk3 asset in the latest rose-pine/gtk release"; return 1; }
+
+	tmp="$(mktemp -d)"
+	trap 'rm -rf "$tmp"' RETURN
+
+	curl -fsSL -o "$tmp/gtk3.tar.gz" "$url" || return 1
+	tar -xzf "$tmp/gtk3.tar.gz" -C "$THEMES_XDG" || return 1
+	ok "Rose Pine GTK themes installed"
+}
+
+try install_rose_pine_gtk
+
+# ---------------------------------------------------------------------------
+# The User Themes extension only reads ~/.themes, while gtk-theme reads both
+# ~/.themes and ~/.local/share/themes. Mirror by symlink so one install serves
+# both, without duplicating the files.
+for src in "$THEMES_XDG"/*; do
+	[ -d "$src" ] || continue
+	link="$THEMES_HOME/$(basename "$src")"
+	[ -e "$link" ] || ln -sfn "$src" "$link"
+done
+
+info "installed GTK themes:"
+ls -1 "$THEMES_XDG" 2>/dev/null | sed 's/^/      /' || true
+
+ok "GTK themes done (best-effort)"
