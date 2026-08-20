@@ -204,10 +204,12 @@ apply_nvim() {
 # --- druk -------------------------------------------------------------------
 # druk has no include and no RPC. Patch the live config in place so in-editor
 # settings survive; seed from the template only when config.json is missing.
-# themeSync must be turned off: it defaults to on, and the OS-appearance poll
-# then overwrites `theme` with themeDark/themeLight on the next launch — which
-# is why a write that only set `theme` never stuck. A running instance picks
-# this up on the next launch.
+# themeSync stays ON (same model as VS Code): druk picks themeDark/themeLight
+# from the OS at launch, and apply_gnome flips the OS to the chosen theme's
+# polarity — so writing the matching slot here is what makes the switch land.
+# `theme` is also written for the current session's next launch; themeSync
+# itself is user-owned and never touched. A running instance picks this up on
+# the next launch.
 apply_druk() {
 	local t="$1" name="${TH_druk:-}"
 	[ -n "$name" ] || return 0
@@ -220,7 +222,6 @@ apply_druk() {
 	local polarity="${TH_polarity:-}"
 	if ! jq --arg theme "$name" --arg polarity "$polarity" '
 		.theme = $theme
-		| .themeSync = false
 		| if $polarity == "light" then .themeLight = $theme
 		  elif $polarity == "dark" then .themeDark = $theme
 		  else . end
