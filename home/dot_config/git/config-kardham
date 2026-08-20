@@ -1,0 +1,6 @@
+# Kardham work identity — any repo under ~/Documents/kardham/ (Azure DevOps),
+# via the conditional includes at the bottom of ~/.config/git/config.
+# ~/Documents/kardham/tools/ is carved out for GitHub — see config-vmdash.
+[user]
+	name = Victor MASSON
+	email = vmasson@kardham-digital.com

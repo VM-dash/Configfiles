@@ -1,0 +1,12 @@
+# VM-dash GitHub identity — any repo under ~/Documents/kardham/tools/,
+# via the conditional includes at the bottom of ~/.config/git/config.
+# The email is the account's GitHub noreply address, so commits attribute to
+# VM-dash without publishing a real mailbox.
+[user]
+	name = Victor MASSON
+	email = 261883353+VM-dash@users.noreply.github.com
+
+# No dedicated SSH key yet: pushes currently go over HTTPS with gh's
+# credential helper. If a VM-dash key is created later, pin it here:
+#[core]
+#	sshCommand = ssh -i ~/.ssh/id_ed25519_vmdash -o IdentitiesOnly=yes

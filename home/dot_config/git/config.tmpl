@@ -60,5 +60,21 @@
 	unstage = restore --staged
 
 [include]
-	# Machine-specific overrides (work identity, proxies) — untracked.
+	# Machine-specific overrides (proxies, credentials) — untracked.
 	path = ~/.config/git/local
+
+# Per-directory identities — the LAST matching include wins, so the more
+# specific directory must come after the more general one.
+#
+#   ~/Documents/kardham/**        Azure DevOps   vmasson@kardham-digital.com
+#   ~/Documents/kardham/tools/**  GitHub         VM-dash
+#   ~/Documents/perso/**          GitHub         victormasson
+#
+# gitdir: matches with symlinks RESOLVED, so ~/.local/share/chezmoi (a
+# symlink into kardham/tools) still gets the VM-dash identity.
+[includeIf "gitdir:~/Documents/kardham/"]
+	path = ~/.config/git/config-kardham
+[includeIf "gitdir:~/Documents/kardham/tools/"]
+	path = ~/.config/git/config-vmdash
+[includeIf "gitdir:~/Documents/perso/"]
+	path = ~/.config/git/config-perso

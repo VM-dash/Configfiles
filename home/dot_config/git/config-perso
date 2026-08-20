@@ -1,0 +1,10 @@
+# Personal identity — applied to any repo under ~/Documents/perso/
+# via the conditional includes at the bottom of ~/.config/git/config.
+[user]
+	name = Victor MASSON
+	email = victor.massonv@gmail.com
+
+[core]
+	# Authenticate pushes/pulls with the personal key only, never the agent's
+	# other identities.
+	sshCommand = ssh -i ~/.ssh/id_ed25519_perso -o IdentitiesOnly=yes
