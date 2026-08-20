@@ -40,16 +40,10 @@ else
 	warn "gext unavailable — install extensions manually from extensions.gnome.org"
 fi
 
-# User Themes: required for a custom GNOME Shell theme (reads ~/.themes only).
-USER_THEME_UUID="user-theme@gnome-shell-extensions.gcampax.github.com"
-if [ -d "/usr/share/gnome-shell/extensions/$USER_THEME_UUID" ]; then
-	try gnome-extensions enable "$USER_THEME_UUID"
-	ok "User Themes enabled"
-fi
-
 # ============================================================== gsettings ===
-# Theme-related keys are intentionally NOT set here — `theme` owns those, so
-# that switching theme does not require a re-apply.
+# color-scheme and accent-color are left alone here (`theme` flips
+# color-scheme on an explicit switch, quick settings the rest of the time).
+# Every OTHER appearance style is pinned to stock Adwaita below.
 step "Applying GNOME preferences"
 
 gset() {
@@ -57,6 +51,17 @@ gset() {
 		gsettings set "$1" "$2" "$3" 2>/dev/null || warn "could not set $1 $2"
 	fi
 }
+
+# --- Appearance: pinned to Adwaita, permanently -----------------------------
+# The Tweaks styles — cursor, icons, shell, legacy (GTK3) applications — stay
+# stock Adwaita on every machine. `theme` never writes these keys; only
+# light/dark (color-scheme) ever changes.
+gset org.gnome.desktop.interface cursor-theme "'Adwaita'"
+gset org.gnome.desktop.interface icon-theme   "'Adwaita'"
+gset org.gnome.desktop.interface gtk-theme    "'Adwaita'"
+# Shell style: the empty string is the built-in Adwaita shell theme. The key
+# only exists with the user-theme extension; gset self-skips otherwise.
+gset org.gnome.shell.extensions.user-theme name "''"
 
 # --- Interface --------------------------------------------------------------
 gset org.gnome.desktop.interface clock-show-weekday        true

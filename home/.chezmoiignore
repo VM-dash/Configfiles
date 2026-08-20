@@ -25,6 +25,7 @@
 .config/ghostty/theme.conf
 .config/tmux/theme.conf
 .config/theme/current.sh
+.config/druk/config.json
 
 # --- Runtime state ----------------------------------------------------------
 .config/nvim/lazy-lock.json

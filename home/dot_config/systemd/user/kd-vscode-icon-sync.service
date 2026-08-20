@@ -1,0 +1,13 @@
+[Unit]
+Description=Sync the VS Code icon theme with the GNOME light/dark preference
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Environment=PATH=%h/.local/bin:/usr/bin
+ExecStart=%h/.local/bin/kd-vscode-icon-sync watch
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target

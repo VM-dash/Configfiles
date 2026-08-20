@@ -82,23 +82,34 @@ keep_current_path() {
 }
 precmd_functions+=(keep_current_path)
 
-# `starship init zsh` prints a stub that then re-runs starship with
-# --print-full-init, so the plain form executes the binary twice on every
-# shell start. Going straight to the full init is byte-identical and halves it.
-eval "$(starship init zsh --print-full-init)"
+########################################
+# Added for this machine
+########################################
 
+# --- PATH -------------------------------------------------------------------
 # typeset -U keeps PATH deduplicated: .zshrc is re-sourced by nested shells and
 # by `exec zsh` (which `theme` tells you to run), and duplicates accumulate.
 typeset -U path PATH
 export PATH=$HOME/.local/bin:$PATH
 
-########################################
-# Added for this machine
-########################################
-
 # --- mise: dev toolchain (node, dotnet, neovim, tmux, cli tools) ------------
+# Must come before anything that *runs* a mise-managed tool at startup:
+# `mise activate` is what puts ~/.local/share/mise/installs/*/ on PATH, and
+# starship below is one of those installs.
 if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
+fi
+
+# --- Prompt ------------------------------------------------------------------
+# `starship init zsh` prints a stub that then re-runs starship with
+# --print-full-init, so the plain form executes the binary twice on every
+# shell start. Going straight to the full init is byte-identical and halves it.
+#
+# Guarded: an unguarded eval on a half-provisioned machine prints "command not
+# found" and silently leaves you on zsh's default prompt, which reads as
+# "starship is broken" rather than "starship is not on PATH yet".
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh --print-full-init)"
 fi
 
 # --- Colours from the active theme ------------------------------------------

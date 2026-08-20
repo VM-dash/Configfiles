@@ -4,8 +4,8 @@ step "Applying theme"
 
 # Runs on EVERY apply (plain run_, not run_once_) because it regenerates the
 # files chezmoi deliberately does not manage: starship.toml, ghostty/theme.conf,
-# tmux/theme.conf and the shell colour exports. If the catalog or the starship
-# template changes, this is what propagates it.
+# tmux/theme.conf, druk/config.json and the shell colour exports. If the catalog
+# or a template changes, this is what propagates it.
 
 THEME_BIN="$HOME/.local/bin/theme"
 

@@ -46,7 +46,7 @@ install_claude_desktop() {
 	local repo="{{ .externals.claude_desktop_repo }}"
 	local arch; arch="$(uname -m)"
 
-	local pattern url tmp
+	local pattern url
 	if is_fedora; then
 		pattern="\\.${arch}\\.rpm$"
 	else
@@ -59,33 +59,40 @@ install_claude_desktop() {
 		return 1
 	fi
 
-	tmp="$(mktemp -d)"
-	trap 'rm -rf "$tmp"' RETURN
-	info "downloading $(basename "$url")"
-	curl -fsSL -o "$tmp/$(basename "$url")" "$url" || return 1
+	# Subshell so the EXIT trap is scoped to it. A `trap ... RETURN` in the
+	# function body would be GLOBAL rather than function-scoped: it would
+	# outlive this function and re-fire on the next function's return, where
+	# `$tmp` is out of scope and `set -u` makes the cleanup fatal.
+	(
+		tmp="$(mktemp -d)"
+		trap 'rm -rf "$tmp"' EXIT
+		info "downloading $(basename "$url")"
+		curl -fsSL -o "$tmp/$(basename "$url")" "$url" || exit 1
 
-	if is_fedora; then
-		[ -n "$SUDO" ] || return 1
-		$SUDO dnf install -y "$tmp"/*.rpm || return 1
-	else
-		# AppImage path (Arch: the AUR package was removed as a duplicate).
-		local dest="$XDG_DATA_HOME/claude-desktop"
-		mkdir -p "$dest"
-		install -m 0755 "$tmp"/*.AppImage "$dest/claude-desktop.AppImage" || return 1
-		mkdir -p "$XDG_DATA_HOME/applications"
-		cat > "$XDG_DATA_HOME/applications/claude-desktop.desktop" <<-EOF
-			[Desktop Entry]
-			Type=Application
-			Name=Claude
-			Comment=Claude Desktop (unofficial Linux build)
-			Exec=${dest}/claude-desktop.AppImage %U
-			Icon=claude-desktop
-			Terminal=false
-			Categories=Utility;Development;
-			StartupWMClass=Claude
-		EOF
-		try update-desktop-database "$XDG_DATA_HOME/applications"
-	fi
+		if is_fedora; then
+			[ -n "$SUDO" ] || exit 1
+			$SUDO dnf install -y "$tmp"/*.rpm || exit 1
+		else
+			# AppImage path (Arch: the AUR package was removed as a duplicate).
+			dest="$XDG_DATA_HOME/claude-desktop"
+			mkdir -p "$dest"
+			install -m 0755 "$tmp"/*.AppImage "$dest/claude-desktop.AppImage" || exit 1
+			mkdir -p "$XDG_DATA_HOME/applications"
+			cat > "$XDG_DATA_HOME/applications/claude-desktop.desktop" <<-EOF
+				[Desktop Entry]
+				Type=Application
+				Name=Claude
+				Comment=Claude Desktop (unofficial Linux build)
+				Exec=${dest}/claude-desktop.AppImage %U
+				Icon=claude-desktop
+				Terminal=false
+				Categories=Utility;Development;
+				StartupWMClass=Claude
+			EOF
+			try update-desktop-database "$XDG_DATA_HOME/applications"
+		fi
+	) || return 1
+
 	ok "Claude Desktop installed (unofficial repackage of the official build)"
 }
 

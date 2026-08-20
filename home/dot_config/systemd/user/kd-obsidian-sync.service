@@ -1,0 +1,13 @@
+[Unit]
+Description=Bisync KD-Obsidian vault to Kardham OneDrive
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Nice=10
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/bin
+ExecStart=%h/.local/bin/kd-obsidian-sync
+
+[Install]
+WantedBy=default.target

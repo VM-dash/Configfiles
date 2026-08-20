@@ -33,16 +33,19 @@
   },
 
   // -------------------------------------------------------------- theme --
-  // VS Code cannot follow the system `theme` command live, so it is set to
-  // follow the OS light/dark preference, which `theme` does update via
-  // org.gnome.desktop.interface color-scheme.
+  // VS Code follows GNOME light/dark: autoDetectColorScheme picks between
+  // the preferred dark/light colour themes below, and `theme` rewrites the
+  // slot matching the chosen theme's polarity (it also flips GNOME to that
+  // polarity, which is what makes the switch visible immediately).
+  // Icons are catppuccin-mocha (dark) / catppuccin-latte (light), kept in
+  // step with GNOME by kd-vscode-icon-sync.service — `theme` never touches
+  // them, so they don't change with the theme family, only with light/dark.
+  // Requires Catppuccin.catppuccin-vsc, Catppuccin.catppuccin-vsc-icons,
+  // mvllow.rose-pine.
   "window.autoDetectColorScheme": true,
-  // These require the Catppuccin extension (`code --install-extension
-  // Catppuccin.catppuccin-vsc`); VS Code falls back to its default theme if
-  // it is absent. Unlike the terminal apps, VS Code cannot follow the live
-  // `theme` switch — only the OS light/dark preference, which `theme` sets.
   "workbench.preferredDarkColorTheme": "Catppuccin Mocha",
   "workbench.preferredLightColorTheme": "Catppuccin Latte",
+  "workbench.iconTheme": "catppuccin-mocha",
 
   // ------------------------------------------------------------- editor --
   "editor.renderWhitespace": "boundary",
@@ -61,5 +64,10 @@
 
   "telemetry.telemetryLevel": "off",
   "update.mode": "none",
-  "window.titleBarStyle": "custom"
+
+  // ------------------------------------------------------------- window --
+  "window.titleBarStyle": "custom",
+  "window.commandCenter": false,
+  "chat.titleBar.openInAgentsWindow.enabled": false,
+  "chat.titleBar.signIn.enabled": false
 }

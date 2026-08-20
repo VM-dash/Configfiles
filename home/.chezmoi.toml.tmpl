@@ -23,8 +23,6 @@
 {{- end -}}
 {{- $desktop := promptStringOnce . "desktop" "Desktop environment [gnome|hyprland|none]" $detected -}}
 
-encryption = "none"
-
 [data]
 name    = {{ $name    | quote }}
 email   = {{ $email   | quote }}

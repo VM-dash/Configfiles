@@ -1,0 +1,16 @@
+{
+  "theme": "rose-pine",
+  "themeSync": false,
+  "transparent": false,
+  "iconTheme": "nerd",
+  "tabSize": 4,
+  "cursorStyle": "block",
+  "wrap": false,
+  "scrollPastEnd": true,
+  "vim": false,
+  "trimOnSave": true,
+  "autoSaveOnBlur": true,
+  "showDotfiles": true,
+  "respectGitignore": false,
+  "diffView": "inline"
+}

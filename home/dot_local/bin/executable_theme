@@ -13,8 +13,10 @@
 #
 # Flags:  --quiet / -q     only print warnings and errors
 #
-# Covers: Ghostty · tmux · Neovim · Starship · bat · fzf · delta · GNOME ·
-#         Hyprland (stub). Everything that can reload live, does.
+# Covers: Ghostty · tmux · Neovim · druk · VS Code · Zed · Starship · bat ·
+#         fzf · delta · GNOME light/dark · Hyprland (stub). Everything that
+#         can reload live, does. (VS Code icons are NOT covered on purpose:
+#         kd-vscode-icon-sync keeps them on mocha/latte tracking GNOME.)
 #
 # Managed by chezmoi. The files this script writes are deliberately NOT in the
 # chezmoi source state, so switching a theme never conflicts with an apply.
@@ -22,7 +24,6 @@
 set -euo pipefail
 
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
-DATA="${XDG_DATA_HOME:-$HOME/.local/share}"
 THEME_DIR="$CONFIG/theme"
 CATALOG="$THEME_DIR/themes.json"
 CURRENT_FILE="$THEME_DIR/current"
@@ -30,6 +31,7 @@ EXPORTS_FILE="$THEME_DIR/current.sh"
 STARSHIP_TEMPLATE="$THEME_DIR/starship.template.toml"
 
 QUIET=0
+RELOAD=0
 
 # ------------------------------------------------------------------ output --
 if [ -t 1 ]; then
@@ -199,6 +201,38 @@ apply_nvim() {
 	[ "$found" -eq 0 ] || info "reloaded $found running Neovim instance(s)"
 }
 
+# --- druk -------------------------------------------------------------------
+# druk has no include and no RPC. Patch the live config in place so in-editor
+# settings survive; seed from the template only when config.json is missing.
+# themeSync must be turned off: it defaults to on, and the OS-appearance poll
+# then overwrites `theme` with themeDark/themeLight on the next launch — which
+# is why a write that only set `theme` never stuck. A running instance picks
+# this up on the next launch.
+apply_druk() {
+	local t="$1" name="${TH_druk:-}"
+	[ -n "$name" ] || return 0
+
+	local out="$CONFIG/druk/config.json"
+	local src="$out"
+	[ -r "$src" ] || src="$CONFIG/druk/config.template.json"
+	[ -r "$src" ] || return 0
+
+	local polarity="${TH_polarity:-}"
+	if ! jq --arg theme "$name" --arg polarity "$polarity" '
+		.theme = $theme
+		| .themeSync = false
+		| if $polarity == "light" then .themeLight = $theme
+		  elif $polarity == "dark" then .themeDark = $theme
+		  else . end
+	' "$src" > "$out.new"; then
+		warn "druk config failed to render"
+		rm -f "$out.new"
+		return 0
+	fi
+	mv -f "$out.new" "$out"
+	ok "druk     → $name"
+}
+
 # --- Starship ---------------------------------------------------------------
 # Starship has no include mechanism, so the whole config is regenerated from a
 # template with every palette baked in and one placeholder for the active one.
@@ -246,33 +280,75 @@ apply_exports() {
 	ok "shell    → bat/fzf/delta exports written"
 }
 
-# --- GNOME ------------------------------------------------------------------
-apply_gnome() {
-	local t="$1"
-	has gsettings || return 0
-	case "${XDG_CURRENT_DESKTOP:-}" in *GNOME*) ;; *) return 0 ;; esac
+# Replace the JSON string value of `"key": "..."` on its own line. Settings
+# files here are JSONC (comments), so jq cannot touch them.
+jsonc_set_string() {
+	local file="$1" key="$2" value="$3"
+	grep -q "\"$key\"" "$file" || return 1
+	local esc="${value//\\/\\\\}"
+	esc="${esc//&/\\&}"
+	esc="${esc//\//\\/}"
+	sed -i "s/\"$key\": \"[^\"]*\"/\"$key\": \"$esc\"/" "$file"
+}
 
-	# Catppuccin's default accent is mauve and Rose Pine's is iris; both map to
-	# GNOME's `purple`, so the catalog no longer carries a per-theme accent.
-	local polarity="${TH_polarity:-}" gtk="${TH_gtk:-}" accent="${TH_gnome_accent:-purple}"
+# --- VS Code ----------------------------------------------------------------
+# VS Code follows GNOME light/dark (autoDetectColorScheme stays on), so the
+# catalog theme lands in the preferred slot for its polarity rather than in
+# workbench.colorTheme — apply_gnome then flips the desktop to that polarity,
+# which is what makes the change visible. The icon theme is owned by
+# kd-vscode-icon-sync (mocha/latte tracking GNOME) and is never written here:
+# icons follow light/dark only, not the theme family.
+apply_vscode() {
+	local t="$1" name="${TH_vscode:-}" polarity="${TH_polarity:-}"
+	[ -n "$name" ] || return 0
+
+	local file="$CONFIG/Code/User/settings.json"
+	[ -f "$file" ] || return 0
+
+	sed -i 's/"window.autoDetectColorScheme": false/"window.autoDetectColorScheme": true/' "$file"
+
+	local key="workbench.preferredDarkColorTheme"
+	[ "$polarity" = "light" ] && key="workbench.preferredLightColorTheme"
+	if ! jsonc_set_string "$file" "$key" "$name"; then
+		sed -i "/\"window.autoDetectColorScheme\":/a\\  \"$key\": \"$name\"," "$file"
+	fi
+	ok "vscode   → $name (preferred $polarity)"
+}
+
+# --- Zed --------------------------------------------------------------------
+apply_zed() {
+	local t="$1" name="${TH_zed:-}" polarity="${TH_polarity:-}"
+	[ -n "$name" ] || return 0
+
+	local file="$CONFIG/zed/settings.json"
+	[ -f "$file" ] || return 0
+
+	local mode="dark"
+	[ "$polarity" = "light" ] && mode="light"
+
+	jsonc_set_string "$file" "mode" "$mode" || true
+	if [ "$mode" = "light" ]; then
+		jsonc_set_string "$file" "light" "$name" || true
+	else
+		jsonc_set_string "$file" "dark" "$name" || true
+	fi
+	ok "zed      → $name"
+}
+
+# --- GNOME ------------------------------------------------------------------
+# Flip the desktop light/dark preference to the theme's polarity so VS Code
+# (autoDetectColorScheme) and the icon watcher follow along. Skipped on
+# `theme reload`: a chezmoi apply must never flip a mode the user set by hand
+# in GNOME — only an explicit theme switch does.
+apply_gnome() {
+	local t="$1" polarity="${TH_polarity:-}"
+	[ "$RELOAD" -eq 1 ] && return 0
+	has gsettings || return 0
 
 	local scheme="prefer-dark"
 	[ "$polarity" = "light" ] && scheme="prefer-light"
-
-	# These two are what actually move libadwaita apps on GNOME 50.
-	gsettings set org.gnome.desktop.interface color-scheme "$scheme" 2>/dev/null || true
-	gsettings set org.gnome.desktop.interface accent-color "$accent" 2>/dev/null || true
-
-	# Legacy GTK3 apps only. Skipped silently when the theme is not installed
-	# — see the GTK caveats in run_onchange_after_85-gtk-themes.
-	if [ -n "$gtk" ] && { [ -d "$DATA/themes/$gtk" ] || [ -d "$HOME/.themes/$gtk" ]; }; then
-		gsettings set org.gnome.desktop.interface gtk-theme "$gtk" 2>/dev/null || true
-		if gsettings writable org.gnome.shell.extensions.user-theme name >/dev/null 2>&1; then
-			gsettings set org.gnome.shell.extensions.user-theme name "$gtk" 2>/dev/null || true
-		fi
-	fi
-
-	ok "gnome    → $scheme, accent $accent"
+	gsettings set org.gnome.desktop.interface color-scheme "$scheme" 2>/dev/null || return 0
+	ok "gnome    → $scheme"
 }
 
 # --- Hyprland (stub for the future HyDE setup) ------------------------------
@@ -319,8 +395,13 @@ cmd_set() {
 	apply_ghostty  "$t"
 	apply_tmux     "$t"
 	apply_nvim     "$t"
+	apply_druk     "$t"
+	apply_vscode   "$t"
+	apply_zed      "$t"
 	apply_starship "$t"
 	apply_exports  "$t"
+	# Last on purpose: VS Code's preferred-theme slots must already be written
+	# when the colour-scheme change event reaches it.
 	apply_gnome    "$t"
 	apply_hyprland "$t"
 
@@ -418,8 +499,10 @@ usage() {
 		  -q, --quiet           only print warnings and errors
 		  -h, --help            show this help
 
-		Covers: Ghostty · tmux · Neovim · Starship · bat · fzf · delta · GNOME ·
-		        Hyprland. Everything that can reload live, does.
+		Covers: Ghostty · tmux · Neovim · druk · VS Code · Zed · Starship ·
+		        bat · fzf · delta · GNOME light/dark · Hyprland.
+		        Everything that can reload live, does. VS Code icons stay on
+		        catppuccin mocha/latte tracking GNOME (kd-vscode-icon-sync).
 	EOF
 }
 
@@ -444,6 +527,6 @@ case "${1:-}" in
 	current)   current_theme ;;
 	next)      cmd_next ;;
 	toggle)    cmd_toggle ;;
-	reload)    cmd_set "$(current_theme)" ;;
+	reload)    RELOAD=1; cmd_set "$(current_theme)" ;;
 	*)         cmd_set "$1" ;;
 esac

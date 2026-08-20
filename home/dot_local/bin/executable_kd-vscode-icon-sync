@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+#
+# kd-vscode-icon-sync — keep the VS Code icon theme in step with GNOME.
+#
+#   kd-vscode-icon-sync           apply once and exit
+#   kd-vscode-icon-sync watch     apply, then follow GNOME light/dark changes
+#
+#   GNOME dark  → catppuccin-mocha  icons
+#   GNOME light → catppuccin-latte  icons
+#
+# VS Code has preferred dark/light COLOUR themes but no icon-theme
+# counterpart (microsoft/vscode#239644), so this rewrites workbench.iconTheme
+# in settings.json instead — VS Code picks the change up live. Colour is
+# handled by autoDetectColorScheme + `theme`; this script owns the icon theme
+# and touches nothing else. `theme` deliberately never writes it.
+#
+# Managed by chezmoi. Watch mode is run by kd-vscode-icon-sync.service.
+
+set -euo pipefail
+
+CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
+SETTINGS="$CONFIG/Code/User/settings.json"
+
+ICON_DARK="catppuccin-mocha"
+ICON_LIGHT="catppuccin-latte"
+
+SCHEMA="org.gnome.desktop.interface"
+KEY="color-scheme"
+
+warn() { printf 'warn %s\n' "$*" >&2; }
+die()  { printf 'fail %s\n' "$*" >&2; exit 1; }
+
+command -v gsettings >/dev/null 2>&1 || die "gsettings not found — GNOME only"
+
+apply() {
+	[ -f "$SETTINGS" ] || return 0
+
+	local icon="$ICON_LIGHT"
+	# GNOME's tri-state ('default' / 'prefer-light' / 'prefer-dark') collapses
+	# to a boolean here: only an explicit prefer-dark means dark.
+	case "$(gsettings get "$SCHEMA" "$KEY" 2>/dev/null)" in
+		*prefer-dark*) icon="$ICON_DARK" ;;
+	esac
+
+	if ! grep -q '"workbench.iconTheme"' "$SETTINGS"; then
+		warn "no workbench.iconTheme key in $SETTINGS — nothing to sync"
+		return 0
+	fi
+	# settings.json is JSONC (comments), so jq is out; the key is written on
+	# its own line by the chezmoi template.
+	sed -i "s/\"workbench.iconTheme\": \"[^\"]*\"/\"workbench.iconTheme\": \"$icon\"/" "$SETTINGS"
+}
+
+watch() {
+	apply
+	# gsettings monitor blocks forever and prints one line per change.
+	gsettings monitor "$SCHEMA" "$KEY" | while read -r _; do
+		apply
+	done
+}
+
+case "${1:-}" in
+	"")      apply ;;
+	watch)   watch ;;
+	*)       die "usage: kd-vscode-icon-sync [watch]" ;;
+esac

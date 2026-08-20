@@ -3,8 +3,9 @@
 # `chezmoi apply` clones anything missing; `chezmoi update` pulls (--ff-only).
 # refreshPeriod keeps apply fast by not hitting the network more than weekly.
 #
-# .chezmoiexternal.<format> is always interpreted as a template, so the seven
-# entries are generated from one table rather than repeated verbatim.
+# .chezmoiexternal.<format> is always interpreted as a template, so the git
+# clones and the druk extension files are generated from tables rather than
+# repeated verbatim.
 #
 # Why the tmux colour themes are cloned here rather than left to TPM:
 # catppuccin/tmux explicitly recommends AGAINST TPM (plugin name conflicts)
@@ -32,4 +33,19 @@
         args = ["--depth", "1"]
     [{{ $dest | quote }}.pull]
         args = ["--ff-only"]
+{{ end -}}
+
+# druk appearance extensions. Seeded here so `theme` can name catppuccin /
+# rose-pine / nerd-icons on a fresh machine without waiting for the in-editor
+# market. Dropped as <id>.json — druk also accepts <id>/extension.json.
+{{- $druk := dict
+      ".config/druk/extensions/catppuccin.json" "https://raw.githubusercontent.com/letstri/druk/main/extensions/catppuccin/extension.json"
+      ".config/druk/extensions/rose-pine.json"  "https://raw.githubusercontent.com/letstri/druk/main/extensions/rose-pine/extension.json"
+      ".config/druk/extensions/nerd-icons.json" "https://raw.githubusercontent.com/letstri/druk/main/extensions/nerd-icons/extension.json" -}}
+
+{{ range $dest, $url := $druk }}
+[{{ $dest | quote }}]
+    type = "file"
+    url = {{ $url | quote }}
+    refreshPeriod = "168h"
 {{ end -}}

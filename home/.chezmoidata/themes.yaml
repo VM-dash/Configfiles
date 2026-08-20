@@ -6,17 +6,21 @@
 #
 # Field notes:
 #   family/variant   also drive the tmux port and variant
-#   ghostty          built-in Ghostty theme name (`ghostty +list-themes`)
+#   ghostty          built-in Ghostty theme name (`ghostty +list-themes`).
+#                    Matched as an EXACT filename under the theme dirs — the
+#                    display form ("Rose Pine Dawn"), not a slug. Ghostty does
+#                    no case/separator normalisation, so "rose-pine-dawn" is a
+#                    hard "theme not found" at startup.
 #   nvim             :colorscheme name
+#   druk             theme id from the catppuccin / rose-pine druk extensions
+#   vscode           workbench.colorTheme (Catppuccin.catppuccin-vsc / mvllow.rose-pine)
+#   zed              Zed theme name (same extensions, slightly different spelling)
 #   starship_palette must match a [palettes.<name>] table in the starship template
 #   bat              theme name as reported by `bat --list-themes`
-#   gtk              directory name under ~/.themes (best-effort; see README)
 #
 # The external names above are kept explicit rather than derived from the key:
 # they belong to upstream projects and have been renamed before (catppuccin/tmux
 # v1 -> v2), so a silent mismatch is worth more than the saved lines.
-# GNOME's accent is `purple` for every theme (Catppuccin mauve / Rose Pine iris),
-# so it lives as a default in the switcher instead of being repeated seven times.
 
 theme_order:
   - catppuccin-mocha
@@ -34,11 +38,13 @@ themes:
     family: catppuccin
     variant: mocha
     polarity: dark
-    ghostty: "catppuccin-mocha"
+    ghostty: "Catppuccin Mocha"
     nvim: "catppuccin-mocha"
+    druk: catppuccin-mocha
+    vscode: "Catppuccin Mocha"
+    zed: "Catppuccin Mocha"
     starship_palette: catppuccin_mocha
     bat: "Catppuccin Mocha"
-    gtk: "catppuccin-mocha-mauve-standard+default"
     fzf: "--color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc --color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 --color=border:#6c7086,selected-bg:#45475a"
 
   catppuccin-macchiato:
@@ -46,11 +52,13 @@ themes:
     family: catppuccin
     variant: macchiato
     polarity: dark
-    ghostty: "catppuccin-macchiato"
+    ghostty: "Catppuccin Macchiato"
     nvim: "catppuccin-macchiato"
+    druk: catppuccin-macchiato
+    vscode: "Catppuccin Macchiato"
+    zed: "Catppuccin Macchiato"
     starship_palette: catppuccin_macchiato
     bat: "Catppuccin Macchiato"
-    gtk: "catppuccin-macchiato-mauve-standard+default"
     fzf: "--color=bg+:#363a4f,bg:#24273a,spinner:#f4dbd6,hl:#ed8796 --color=fg:#cad3f5,header:#ed8796,info:#c6a0f6,pointer:#f4dbd6 --color=marker:#b7bdf8,fg+:#cad3f5,prompt:#c6a0f6,hl+:#ed8796 --color=border:#6e738d,selected-bg:#494d64"
 
   catppuccin-frappe:
@@ -58,11 +66,13 @@ themes:
     family: catppuccin
     variant: frappe
     polarity: dark
-    ghostty: "catppuccin-frappe"
+    ghostty: "Catppuccin Frappe"
     nvim: "catppuccin-frappe"
+    druk: catppuccin-frappe
+    vscode: "Catppuccin Frappé"
+    zed: "Catppuccin Frappé"
     starship_palette: catppuccin_frappe
     bat: "Catppuccin Frappe"
-    gtk: "catppuccin-frappe-mauve-standard+default"
     fzf: "--color=bg+:#414559,bg:#303446,spinner:#f2d5cf,hl:#e78284 --color=fg:#c6d0f5,header:#e78284,info:#ca9ee6,pointer:#f2d5cf --color=marker:#babbf1,fg+:#c6d0f5,prompt:#ca9ee6,hl+:#e78284 --color=border:#737994,selected-bg:#51576d"
 
   catppuccin-latte:
@@ -70,11 +80,13 @@ themes:
     family: catppuccin
     variant: latte
     polarity: light
-    ghostty: "catppuccin-latte"
+    ghostty: "Catppuccin Latte"
     nvim: "catppuccin-latte"
+    druk: catppuccin-latte
+    vscode: "Catppuccin Latte"
+    zed: "Catppuccin Latte"
     starship_palette: catppuccin_latte
     bat: "Catppuccin Latte"
-    gtk: "catppuccin-latte-mauve-standard+default"
     fzf: "--color=bg+:#ccd0da,bg:#eff1f5,spinner:#dc8a78,hl:#d20f39 --color=fg:#4c4f69,header:#d20f39,info:#8839ef,pointer:#dc8a78 --color=marker:#7287fd,fg+:#4c4f69,prompt:#8839ef,hl+:#d20f39 --color=border:#9ca0b0,selected-bg:#bcc0cc"
 
   # ============================================================ Rose Pine ===
@@ -83,11 +95,13 @@ themes:
     family: rose-pine
     variant: main
     polarity: dark
-    ghostty: "rose-pine"
+    ghostty: "Rose Pine"
     nvim: "rose-pine-main"
+    druk: rose-pine
+    vscode: "Rosé Pine"
+    zed: "Rosé Pine"
     starship_palette: rose_pine
     bat: "rose-pine"
-    gtk: "rose-pine"
     fzf: "--color=fg:#908caa,bg:#191724,hl:#ebbcba --color=fg+:#e0def4,bg+:#26233a,hl+:#ebbcba --color=border:#403d52,header:#31748f,gutter:#191724 --color=spinner:#f6c177,info:#9ccfd8 --color=pointer:#c4a7e7,marker:#eb6f92,prompt:#908caa"
 
   rose-pine-moon:
@@ -95,11 +109,13 @@ themes:
     family: rose-pine
     variant: moon
     polarity: dark
-    ghostty: "rose-pine-moon"
+    ghostty: "Rose Pine Moon"
     nvim: "rose-pine-moon"
+    druk: rose-pine-moon
+    vscode: "Rosé Pine Moon"
+    zed: "Rosé Pine Moon"
     starship_palette: rose_pine_moon
     bat: "rose-pine-moon"
-    gtk: "rose-pine-moon"
     fzf: "--color=fg:#908caa,bg:#232136,hl:#ea9a97 --color=fg+:#e0def4,bg+:#393552,hl+:#ea9a97 --color=border:#44415a,header:#3e8fb0,gutter:#232136 --color=spinner:#f6c177,info:#9ccfd8 --color=pointer:#c4a7e7,marker:#eb6f92,prompt:#908caa"
 
   rose-pine-dawn:
@@ -107,9 +123,11 @@ themes:
     family: rose-pine
     variant: dawn
     polarity: light
-    ghostty: "rose-pine-dawn"
+    ghostty: "Rose Pine Dawn"
     nvim: "rose-pine-dawn"
+    druk: rose-pine-dawn
+    vscode: "Rosé Pine Dawn"
+    zed: "Rosé Pine Dawn"
     starship_palette: rose_pine_dawn
     bat: "rose-pine-dawn"
-    gtk: "rose-pine-dawn"
     fzf: "--color=fg:#797593,bg:#faf4ed,hl:#d7827e --color=fg+:#575279,bg+:#f2e9e1,hl+:#d7827e --color=border:#dfdad9,header:#286983,gutter:#faf4ed --color=spinner:#ea9d34,info:#56949f --color=pointer:#907aa9,marker:#b4637a,prompt:#797593"

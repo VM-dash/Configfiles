@@ -1,0 +1,19 @@
+{{ template "lib.sh" . }}
+
+# extensions hash: {{ .packages.common.vscode_extensions | toJson | sha256sum }}
+
+{{ template "gui-only.sh" . }}
+
+step "Installing VS Code extensions"
+
+if ! has code; then
+	warn "code not on PATH — skipping extensions"
+	exit 0
+fi
+
+{{ range .packages.common.vscode_extensions }}
+step "VS Code extension: {{ . }}"
+try code --install-extension {{ . | quote }} --force
+{{- end }}
+
+ok "VS Code extensions installed"

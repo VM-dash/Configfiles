@@ -23,20 +23,27 @@ install_font() {
 	fi
 
 	local url="https://github.com/${REPO}/releases/latest/download/${name}.zip"
-	local tmp; tmp="$(mktemp -d)"
-	trap 'rm -rf "$tmp"' RETURN
 
 	info "downloading ${name}.zip"
-	curl -fsSL -o "$tmp/${name}.zip" "$url" || {
-		warn "could not download $name Nerd Font"
-		return 1
-	}
+	# Subshell so the EXIT trap is scoped to it. A `trap ... RETURN` in the
+	# function body would be GLOBAL rather than function-scoped, outliving this
+	# function and re-firing on the next one's return with `$tmp` out of scope,
+	# which `set -u` turns into a fatal error.
+	(
+		tmp="$(mktemp -d)"
+		trap 'rm -rf "$tmp"' EXIT
+		curl -fsSL -o "$tmp/${name}.zip" "$url" || {
+			warn "could not download $name Nerd Font"
+			exit 1
+		}
 
-	mkdir -p "$dest"
-	# Keep only the fonts; the archives also ship licences and Windows-
-	# compatible duplicates we do not need.
-	unzip -qo "$tmp/${name}.zip" -d "$dest" -x 'README*' 'LICENSE*' 'OFL*' || true
-	printf 'installed\n' > "$dest/.installed"
+		mkdir -p "$dest"
+		# Keep only the fonts; the archives also ship licences and Windows-
+		# compatible duplicates we do not need.
+		unzip -qo "$tmp/${name}.zip" -d "$dest" -x 'README*' 'LICENSE*' 'OFL*' || true
+		printf 'installed\n' > "$dest/.installed"
+	) || return 1
+
 	ok "$name Nerd Font installed"
 }
 

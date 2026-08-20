@@ -40,7 +40,6 @@ packages:
       - brave-browser
     # GNOME-only; skipped automatically on other desktops.
     dnf_gnome:
-      - gnome-shell-extension-user-theme
       - gnome-tweaks
     # Installed in the same transaction as the rest; 40-docker then owns only
     # the daemon and group setup.
@@ -80,7 +79,6 @@ packages:
       - visual-studio-code-bin
       - brave-bin
     pacman_gnome:
-      - gnome-shell-extensions
       - gnome-tweaks
 
   # -------------------------------------------- Cross-distro, cross-desktop --
@@ -103,6 +101,22 @@ packages:
       - bat@latest
       - eza@latest
       - zoxide@latest
+      # opencode CLI. Deliberately here rather than the Fedora COPR
+      # (sureclaw/opencode): mise pulls upstream's own release binaries via the
+      # aqua backend, so Arch gets the same version and there is no third-party
+      # rebuild to trust or wait on after a Fedora bump.
+      - opencode@latest
+      # rclone: OneDrive bisync for the KD-Obsidian vault. Dedicated config at
+      # ~/.config/rclone/obsidian.conf (tokens — never committed).
+      - rclone@latest
+      # herdr: agent-runtime multiplexer. Official mise registry entry; fallback
+      # is `github:herdrdev/herdr` if an older mise lacks the package.
+      - herdr@latest
+      # druk: terminal code editor. Not in aqua, so the github backend pulls
+      # upstream's own release binary (druk-linux-x64.tar.gz). Deliberately not
+      # the official curl installer: that writes ~/.druk/bin and appends PATH
+      # to .zshrc, which chezmoi owns.
+      - github:letstri/druk@latest
 
     # Self-contained GUI apps. Same IDs on every distro.
     # NOTE: Brave is deliberately NOT here — see packages.fedora.dnf_gui.
@@ -118,6 +132,12 @@ packages:
     gnome_extensions:
       - copyous@boerdereinar.dev     # clipboard manager (EGO 8834)
 
+    # `code --install-extension`. Colour themes follow `theme`; icons stay Mocha.
+    vscode_extensions:
+      - Catppuccin.catppuccin-vsc
+      - Catppuccin.catppuccin-vsc-icons
+      - mvllow.rose-pine
+
     # Nerd Font — required for Starship glyphs and `eza --icons`.
     # NOTE: fonts are declared in .chezmoidata/fonts.yaml (`font.install`),
     # alongside the family names the app configs reference.
@@ -127,8 +147,3 @@ packages:
 externals:
   claude_desktop_repo: aaddrick/claude-desktop-debian
   nerd_fonts_repo: ryanoasis/nerd-fonts
-  # catppuccin/gtk is archived upstream and frozen at this tag — it will not
-  # move again, so the pin is permanent rather than a version to bump.
-  catppuccin_gtk_repo: catppuccin/gtk
-  catppuccin_gtk_version: v1.0.3
-  rose_pine_gtk_repo: rose-pine/gtk

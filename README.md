@@ -21,14 +21,14 @@ re-provisioning any machine later is just `chezmoi apply`.
 |---|---|
 | **Shell** | zsh (login shell) + Starship, XDG layout via `ZDOTDIR` |
 | **Terminal** | Ghostty |
-| **Editor** | Neovim + LazyVim · VS Code · Zed |
-| **Multiplexer** | tmux + TPM, tmux-yank, tmux-fingers |
-| **Dev toolchain** | mise: .NET 9, Node 22, neovim, tmux, starship, lazygit, fzf, ripgrep, fd, bat, eza, zoxide |
+| **Editor** | Neovim + LazyVim · VS Code · Zed · druk |
+| **Multiplexer** | tmux + TPM, tmux-yank, tmux-fingers · herdr |
+| **Dev toolchain** | mise: .NET 9, Node 22, neovim, tmux, herdr, rclone, starship, lazygit, fzf, ripgrep, fd, bat, eza, zoxide, opencode, druk |
 | **Containers** | Docker CE (rootless group configured) |
 | **Browsers** | Brave (native, policy-managed) · Zen |
 | **Apps** | DBeaver · Bruno · Obsidian · Inkscape · LibreOffice |
 | **AI** | Claude Code CLI (official RPM repo) + Claude Desktop (best-effort) |
-| **GNOME** | Copyous clipboard manager, User Themes, curated `gsettings` |
+| **GNOME** | Copyous clipboard manager, curated `gsettings` |
 | **Themes** | All 4 Catppuccin flavours + all 3 Rose Pine variants, switched live |
 
 ---
@@ -57,10 +57,16 @@ theme reload               # re-apply after editing a template
 | `rose-pine-moon` | dark |
 | `rose-pine-dawn` | light |
 
-It drives Ghostty, tmux, Neovim, Starship, bat, fzf, delta, GNOME and (later)
-Hyprland. Ghostty reloads over SIGUSR2, tmux re-sources its config, and every
-running Neovim is poked over its RPC socket — so open windows change colour
-without being restarted. Already-open shells need `exec zsh` to pick up the new
+It drives Ghostty, tmux, Neovim, druk, VS Code, Zed, Starship, bat, fzf, delta
+and (later) Hyprland. Ghostty reloads over SIGUSR2, tmux re-sources its config,
+and every running Neovim is poked over its RPC socket — so open windows change
+colour without being restarted. druk has no RPC: it picks up the new theme on
+the next launch. VS Code follows the GNOME light/dark preference
+(`autoDetectColorScheme`): `theme` writes the chosen theme into the preferred
+dark or light slot and flips GNOME to that polarity, which is what makes the
+switch land live. VS Code *icons* deliberately do not follow the theme family
+— `kd-vscode-icon-sync.service` keeps them on catppuccin mocha/latte tracking
+GNOME dark/light only. Already-open shells need `exec zsh` to pick up the new
 `BAT_THEME` / `FZF_DEFAULT_OPTS`.
 
 Also bound to `<leader>ut` in Neovim and `SUPER+SHIFT+T` in the Hyprland stub.
@@ -71,7 +77,11 @@ Also bound to `<leader>ut` in Neovim and `SUPER+SHIFT+T` in the Hyprland stub.
 2. Add a matching `[palettes.<name>]` table to
    `home/dot_config/theme/starship.template.toml`.
 3. Add the colorscheme plugin in `home/dot_config/nvim/lua/plugins/colorscheme.lua`.
-4. `chezmoi apply && theme <name>`
+4. Set `druk:` to a theme id from the catppuccin / rose-pine druk extensions
+   (seeded into `~/.config/druk/extensions/` by `.chezmoiexternal.toml`).
+5. Set `vscode:` / `zed:` to the workbench theme names
+   (`Catppuccin.catppuccin-vsc`, `mvllow.rose-pine`).
+6. `chezmoi apply && theme <name>`
 
 ---
 
@@ -83,7 +93,7 @@ bootstrap.sh                     the curl target
 home/                            chezmoi source directory
 ├── .chezmoi.toml.tmpl           first-run prompts (name, email, theme, gui, docker)
 ├── .chezmoiignore               templated GNOME <-> Hyprland split
-├── .chezmoiexternal.toml        upstream git clones (TPM, tmux & bat themes)
+├── .chezmoiexternal.toml        upstream clones + druk extension files
 ├── .chezmoidata/
 │   ├── packages.yaml            EVERYTHING that gets installed
 │   └── themes.yaml              the theme catalog
@@ -159,17 +169,18 @@ which is the only declarative way to force-install extensions and lock
 settings; native also fixes native messaging for password-manager extensions
 and lets Brave use gnome-keyring.
 
-**mise owns the dev toolchain**, including neovim and tmux. That is what makes
-the eventual Arch/HyDE move cheap: identical tool versions, no distro lag.
+**mise owns the dev toolchain**, including neovim, tmux and druk. That is what
+makes the eventual Arch/HyDE move cheap: identical tool versions, no distro lag.
 
 **Local overrides never go in git.** Each config sources an untracked sibling:
 `~/.config/zsh/local.zsh`, `~/.config/tmux/local.conf`,
 `~/.config/ghostty/local.conf`, `~/.config/git/local`.
 
 **Generated files are not tracked.** `theme` writes `~/.config/starship.toml`,
-`ghostty/theme.conf`, `tmux/theme.conf` and `theme/current.sh`. They are in
-`.chezmoiignore` so chezmoi and the switcher never fight. Edit
-`home/dot_config/theme/starship.template.toml`, **not** `~/.config/starship.toml`.
+`ghostty/theme.conf`, `tmux/theme.conf`, `druk/config.json` and
+`theme/current.sh`. They are in `.chezmoiignore` so chezmoi and the switcher
+never fight. Edit `home/dot_config/theme/starship.template.toml` and
+`home/dot_config/druk/config.template.json`, **not** the generated files.
 
 ---
 
@@ -223,13 +234,6 @@ so it will not collide when a real package ships). If that fails, the run
 continues. The **CLI is official and unaffected** — it comes from Anthropic's
 signed RPM repo.
 
-**GTK theming is weak on GNOME 50.** `catppuccin/gtk` is *archived* upstream and
-frozen at v1.0.3; `rose-pine/gtk` warns its GTK3 theme shows inverted colours
-under a dark preference; and most GNOME 50 apps are libadwaita and ignore
-`gtk-theme` entirely. So `theme` leads with `color-scheme` and `accent-color`,
-which do affect libadwaita, and applies the GTK theme only as a bonus for legacy
-GTK3 apps.
-
 **Ghostty is not packaged by Fedora.** It is in no Fedora release, and the
 widely-cited `pgdev/ghostty` COPR no longer exists. This repo uses
 `scottames/ghostty`, which does have Fedora 44 builds. On Arch it is plain
@@ -266,6 +270,20 @@ theme                       # pick a theme, watch everything change
 Neovim: `nvim`, then `:checkhealth`. LazyVim language extras (C#, Docker, JSON,
 TypeScript…) are opt-in — run `:LazyExtras` and enable what you want; the
 selection is saved to `~/.config/nvim/lazyvim.json`.
+
+### KD-Obsidian → OneDrive
+
+The vault at `~/Documents/kardham/doc/KD-Obsidian` bisyncs to Kardham OneDrive
+via rclone. Tokens live in `~/.config/rclone/obsidian.conf` (untracked).
+
+```sh
+rclone config --config ~/.config/rclone/obsidian.conf
+kd-obsidian-sync --resync
+systemctl --user enable --now kd-obsidian-sync.timer
+```
+
+On Windows, open `OneDrive - KARDHAM/KD-Obsidian` as the vault. Plugins
+(Hearth, Iconize, settings) sync; `workspace.json` / cache / `.trash` do not.
 
 ---
 

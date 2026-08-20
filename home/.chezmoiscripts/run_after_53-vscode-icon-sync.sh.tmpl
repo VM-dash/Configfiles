@@ -1,0 +1,31 @@
+{{ template "lib.sh" . }}
+
+{{ template "gui-only.sh" . }}
+
+step "VS Code icon sync"
+
+# Plain run_after (every apply): whenever chezmoi rewrites settings.json it
+# re-seeds workbench.iconTheme with the template default, so the one-shot
+# below must run each time to put the GNOME-appropriate variant back.
+
+if ! is_gnome; then
+	info "not a GNOME machine — skip kd-vscode-icon-sync"
+	exit 0
+fi
+
+if ! has_systemd || is_container; then
+	info "no systemd — skip kd-vscode-icon-sync.service"
+	exit 0
+fi
+
+try "$HOME/.local/bin/kd-vscode-icon-sync"
+
+systemctl --user daemon-reload
+try systemctl --user enable kd-vscode-icon-sync.service
+# --now only when a session exists: enable alone is enough on a headless
+# apply, and the unit starts with the next graphical login anyway.
+if systemctl --user is-active --quiet graphical-session.target 2>/dev/null; then
+	try systemctl --user restart kd-vscode-icon-sync.service
+fi
+
+ok "kd-vscode-icon-sync enabled"
