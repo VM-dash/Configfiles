@@ -1,0 +1,48 @@
+{{ template "lib.sh" . }}
+
+{{ template "gui-only.sh" . }}
+
+step "logiops (Logitech mouse)"
+
+# The MX Anywhere 3's MagSpeed wheel streams high-resolution deltas even in
+# ratchet mode, so TUIs (Claude Code, htop, ...) scroll far too fast: one
+# detent lands as several wheel events. hires: false makes the mouse emit
+# exactly one classic wheel click per ratchet detent instead.
+#
+# Config content lives in this script, so run_onchange re-runs it on change.
+
+if ! has logid; then
+	info "logid not installed (packages.yaml installs it on Fedora) — skipping"
+	exit 0
+fi
+
+if ! can_root; then
+	warn "no sudo — cannot write /etc/logid.cfg"
+	exit 0
+fi
+
+$SUDO tee /etc/logid.cfg >/dev/null <<'LOGID_EOF'
+// Managed by chezmoi — see .chezmoiscripts/run_onchange_after_22-logiops.
+// One wheel click per ratchet detent; smartshift stays as set on the mouse.
+// The device reports "MX Anywhere 3" via HID++ on a receiver but the
+// Bluetooth HID name is "Logitech MX Anywhere 3" — both are listed, and
+// logid simply ignores entries for devices it does not see.
+devices: (
+	{
+		name: "MX Anywhere 3";
+		hiresscroll: { hires: false; invert: false; target: false; };
+	},
+	{
+		name: "Logitech MX Anywhere 3";
+		hiresscroll: { hires: false; invert: false; target: false; };
+	}
+);
+LOGID_EOF
+
+if has_systemd && ! is_container; then
+	try $SUDO systemctl enable logid.service
+	try $SUDO systemctl restart logid.service
+	ok "logid configured and (re)started"
+else
+	info "no systemd — /etc/logid.cfg written, start logid manually"
+fi

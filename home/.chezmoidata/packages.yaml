@@ -25,6 +25,9 @@ packages:
       - pipx
       - ImageMagick
       - dnf5-plugins
+      # Logitech HID++ daemon: forces the MX MagSpeed wheel to one classic
+      # click per ratchet detent (see 22-logiops), taming TUI scroll speed.
+      - logiops
     # Deliberate exceptions to Flatpak-first — these need host integration.
     dnf_gui:
       # No Flatpak exists for Ghostty, and a sandboxed terminal cannot host
