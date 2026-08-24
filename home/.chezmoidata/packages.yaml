@@ -136,10 +136,31 @@ packages:
       - copyous@boerdereinar.dev     # clipboard manager (EGO 8834)
 
     # `code --install-extension`. Colour themes follow `theme`; icons stay Mocha.
+    # Mirrors `code --list-extensions` — re-sync when installing from the UI.
     vscode_extensions:
+      # Themes
       - Catppuccin.catppuccin-vsc
       - Catppuccin.catppuccin-vsc-icons
       - mvllow.rose-pine
+      # AI
+      - anthropic.claude-code
+      # Git
+      - eamodio.gitlens
+      # .NET / C#
+      - ms-dotnettools.csdevkit
+      - ms-dotnettools.csharp
+      - ms-dotnettools.vscode-dotnet-runtime
+      - ms-vscode.powershell
+      - heaths.vscode-guid
+      # Web / API
+      - svelte.svelte-vscode
+      - bruno-api-client.bruno
+      # Containers
+      - ms-azuretools.vscode-containers
+      # Formats
+      - tamasfe.even-better-toml
+      - asciidoctor.asciidoctor-vscode
+      - vstirbu.vscode-mermaid-preview
 
     # Nerd Font — required for Starship glyphs and `eza --icons`.
     # NOTE: fonts are declared in .chezmoidata/fonts.yaml (`font.install`),

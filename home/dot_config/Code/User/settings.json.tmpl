@@ -43,8 +43,8 @@
   // Requires Catppuccin.catppuccin-vsc, Catppuccin.catppuccin-vsc-icons,
   // mvllow.rose-pine.
   "window.autoDetectColorScheme": true,
-  "workbench.preferredDarkColorTheme": "Catppuccin Mocha",
-  "workbench.preferredLightColorTheme": "Catppuccin Latte",
+  "workbench.preferredDarkColorTheme": "Rosé Pine",
+  "workbench.preferredLightColorTheme": "Rosé Pine Dawn",
   "workbench.iconTheme": "catppuccin-mocha",
 
   // ------------------------------------------------------------- editor --
@@ -61,6 +61,24 @@
   // ---------------------------------------------------------------- git --
   "git.autofetch": true,
   "git.confirmSync": false,
+  // GitLens: keep only the commit graph — every grouped sidebar view off.
+  "gitlens.views.scm.grouped.views": {
+    "commits": false,
+    "branches": false,
+    "remotes": false,
+    "stashes": false,
+    "tags": false,
+    "worktrees": false,
+    "contributors": false,
+    "fileHistory": false,
+    "repositories": false,
+    "searchAndCompare": false,
+    "launchpad": false
+  },
+  "gitlens.graph.details.location": "auto",
+
+  // ------------------------------------------------------------- dotnet --
+  "dotnet.testWindow.enableNextTest": true,
 
   "telemetry.telemetryLevel": "off",
   "update.mode": "none",
@@ -68,6 +86,7 @@
   // ------------------------------------------------------------- window --
   "window.titleBarStyle": "custom",
   "window.commandCenter": false,
+  "workbench.experimental.modernUI": true,
   "chat.titleBar.openInAgentsWindow.enabled": false,
   "chat.titleBar.signIn.enabled": false
 }
