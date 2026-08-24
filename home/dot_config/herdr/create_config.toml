@@ -1,0 +1,31 @@
+# Seeded by chezmoi on first provision only (create_): herdr writes to this
+# file itself (in-app settings, onboarding), so it is never overwritten by a
+# later apply. Keybinding changes must be made here AND in the live file
+# (or rm the live file and re-apply), then: herdr server reload-config.
+
+onboarding = false
+[theme]
+name = "rose-pine"
+auto_switch = false
+
+[ui.toast]
+delivery = "system"
+
+[ui]
+show_agent_labels_on_pane_borders = true
+agent_panel_sort = "spaces"
+status_indicators = "dots"
+
+[keys]
+# prefix+- splits right, prefix+_ (shift+-) splits down.
+# herdr naming: split_vertical opens to the RIGHT, split_horizontal DOWN.
+split_vertical = "prefix+minus"
+split_horizontal = "prefix+shift+minus"
+
+# prefix+= swaps the current pane with its neighbor (preferring right, then
+# down/left/up). herdr 0.8.x only has directional swap actions, so this goes
+# through the socket API and picks the first direction that has a neighbor.
+[[keys.command]]
+key = "prefix+="
+type = "shell"
+command = '''for d in right down left up; do if herdr pane neighbor --current --direction $d 2>/dev/null | grep -q neighbor_pane_id; then herdr pane swap --current --direction $d; break; fi; done'''
