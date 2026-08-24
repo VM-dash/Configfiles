@@ -18,6 +18,10 @@ require("lazy").setup({
   spec = {
     -- LazyVim core and its default plugin set.
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    -- Extras (imported before lua/plugins/ so overrides there still win).
+    -- lang.markdown: render-markdown (in-editor view, <leader>um),
+    -- markdown-preview (browser, <leader>cp), marksman LSP, markdownlint.
+    { import = "lazyvim.plugins.extras.lang.markdown" },
     -- Everything under lua/plugins/ overrides or extends the above.
     { import = "plugins" },
   },
