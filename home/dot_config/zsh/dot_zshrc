@@ -10,6 +10,14 @@ setopt histignorealldups sharehistory
 bindkey -e
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
+# Home / End — all common variants: ghostty/xterm send ^[[H/^[[F (or ^[OH/^[OF
+# in application mode), tmux and the linux console send ^[[1~/^[[4~.
+bindkey "^[[H"  beginning-of-line
+bindkey "^[OH"  beginning-of-line
+bindkey "^[[1~" beginning-of-line
+bindkey "^[[F"  end-of-line
+bindkey "^[OF"  end-of-line
+bindkey "^[[4~" end-of-line
 
 # Keep 1000 lines of history within the shell and save it to ~/.zsh_history:
 HISTSIZE=1000
