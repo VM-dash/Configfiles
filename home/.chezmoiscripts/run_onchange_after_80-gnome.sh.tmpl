@@ -52,16 +52,27 @@ gset() {
 	fi
 }
 
-# --- Appearance: pinned to Adwaita, permanently -----------------------------
-# The Tweaks styles — cursor, icons, shell, legacy (GTK3) applications — stay
-# stock Adwaita on every machine. `theme` never writes these keys; only
-# light/dark (color-scheme) ever changes.
-gset org.gnome.desktop.interface cursor-theme "'Adwaita'"
-gset org.gnome.desktop.interface icon-theme   "'Adwaita'"
+# --- Appearance: Rosé Pine styles, Adwaita legacy GTK -----------------------
+# Tweaks slots: cursor, icons and shell are Rosé Pine (seeded into
+# ~/.local/share by .chezmoiexternal.toml); Legacy Applications (gtk-theme)
+# stays stock Adwaita — rose-pine's GTK3 theme inverts colours under a dark
+# preference, and libadwaita apps ignore gtk-theme anyway. `theme` never
+# writes any of these keys; only light/dark (color-scheme) ever changes.
+gset org.gnome.desktop.interface cursor-theme "'BreezeX-RosePine-Linux'"
+gset org.gnome.desktop.interface icon-theme   "'rose-pine-icons'"
 gset org.gnome.desktop.interface gtk-theme    "'Adwaita'"
-# Shell style: the empty string is the built-in Adwaita shell theme. The key
-# only exists with the user-theme extension; gset self-skips otherwise.
-gset org.gnome.shell.extensions.user-theme name "''"
+# Shell style needs the user-theme extension. Its schema is system-wide when
+# the extension comes from dnf, but gext installs keep it inside the
+# extension dir, where plain gsettings cannot see it — hence the fallback.
+UT_SCHEMAS="$HOME/.local/share/gnome-shell/extensions/user-theme@gnome-shell-extensions.gcampax.github.com/schemas"
+if gsettings writable org.gnome.shell.extensions.user-theme name >/dev/null 2>&1; then
+	gset org.gnome.shell.extensions.user-theme name "'rose-pine-moon'"
+elif [ -d "$UT_SCHEMAS" ]; then
+	gsettings --schemadir "$UT_SCHEMAS" set org.gnome.shell.extensions.user-theme name "rose-pine-moon" 2>/dev/null \
+		|| warn "could not set the shell theme (log out and re-apply)"
+else
+	info "user-theme extension not installed yet — shell theme applies on a later run"
+fi
 
 # --- Interface --------------------------------------------------------------
 gset org.gnome.desktop.interface clock-show-weekday        true

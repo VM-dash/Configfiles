@@ -49,3 +49,28 @@
     url = {{ $url | quote }}
     refreshPeriod = "168h"
 {{ end -}}
+
+# Rosé Pine desktop styling for the GNOME Tweaks slots: icons, cursor and
+# shell — deliberately NOT the Legacy Applications (gtk-theme) slot, which
+# stays Adwaita: rose-pine's GTK3 theme renders inverted colours under a
+# dark preference, and libadwaita apps ignore it anyway (see 80-gnome).
+# The shell theme exists only in the repo source (no release asset), so it
+# is cut out of the branch tarball; "moon" is the only variant upstream.
+[".local/share/icons/rose-pine-icons"]
+    type = "archive"
+    url = "https://github.com/rose-pine/gtk/releases/latest/download/rose-pine-icons.tar.gz"
+    stripComponents = 2
+    refreshPeriod = "168h"
+
+[".local/share/icons/BreezeX-RosePine-Linux"]
+    type = "archive"
+    url = "https://github.com/rose-pine/cursors/releases/latest/download/BreezeX-RosePine-Linux.tar.xz"
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".local/share/themes/rose-pine-moon"]
+    type = "archive"
+    url = "https://github.com/rose-pine/gtk/archive/refs/heads/main.tar.gz"
+    stripComponents = 3
+    include = ["*/gnome_shell/moon/**"]
+    refreshPeriod = "168h"

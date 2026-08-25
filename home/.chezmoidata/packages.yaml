@@ -134,6 +134,8 @@ packages:
     # Installed by UUID via `gext`. GNOME only.
     gnome_extensions:
       - copyous@boerdereinar.dev     # clipboard manager (EGO 8834)
+      # Required for the rose-pine shell style (Tweaks → Appearance → Shell).
+      - user-theme@gnome-shell-extensions.gcampax.github.com
 
     # `code --install-extension`. Colour themes follow `theme`; icons stay Mocha.
     # Mirrors `code --list-extensions` — re-sync when installing from the UI.
