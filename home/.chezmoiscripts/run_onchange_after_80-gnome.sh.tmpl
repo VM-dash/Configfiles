@@ -95,6 +95,11 @@ gset org.gnome.mutter center-new-windows          true
 gset org.gnome.mutter dynamic-workspaces          true
 gset org.gnome.desktop.wm.preferences button-layout "'appmenu:minimize,maximize,close'"
 
+# --- Keybindings ------------------------------------------------------------
+# Super+Shift+S opens the interactive screenshot UI (Windows muscle memory);
+# Print stays bound too so the hardware key keeps working.
+gset org.gnome.shell.keybindings show-screenshot-ui "['<Super><Shift>s', 'Print']"
+
 # --- Privacy ----------------------------------------------------------------
 gset org.gnome.desktop.privacy remember-recent-files true
 gset org.gnome.desktop.screensaver lock-enabled      true
