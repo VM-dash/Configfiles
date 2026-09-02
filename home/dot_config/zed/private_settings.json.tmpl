@@ -1,0 +1,58 @@
+{
+    // Managed by chezmoi — edit via `chezmoi edit --apply ~/.config/zed/settings.json`.
+    // Font family comes from .chezmoidata/fonts.yaml; sizes are Zed-specific
+    // (set from Zed's UI, adopted here verbatim).
+
+    // ------------------------------------------------------------- fonts --
+    "ui_font_weight": 400.0,
+    "icon_theme": {
+        "mode": "system",
+        "light": "Catppuccin Mocha",
+        "dark": "Catppuccin Frappé",
+    },
+    "accessible_mode": true,
+    "buffer_font_family": "{{ .font.mono }}",
+    "buffer_font_size": 13.5,
+    "buffer_font_features": {
+        "calt": true,
+        "liga": true,
+    },
+
+    "ui_font_family": "{{ .font.mono }}",
+    "ui_font_size": 13.5,
+
+    "terminal": {
+        "font_family": "{{ .font.mono }}",
+        "font_size": 13.5,
+        // Login shell, so mise shims and the theme exports are available.
+        "shell": {
+            "program": "{{ lookPath "zsh" | default "/usr/bin/zsh" }}",
+        },
+        "blinking": "off",
+        "copy_on_select": true,
+    },
+
+    // -------------------------------------------------------------- theme --
+    // `theme` writes the mode and the matching dark/light slot on every switch;
+    // it also flips GNOME to the same polarity, so Zed and the desktop agree.
+    "theme": {
+        "mode": "system",
+        "dark": "Rosé Pine Moon",
+        "light": "Rosé Pine Dawn",
+    },
+
+    // ------------------------------------------------------------- editor --
+    "tab_size": 4,
+    "format_on_save": "on",
+    "remove_trailing_whitespace_on_save": true,
+    "ensure_final_newline_on_save": true,
+    "wrap_guides": [120],
+    "show_whitespaces": "selection",
+
+    "telemetry": {
+        "diagnostics": false,
+        "metrics": false,
+    },
+
+    "auto_update": false,
+}
