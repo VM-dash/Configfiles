@@ -26,6 +26,17 @@ if is_fedora; then
 	# (e.g. a COPR that has not built for this Fedora release yet).
 	$SUDO dnf install -y --skip-unavailable $PKGS
 
+	# Unwanted preinstalled packages. rpm -q filter first: dnf5 remove is not
+	# reliably a no-op for arguments that are not installed.
+	RM=""
+	for p in {{ .packages.fedora.dnf_remove | join " " }}; do
+		rpm -q "$p" >/dev/null 2>&1 && RM="$RM $p"
+	done
+	if [ -n "$RM" ]; then
+		info "dnf remove:$RM"
+		$SUDO dnf remove -y $RM
+	fi
+
 # ================================================================ Arch ======
 elif is_arch; then
 	PKGS="{{ .packages.arch.pacman | join " " }}"
