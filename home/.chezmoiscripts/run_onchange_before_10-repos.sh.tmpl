@@ -41,6 +41,16 @@ if is_fedora; then
 		try $SUDO dnf -y copr enable {{ . | quote }}
 	fi
 	{{ end }}
+	{{ if or (eq .desktop "hyprland") (and (hasKey . "hyprland") .hyprland) -}}
+	{{ range .packages.fedora.copr_hyprland }}
+	if $SUDO dnf copr list 2>/dev/null | grep -q {{ . | quote }}; then
+		ok "COPR {{ . }} already enabled"
+	else
+		step "COPR: {{ . }}"
+		try $SUDO dnf -y copr enable {{ . | quote }}
+	fi
+	{{ end }}
+	{{- end }}
 
 	# --- Claude Code (official, signed) -------------------------------------
 	add_repo "Claude Code" claude-code.repo <<-'EOF'

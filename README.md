@@ -1,7 +1,9 @@
 # Configfiles
 
 Dotfiles and full machine provisioning for **Fedora Workstation 44 + GNOME**,
-built to move to **Arch / HyDE / Hyprland** later without rewriting anything.
+with an optional **Hyprland + [Noctalia](https://noctalia.dev)** session
+installed alongside (set the `hyprland` data flag; pick the session at the GDM
+login screen), and built to move to Arch later without rewriting anything.
 
 One command on a fresh install:
 
@@ -57,8 +59,8 @@ theme reload               # re-apply after editing a template
 | `rose-pine-moon` | dark |
 | `rose-pine-dawn` | light |
 
-It drives Ghostty, tmux, Neovim, druk, VS Code, Zed, Starship, bat, fzf, delta
-and (later) Hyprland. Ghostty reloads over SIGUSR2, tmux re-sources its config,
+It drives Ghostty, tmux, Neovim, druk, VS Code, Zed, Starship, bat, fzf and
+delta. Ghostty reloads over SIGUSR2, tmux re-sources its config,
 and every running Neovim is poked over its RPC socket — so open windows change
 colour without being restarted. druk has no RPC: it picks up the new theme on
 the next launch. VS Code follows the GNOME light/dark preference
@@ -69,7 +71,10 @@ switch land live. VS Code *icons* deliberately do not follow the theme family
 GNOME dark/light only. Already-open shells need `exec zsh` to pick up the new
 `BAT_THEME` / `FZF_DEFAULT_OPTS`.
 
-Also bound to `<leader>ut` in Neovim and `SUPER+SHIFT+T` in the Hyprland stub.
+Also bound to `<leader>ut` in Neovim and `SUPER+SHIFT+T` in the Hyprland
+session. On that session the *desktop* (bar, shell, borders) is themed by
+Noctalia from the wallpaper — `theme` deliberately only touches terminals and
+editors there.
 
 ### Adding a theme
 
@@ -91,8 +96,8 @@ Also bound to `<leader>ut` in Neovim and `SUPER+SHIFT+T` in the Hyprland stub.
 .chezmoiroot                     -> "home"  (keeps this README out of $HOME)
 bootstrap.sh                     the curl target
 home/                            chezmoi source directory
-├── .chezmoi.toml.tmpl           first-run prompts (name, email, theme, gui, docker)
-├── .chezmoiignore               templated GNOME <-> Hyprland split
+├── .chezmoi.toml.tmpl           first-run prompts (name, email, theme, desktop, hyprland, ...)
+├── .chezmoiignore               templated GNOME <-> Hyprland/Noctalia split
 ├── .chezmoiexternal.toml        upstream clones + druk extension files
 ├── .chezmoidata/
 │   ├── packages.yaml            EVERYTHING that gets installed

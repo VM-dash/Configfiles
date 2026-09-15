@@ -20,6 +20,9 @@ if is_fedora; then
 {{- if eq .desktop "gnome" }}
 	PKGS="$PKGS {{ .packages.fedora.dnf_gnome | join " " }}"
 {{- end }}
+{{- if or (eq .desktop "hyprland") (and (hasKey . "hyprland") .hyprland) }}
+	PKGS="$PKGS {{ .packages.fedora.dnf_hyprland | join " " }}"
+{{- end }}
 
 	info "dnf install: $PKGS"
 	# --skip-unavailable keeps one bad package name from aborting everything
@@ -48,6 +51,9 @@ elif is_arch; then
 {{- end }}
 {{- if eq .desktop "gnome" }}
 	PKGS="$PKGS {{ .packages.arch.pacman_gnome | join " " }}"
+{{- end }}
+{{- if or (eq .desktop "hyprland") (and (hasKey . "hyprland") .hyprland) }}
+	PKGS="$PKGS {{ .packages.arch.pacman_hyprland | join " " }}"
 {{- end }}
 
 	info "pacman install: $PKGS"

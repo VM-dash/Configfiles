@@ -57,11 +57,30 @@ packages:
     dnf_remove:
       # Japanese IME pulled in by Fedora Workstation's input-methods group.
       - ibus-anthy
+    # Hyprland + Noctalia session (installed alongside GNOME when the
+    # `hyprland` data flag is true; GDM shows both sessions at login).
+    # noctalia and brightnessctl/playerctl come from Fedora proper; the
+    # hypr* packages come from the copr_hyprland repo below.
+    dnf_hyprland:
+      - hyprland                     # ≥0.55: Lua config (hyprland.lua)
+      - xdg-desktop-portal-hyprland
+      - hyprpolkitagent              # polkit dialogs (GNOME's agent is shell-bound)
+      - hyprlock
+      - hypridle
+      - hyprshot                     # Super+Shift+S region screenshots
+      - noctalia
+      - brightnessctl
+      - playerctl
     # Third-party repos enabled before the install pass.
     copr:
       - scottames/ghostty
+    # Enabled only when the hyprland flag is on. Fedora proper stopped
+    # shipping hyprland; this COPR tracks it for F44 (hermitfeather also
+    # carries the portal, hyprlock, hypridle, hyprshot).
+    copr_hyprland:
+      - hermitfeather/hyprland-dev
 
-  # ------------------------------------------------------- Arch (HyDE etc) --
+  # -------------------------------------------------- Arch (Noctalia etc) --
   arch:
     pacman:
       - zsh
@@ -88,11 +107,22 @@ packages:
       - brave-bin
     pacman_gnome:
       - gnome-tweaks
+    # Mirror of fedora.dnf_hyprland — all official Arch packages.
+    pacman_hyprland:
+      - hyprland
+      - xdg-desktop-portal-hyprland
+      - hyprpolkitagent
+      - hyprlock
+      - hypridle
+      - hyprshot
+      - noctalia
+      - brightnessctl
+      - playerctl
 
   # -------------------------------------------- Cross-distro, cross-desktop --
   common:
     # mise is the primary package manager for dev tooling. Identical versions
-    # on Fedora and Arch, which is what makes the HyDE migration cheap.
+    # on Fedora and Arch, which keeps a future distro move cheap.
     #   dotnet, node -> mise core plugins
     #   neovim       -> vfox backend
     #   everything else -> aqua backend

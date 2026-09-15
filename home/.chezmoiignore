@@ -10,8 +10,9 @@
 # --- Desktop-specific -------------------------------------------------------
 # Driven by the DECLARED desktop from .chezmoi.toml.tmpl, not by sniffing the
 # environment — see the comment there for why.
-{{ if ne .desktop "hyprland" -}}
+{{ if not (or (eq .desktop "hyprland") (and (hasKey . "hyprland") .hyprland)) -}}
 .config/hypr/**
+.config/noctalia/**
 {{ end -}}
 
 # --- Headless / container ---------------------------------------------------

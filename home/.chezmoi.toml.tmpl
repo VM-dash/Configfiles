@@ -23,11 +23,18 @@
 {{- end -}}
 {{- $desktop := promptStringOnce . "desktop" "Desktop environment [gnome|hyprland|none]" $detected -}}
 
+{{/*
+   Hyprland + Noctalia can ALSO be provisioned next to another desktop as a
+   second GDM session (pick at login). desktop=hyprland implies it.
+*/ -}}
+{{- $hyprland := promptBoolOnce . "hyprland" "Also provision the Hyprland + Noctalia session" (eq $desktop "hyprland") -}}
+
 [data]
 name    = {{ $name    | quote }}
 email   = {{ $email   | quote }}
 theme   = {{ $theme   | quote }}
-desktop = {{ $desktop | quote }}
+desktop  = {{ $desktop | quote }}
+hyprland = {{ $hyprland }}
 gui     = {{ $gui }}
 docker  = {{ $docker }}
 
