@@ -172,9 +172,7 @@ bind(mainMod .. " + Space", hl.dsp.exec_cmd(noctalia .. "panel-toggle launcher")
 bind(mainMod .. " + S",     hl.dsp.exec_cmd(noctalia .. "panel-toggle control-center"), "Control center")
 bind(mainMod .. " + comma", hl.dsp.exec_cmd(noctalia .. "settings-toggle"),             "Noctalia settings")
 bind("ALT + Tab",           hl.dsp.exec_cmd(noctalia .. "window-switcher"),             "Window switcher")
--- Ctrl+Shift+V is "paste" in terminals, but the picker's own paste-on-select
--- covers that; history is the more useful thing to reach from anywhere.
-bind("CTRL + SHIFT + V",    hl.dsp.exec_cmd(noctalia .. "panel-toggle clipboard"),      "Clipboard history")
+bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd(noctalia .. "panel-toggle clipboard"),  "Clipboard history")
 
 -- Parity with the GNOME session
 bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region"), "Screenshot (region)")
