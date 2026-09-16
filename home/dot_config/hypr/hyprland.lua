@@ -243,6 +243,15 @@ hl.window_rule({
     suppress_event = "maximize",
 })
 
+-- Nautilus is a quick-look tool here, not a tiled workspace citizen.
+hl.window_rule({
+    name  = "nautilus-floating",
+    match = { class = "^org\\.gnome\\.Nautilus$" },
+    float  = true,
+    size   = "60% 70%",
+    center = true,
+})
+
 hl.window_rule({
     name  = "fix-xwayland-drags",
     match = {
