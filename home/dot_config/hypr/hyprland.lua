@@ -91,7 +91,7 @@ hl.config({
         gaps_in     = 5,
         gaps_out    = 10,
         border_size = 2,
-        layout      = "dwindle",
+        layout      = "scrolling", -- Super+T toggles scrolling <-> master (hypr-layout)
     },
     decoration = {
         rounding       = 20,
@@ -109,8 +109,12 @@ hl.config({
             vibrancy = 0.1696,
         },
     },
-    dwindle = {
-        preserve_split = true,
+    scrolling = {
+        fullscreen_on_one_column = true,
+        column_width = 0.5,
+    },
+    master = {
+        new_status = "master",
     },
     misc = {
         disable_hyprland_logo   = true, -- Noctalia draws the wallpaper
@@ -174,6 +178,17 @@ bind(mainMod .. " + comma", hl.dsp.exec_cmd(noctalia .. "settings-toggle"),     
 bind("ALT + Tab",           hl.dsp.exec_cmd(noctalia .. "window-switcher"),             "Window switcher")
 bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd(noctalia .. "panel-toggle clipboard"),  "Clipboard history")
 bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd(terminal .. " -e hyprmoncfg"),           "Monitor layout editor (hyprmoncfg)")
+
+-- Tiling layouts: scrolling (niri-style columns) or master
+bind(mainMod .. " + T",                 hl.dsp.exec_cmd(home .. "/.local/bin/hypr-layout"), "Toggle layout scrolling <-> master")
+bind(mainMod .. " + bracketleft",       hl.dsp.layout("move -col"),          "Scrolling: scroll one column left")
+bind(mainMod .. " + bracketright",      hl.dsp.layout("move +col"),          "Scrolling: scroll one column right")
+bind(mainMod .. " + SHIFT + bracketleft",  hl.dsp.layout("swapcol l"),       "Scrolling: swap column left")
+bind(mainMod .. " + SHIFT + bracketright", hl.dsp.layout("swapcol r"),       "Scrolling: swap column right")
+bind(mainMod .. " + BackSpace",         hl.dsp.layout("consume_or_expel next"), "Scrolling: merge into / split out of column")
+bind(mainMod .. " + equal",             hl.dsp.layout("colresize +conf"),    "Scrolling: wider column (presets)")
+bind(mainMod .. " + minus",             hl.dsp.layout("colresize -conf"),    "Scrolling: narrower column (presets)")
+bind(mainMod .. " + M",                 hl.dsp.layout("swapwithmaster"),     "Master: swap focused with master")
 
 -- Parity with the GNOME session
 bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region"), "Screenshot (region)")

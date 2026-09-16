@@ -1,0 +1,17 @@
+#!/bin/bash
+# Switch the Hyprland tiling layout at runtime (Super+T toggles).
+#   hypr-layout            toggle scrolling <-> master
+#   hypr-layout <name>     set explicitly (scrolling|master|dwindle)
+#   hypr-layout get        print the current one
+# Runtime-only: the default lives in hyprland.lua (general.layout).
+set -euo pipefail
+cur=$(hyprctl getoption general:layout -j | jq -r .str)
+case "${1:-toggle}" in
+get) echo "$cur"; exit 0 ;;
+toggle) [ "$cur" = "scrolling" ] && new=master || new=scrolling ;;
+scrolling|master|dwindle) new="$1" ;;
+*) echo "usage: hypr-layout [toggle|get|scrolling|master|dwindle]" >&2; exit 2 ;;
+esac
+hyprctl eval "hl.config({ general = { layout = \"$new\" } })" >/dev/null
+notify-send -a hyprland -t 1500 "Layout: $new" 2>/dev/null || true
+echo "$new"
