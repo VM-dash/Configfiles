@@ -1,0 +1,11 @@
+# Started by hyprland.lua on hyprland.start, stopped on hyprland.shutdown.
+# Activates graphical-session.target for the Hyprland session: the plain
+# start-hyprland entry never does, and xdg-desktop-portal.service has
+# Requisite=graphical-session.target — without this no portal runs (no Flatpak
+# file pickers, no portal screenshots, no zenity/GTK dialogs).
+[Unit]
+Description=Hyprland compositor session
+Documentation=man:systemd.special(7)
+BindsTo=graphical-session.target
+Wants=graphical-session-pre.target
+After=graphical-session-pre.target

@@ -75,9 +75,17 @@ local noctalia    = "noctalia msg " -- IPC to the shell
 -------------------
 
 hl.on("hyprland.start", function()
+    -- Bring up graphical-session.target (see hyprland-session.target): the
+    -- portals, the polkit agent and every WantedBy=graphical-session.target
+    -- user unit (icon sync, QuickAccent) hang off it.
+    hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE"
+        .. " && dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE"
+        .. " && systemctl --user start hyprland-session.target")
     hl.exec_cmd("noctalia")
-    -- Polkit auth dialogs (GNOME's agent is shell-bound).
-    hl.exec_cmd("systemctl --user start hyprpolkitagent.service")
+end)
+
+hl.on("hyprland.shutdown", function()
+    hl.exec_cmd("systemctl --user stop hyprland-session.target")
 end)
 
 -------------------------------
@@ -198,6 +206,9 @@ bind(mainMod .. " + M",                 hl.dsp.layout("swapwithmaster"),     "Ma
 
 -- Parity with the GNOME session
 bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region"), "Screenshot (region)")
+-- For things that close on focus loss (menus, Noctalia panels): no picker,
+-- a 3 s countdown, the whole active screen, straight into Gradia to crop.
+bind(mainMod .. " + SHIFT + ALT + S", hl.dsp.exec_cmd(home .. "/.local/bin/kd-shot-delayed"), "Screenshot in 3 s → Gradia (keeps popups open)")
 bind(mainMod .. " + L",         hl.dsp.exec_cmd("hyprlock"),           "Lock screen")
 bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("theme next --quiet"), "Cycle terminal/editor theme")
 

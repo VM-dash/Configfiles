@@ -1,0 +1,18 @@
+#!/bin/bash
+# Delayed full-screen capture for popups that vanish on focus loss
+# (context menus, Noctalia panels). Nothing grabs focus: no region picker,
+# just a countdown, then the active monitor is captured and handed to Gradia
+# for cropping/annotation. Bound to Super+Shift+Alt+S.
+set -euo pipefail
+delay="${1:-3}"
+dir="${XDG_PICTURES_DIR:-$HOME/Pictures}/Screenshots"
+mkdir -p "$dir"
+notify-send -a screenshot -t $((delay * 1000)) "Screenshot in ${delay}s" "Open the menu/panel now" 2>/dev/null || true
+sleep "$delay"
+file="$dir/$(date +%Y-%m-%d-%H%M%S)_delayed.png"
+hyprshot -m output -m active -o "$dir" -f "$(basename "$file")" -s
+if command -v gradia >/dev/null 2>&1; then
+	gradia "$file" &
+elif flatpak info be.alexandervanhee.gradia >/dev/null 2>&1; then
+	flatpak run be.alexandervanhee.gradia "$file" &
+fi
