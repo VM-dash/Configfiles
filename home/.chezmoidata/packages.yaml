@@ -57,6 +57,9 @@ packages:
     dnf_remove:
       # Japanese IME pulled in by Fedora Workstation's input-methods group.
       - ibus-anthy
+      # Superseded by Noctalia's lock screen / idle handling.
+      - hyprlock
+      - hypridle
     # Hyprland + Noctalia session (installed alongside GNOME when the
     # `hyprland` data flag is true; GDM shows both sessions at login).
     # noctalia and brightnessctl/playerctl come from Fedora proper; the
@@ -65,8 +68,8 @@ packages:
       - hyprland                     # ≥0.55: Lua config (hyprland.lua)
       - xdg-desktop-portal-hyprland
       - hyprpolkitagent              # polkit dialogs (GNOME's agent is shell-bound)
-      - hyprlock
-      - hypridle
+      # No hyprlock/hypridle: Noctalia ships its own lock screen and idle
+      # handling (Super+L → `noctalia msg session lock`).
       - hyprshot                     # Super+Shift+S region screenshots
       - noctalia
       - brightnessctl
@@ -115,8 +118,6 @@ packages:
       - hyprland
       - xdg-desktop-portal-hyprland
       - hyprpolkitagent
-      - hyprlock
-      - hypridle
       - hyprshot
       - noctalia
       - brightnessctl

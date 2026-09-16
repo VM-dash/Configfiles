@@ -209,7 +209,7 @@ bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region"), "Screensh
 -- For things that close on focus loss (menus, Noctalia panels): no picker,
 -- a 3 s countdown, the whole active screen, straight into Gradia to crop.
 bind(mainMod .. " + SHIFT + ALT + S", hl.dsp.exec_cmd(home .. "/.local/bin/kd-shot-delayed"), "Screenshot in 3 s → Gradia (keeps popups open)")
-bind(mainMod .. " + L",         hl.dsp.exec_cmd("hyprlock"),           "Lock screen")
+bind(mainMod .. " + L",         hl.dsp.exec_cmd(noctalia .. "session lock"), "Lock screen (Noctalia)")
 bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("theme next --quiet"), "Cycle terminal/editor theme")
 
 -- This cheatsheet
