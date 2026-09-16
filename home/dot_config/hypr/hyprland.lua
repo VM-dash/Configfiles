@@ -48,13 +48,19 @@ hl.monitor({ output = dellRight, mode = "preferred", position = "3840x0", scale 
 -- when the lid is open — not persistent, so it doesn't linger on a Dell in
 -- clamshell mode). Undocked, none of the Dell rules match and workspaces
 -- fall back to Hyprland's dynamic behaviour.
+-- Every workspace tiles with the scrolling layout; a workspace keeps the
+-- layout it was created with otherwise. Super+T (hypr-layout) overrides it
+-- for the current workspace only, at runtime.
 for i = 1, 3 do
-    hl.workspace_rule({ workspace = tostring(i), monitor = dellLeft,  persistent = true, default = (i == 1) })
+    hl.workspace_rule({ workspace = tostring(i), monitor = dellLeft,  persistent = true, default = (i == 1), layout = "scrolling" })
 end
 for i = 4, 6 do
-    hl.workspace_rule({ workspace = tostring(i), monitor = dellRight, persistent = true, default = (i == 4) })
+    hl.workspace_rule({ workspace = tostring(i), monitor = dellRight, persistent = true, default = (i == 4), layout = "scrolling" })
 end
-hl.workspace_rule({ workspace = "7", monitor = "eDP-1", default = true })
+hl.workspace_rule({ workspace = "7", monitor = "eDP-1", default = true, layout = "scrolling" })
+for i = 8, 10 do
+    hl.workspace_rule({ workspace = tostring(i), layout = "scrolling" })
+end
 
 ---------------------
 ---- MY PROGRAMS ----
@@ -91,7 +97,7 @@ hl.config({
         gaps_in     = 5,
         gaps_out    = 10,
         border_size = 2,
-        layout      = "scrolling", -- Super+T toggles scrolling <-> master (hypr-layout)
+        layout      = "scrolling", -- workspace rules pin it too; Super+T overrides per workspace
     },
     decoration = {
         rounding       = 20,
@@ -180,7 +186,7 @@ bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd(noctalia .. "panel-toggle clipbo
 bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd(terminal .. " -e hyprmoncfg"),           "Monitor layout editor (hyprmoncfg)")
 
 -- Tiling layouts: scrolling (niri-style columns) or master
-bind(mainMod .. " + T",                 hl.dsp.exec_cmd(home .. "/.local/bin/hypr-layout"), "Toggle layout scrolling <-> master")
+bind(mainMod .. " + T",                 hl.dsp.exec_cmd(home .. "/.local/bin/hypr-layout"), "This workspace: toggle scrolling <-> master")
 bind(mainMod .. " + bracketleft",       hl.dsp.layout("move -col"),          "Scrolling: scroll one column left")
 bind(mainMod .. " + bracketright",      hl.dsp.layout("move +col"),          "Scrolling: scroll one column right")
 bind(mainMod .. " + SHIFT + bracketleft",  hl.dsp.layout("swapcol l"),       "Scrolling: swap column left")
