@@ -284,6 +284,14 @@ hl.window_rule({
     center = true,
 })
 
+-- Space-bar file preview (sushi): a quick-look overlay, never a tile.
+hl.window_rule({
+    name  = "nautilus-preview-floating",
+    match = { class = "^org\\.gnome\\.NautilusPreviewer$" },
+    float  = true,
+    center = true,
+})
+
 hl.window_rule({
     name  = "fix-xwayland-drags",
     match = {
