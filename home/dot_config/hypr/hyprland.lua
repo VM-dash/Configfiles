@@ -22,9 +22,39 @@ hl.monitor({
 -- Desk layout, left to right: laptop · Dell 87Y9ZY3 · Dell 17T9ZY3.
 -- The Dells are pinned by desc: their DP-N port names change between replugs
 -- (DP-7/DP-8 one day, DP-5/DP-6 the next). All three are 1920x1080.
-hl.monitor({ output = "eDP-1",                              mode = "preferred", position = "0x0",    scale = 1 })
-hl.monitor({ output = "desc:Dell Inc. DELL P2422H 87Y9ZY3", mode = "preferred", position = "1920x0", scale = 1 })
-hl.monitor({ output = "desc:Dell Inc. DELL P2422H 17T9ZY3", mode = "preferred", position = "3840x0", scale = 1 })
+local dellLeft  = "desc:Dell Inc. DELL P2422H 87Y9ZY3"
+local dellRight = "desc:Dell Inc. DELL P2422H 17T9ZY3"
+
+-- The panel is declared disabled when the config loads with the lid shut,
+-- otherwise every `hyprctl reload` would wake it in clamshell mode. Live
+-- open/close is kd-clamshell's job (LID / CLAMSHELL section below).
+local function lidClosed()
+    local f = io.open("/proc/acpi/button/lid/LID/state")
+    if not f then return false end
+    local state = f:read("*a") or ""
+    f:close()
+    return state:find("closed") ~= nil
+end
+
+hl.monitor({ output = "eDP-1",   mode = "preferred", position = "0x0",    scale = 1, disabled = lidClosed() })
+hl.monitor({ output = dellLeft,  mode = "preferred", position = "1920x0", scale = 1 })
+hl.monitor({ output = dellRight, mode = "preferred", position = "3840x0", scale = 1 })
+
+--------------------
+---- WORKSPACES ----
+--------------------
+
+-- Fixed numbering: 1-3 left Dell, 4-6 right Dell, 7 the laptop panel (only
+-- when the lid is open — not persistent, so it doesn't linger on a Dell in
+-- clamshell mode). Undocked, none of the Dell rules match and workspaces
+-- fall back to Hyprland's dynamic behaviour.
+for i = 1, 3 do
+    hl.workspace_rule({ workspace = tostring(i), monitor = dellLeft,  persistent = true, default = (i == 1) })
+end
+for i = 4, 6 do
+    hl.workspace_rule({ workspace = tostring(i), monitor = dellRight, persistent = true, default = (i == 4) })
+end
+hl.workspace_rule({ workspace = "7", monitor = "eDP-1", default = true })
 
 ---------------------
 ---- MY PROGRAMS ----
@@ -163,7 +193,7 @@ for i = 1, 10 do
     hl.bind(mainMod .. " + " .. key,         hl.dsp.focus({ workspace = i }))
     hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
 end
-cheat(mainMod .. " + 1..9,0",         "Go to workspace 1-10")
+cheat(mainMod .. " + 1..9,0",         "Go to workspace (1-3 left Dell, 4-6 right Dell, 7 laptop)")
 cheat(mainMod .. " + SHIFT + 1..9,0", "Move window to workspace 1-10")
 
 -- mainMod + scroll cycles workspaces; mainMod + LMB/RMB drags/resizes

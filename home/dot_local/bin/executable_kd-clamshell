@@ -18,6 +18,9 @@ open)
 	# Position matches the MONITORS section of hyprland.lua (laptop leftmost);
 	# "auto" here would re-attach the panel on the wrong side.
 	hyprctl eval 'hl.monitor({ output = "eDP-1", disabled = false, mode = "preferred", position = "0x0", scale = 1 })'
+	# Workspace 7 is bound to the panel by rule; make sure it is what shows.
+	sleep 1
+	hyprctl eval 'hl.dispatch(hl.dsp.workspace.move({ workspace = 7, monitor = "eDP-1" }))' >/dev/null 2>&1 || true
 	;;
 *)
 	echo "usage: kd-clamshell close|open" >&2
