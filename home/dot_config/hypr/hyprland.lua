@@ -11,13 +11,20 @@
 ---- MONITORS ----
 ------------------
 
--- Sensible default for every output; per-output lines go here when needed.
+-- Sensible default for any output not matched below.
 hl.monitor({
     output   = "",
     mode     = "preferred",
     position = "auto",
     scale    = "auto",
 })
+
+-- Desk layout, left to right: laptop · Dell 87Y9ZY3 · Dell 17T9ZY3.
+-- The Dells are pinned by desc: their DP-N port names change between replugs
+-- (DP-7/DP-8 one day, DP-5/DP-6 the next). All three are 1920x1080.
+hl.monitor({ output = "eDP-1",                              mode = "preferred", position = "0x0",    scale = 1 })
+hl.monitor({ output = "desc:Dell Inc. DELL P2422H 87Y9ZY3", mode = "preferred", position = "1920x0", scale = 1 })
+hl.monitor({ output = "desc:Dell Inc. DELL P2422H 17T9ZY3", mode = "preferred", position = "3840x0", scale = 1 })
 
 ---------------------
 ---- MY PROGRAMS ----
