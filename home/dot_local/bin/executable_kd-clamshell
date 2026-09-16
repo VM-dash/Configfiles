@@ -1,0 +1,21 @@
+#!/bin/bash
+# Lid handling for the Hyprland session (bound to switch:on/off:Lid Switch).
+#   close: turn the laptop panel off, but ONLY when an external monitor is
+#          active — undocked, logind's default lid-close suspend handles it,
+#          and disabling the only monitor would leave a running black brick.
+#   open:  bring the panel back.
+set -euo pipefail
+case "${1:-}" in
+close)
+	if hyprctl monitors -j | jq -e '[.[] | select(.name != "eDP-1")] | length > 0' >/dev/null; then
+		hyprctl keyword monitor "eDP-1, disable"
+	fi
+	;;
+open)
+	hyprctl keyword monitor "eDP-1, preferred, auto, auto"
+	;;
+*)
+	echo "usage: kd-clamshell close|open" >&2
+	exit 2
+	;;
+esac

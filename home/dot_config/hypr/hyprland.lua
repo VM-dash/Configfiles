@@ -108,31 +108,47 @@ hl.layer_rule({
 ---------------------
 
 local mainMod = "SUPER"
+local home    = os.getenv("HOME")
+
+-- Every bind goes through this helper so the cheatsheet stays in lockstep
+-- with reality: it registers the bind AND records "keys — description".
+-- `hypr-cheatsheet` (Super + /) shows the recorded list in the launcher —
+-- `hyprctl binds` is useless for this, Lua binds all report as "__lua".
+local cheatsheet = {}
+local function bind(keys, action, desc, opts)
+    hl.bind(keys, action, opts)
+    table.insert(cheatsheet, string.format("%-24s %s", keys, desc))
+end
+local function cheat(keys, desc) -- entry only, no bind (loops, switches)
+    table.insert(cheatsheet, string.format("%-24s %s", keys, desc))
+end
 
 -- Apps
-hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal))
-hl.bind(mainMod .. " + E",      hl.dsp.exec_cmd(fileManager))
-hl.bind(mainMod .. " + Q",      hl.dsp.window.close())
-hl.bind(mainMod .. " + F",      hl.dsp.window.fullscreen({ action = "toggle" }))
-hl.bind(mainMod .. " + V",      hl.dsp.window.float({ action = "toggle" }))
+bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal),                       "Terminal (ghostty)")
+bind(mainMod .. " + E",      hl.dsp.exec_cmd(fileManager),                    "File manager")
+bind(mainMod .. " + Q",      hl.dsp.window.close(),                           "Close window")
+bind(mainMod .. " + F",      hl.dsp.window.fullscreen({ action = "toggle" }), "Fullscreen")
+bind(mainMod .. " + V",      hl.dsp.window.float({ action = "toggle" }),      "Float window")
 
 -- Noctalia shell
-hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd(noctalia .. "panel-toggle launcher"))
-hl.bind(mainMod .. " + S",     hl.dsp.exec_cmd(noctalia .. "panel-toggle control-center"))
-hl.bind(mainMod .. " + comma", hl.dsp.exec_cmd(noctalia .. "settings-toggle"))
-hl.bind("ALT + Tab",           hl.dsp.exec_cmd(noctalia .. "window-switcher"))
+bind(mainMod .. " + Space", hl.dsp.exec_cmd(noctalia .. "panel-toggle launcher"),       "App launcher")
+bind(mainMod .. " + S",     hl.dsp.exec_cmd(noctalia .. "panel-toggle control-center"), "Control center")
+bind(mainMod .. " + comma", hl.dsp.exec_cmd(noctalia .. "settings-toggle"),             "Noctalia settings")
+bind("ALT + Tab",           hl.dsp.exec_cmd(noctalia .. "window-switcher"),             "Window switcher")
 
 -- Parity with the GNOME session
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region")) -- screenshot UI
-hl.bind(mainMod .. " + L",         hl.dsp.exec_cmd("hyprlock"))
--- Cycle the terminal/editor theme — same command the shell and Neovim use.
-hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("theme next --quiet"))
+bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region"), "Screenshot (region)")
+bind(mainMod .. " + L",         hl.dsp.exec_cmd("hyprlock"),           "Lock screen")
+bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("theme next --quiet"), "Cycle terminal/editor theme")
+
+-- This cheatsheet
+bind(mainMod .. " + slash", hl.dsp.exec_cmd(home .. "/.local/bin/hypr-cheatsheet"), "Keybinding cheatsheet")
 
 -- Focus with mainMod + arrows
-hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
-hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
-hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }))
-hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))
+bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }),  "Focus left")
+bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }), "Focus right")
+bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }),    "Focus up")
+bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }),  "Focus down")
 
 -- Workspaces: mainMod + [0-9] switches, + SHIFT moves the window
 for i = 1, 10 do
@@ -140,12 +156,14 @@ for i = 1, 10 do
     hl.bind(mainMod .. " + " .. key,         hl.dsp.focus({ workspace = i }))
     hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
 end
+cheat(mainMod .. " + 1..9,0",         "Go to workspace 1-10")
+cheat(mainMod .. " + SHIFT + 1..9,0", "Move window to workspace 1-10")
 
 -- mainMod + scroll cycles workspaces; mainMod + LMB/RMB drags/resizes
-hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
-hl.bind(mainMod .. " + mouse:272",  hl.dsp.window.drag(),   { mouse = true })
-hl.bind(mainMod .. " + mouse:273",  hl.dsp.window.resize(), { mouse = true })
+bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }), "Next workspace (scroll)")
+bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }), "Prev workspace (scroll)")
+bind(mainMod .. " + mouse:272",  hl.dsp.window.drag(),   "Drag window (LMB)",   { mouse = true })
+bind(mainMod .. " + mouse:273",  hl.dsp.window.resize(), "Resize window (RMB)", { mouse = true })
 
 -- Media keys through Noctalia (it draws the OSD)
 hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd(noctalia .. "volume-up"),   { locked = true, repeating = true })
@@ -156,6 +174,25 @@ hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"
 hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = true })
 hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
+
+------------------------
+---- LID / CLAMSHELL ----
+------------------------
+
+-- GNOME handles the lid itself; Hyprland must be told. kd-clamshell disables
+-- eDP-1 on close only when an external monitor is active (otherwise logind's
+-- default lid-close suspend takes over) and re-enables it on open.
+hl.bind("switch:on:Lid Switch",  hl.dsp.exec_cmd(home .. "/.local/bin/kd-clamshell close"), { locked = true })
+hl.bind("switch:off:Lid Switch", hl.dsp.exec_cmd(home .. "/.local/bin/kd-clamshell open"),  { locked = true })
+cheat("(lid close/open)", "External screen: laptop panel off/on")
+
+-- Publish the cheatsheet. pcall: binds must survive even if io is ever
+-- unavailable in the config environment.
+pcall(function()
+    local f = assert(io.open(home .. "/.cache/hypr-cheatsheet.txt", "w"))
+    f:write(table.concat(cheatsheet, "\n"), "\n")
+    f:close()
+end)
 
 ----------------------
 ---- WINDOW RULES ----
