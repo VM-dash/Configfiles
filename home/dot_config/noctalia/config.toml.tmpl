@@ -1,0 +1,219 @@
+# ~/.config/noctalia/config.toml — managed by chezmoi.
+#
+# Noctalia loads: built-in defaults → this file → the GUI-managed
+# ~/.local/state/noctalia/settings.toml, which loads LAST and wins. So: tweak
+# in the settings GUI (Super+,), then promote the result here and delete the
+# key from settings.toml (or the whole file — Noctalia recreates it).
+# Plugins listed under [plugins].enabled are fetched from the default git
+# sources on their own, so a fresh machine ends up with the same bar.
+
+[bar.default]
+capsule = true
+capsule_thickness = 1.0
+thickness = 21
+margin_ends = 10
+start  = [ "workspaces", "cat", "weather", "pill" ]
+center = [ "toggle", "notes", "clock", "notifications", "widget" ]
+end    = [ "media", "tray", "clipboard", "network", "bluetooth", "volume", "brightness", "battery", "session" ]
+
+# Bar widgets provided by plugins
+[widget.cat]
+type = "noctalia/bongocat:cat"
+
+[widget.clock]
+anchor = true
+
+[widget.notes]
+type = "noctalia/notes:notes"
+
+[widget.pill]
+type = "jrohland/claudecode:pill"
+
+[widget.toggle]
+type = "maddingo/hypr-layout-switcher:toggle"
+
+[widget.widget]
+type = "oldirtty/color_picker:widget"
+
+[plugins]
+enabled = [
+    "liamwh/emoji-picker",
+    "jrohland/claudecode",
+    "oldirtty/color_picker",
+    "noctalia/notes",
+    "noctalia/bongocat",
+    "maddingo/hypr-layout-switcher",
+]
+
+[[control_center.shortcuts]]
+type = "wifi"
+
+[[control_center.shortcuts]]
+type = "bluetooth"
+
+[[control_center.shortcuts]]
+type = "power_profile"
+
+[[control_center.shortcuts]]
+type = "dark_mode"
+
+[dock]
+active_monitor_only = true
+
+[hot_corners]
+enabled = true
+
+    [hot_corners.top_left]
+    action = "launcher"
+
+    [hot_corners.top_right]
+    action = "launcher"
+
+    [hot_corners.bottom_left]
+    action = "window_switcher"
+
+    [hot_corners.bottom_right]
+    action = "window_switcher"
+
+[location]
+address = "Dijon, France"
+
+[shell]
+font_family = "JetBrainsMono NFP"
+lang = "en"
+
+    [shell.launcher]
+    app_grid = true
+    categories = false
+    show_app_actions = true
+    pinned = [
+        "brave-browser",
+        "app.zen_browser.zen",
+        "com.mitchellh.ghostty",
+        "code",
+        "com.usebruno.Bruno",
+        "brave-ompifgpmddkgmclendfeacglnodjjndh-Default",
+        "brave-eoficlgicibekocmfdomjbfnjmehnhcd-Default",
+        "org.gnome.clocks",
+        "com.github.marhkb.Pods",
+        "quickaccent",
+        "org.gnome.Nautilus",
+        "brave-hnpfjngllnobngcgfapefoaidbinmjnm-Default",
+        "io.dbeaver.DBeaverCommunity",
+        "io.missioncenter.MissionCenter",
+        "io.github.mfat.sshpilot",
+    ]
+
+        [shell.launcher.providers.calculator]
+        global = false
+
+        [shell.launcher.providers.emoji]
+        global = false
+        prefix = ","
+
+        [shell.launcher.providers.session]
+        global = true
+
+    [shell.panel]
+    transparency_mode = "glass"
+
+    [shell.screenshot]
+    annotate = true
+    confirm_region = true
+    directory = "{{ .chezmoi.homeDir }}/Pictures/Screenshots"
+
+# Desktop theming is Noctalia's on this session (`theme` only does terminals
+# and editors). Rosé Pine built-in palette, dark/light following the
+# sunrise/sunset schedule for the location above.
+[theme]
+source = "builtin"
+builtin = "Rosé Pine"
+mode = "auto"
+wallpaper_scheme = "m3-tonal-spot"
+
+[wallpaper.default]
+path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
+
+# Lock screen: a login box per output plus clock / weather / visualizer on
+# the left Dell. Outputs that are not connected are simply skipped.
+[lockscreen_widgets]
+enabled = true
+schema_version = 2
+widget_order = [
+    "lockscreen-login-box@DP-5",
+    "lockscreen-login-box@DP-6",
+    "lockscreen-login-box@DP-7",
+    "lockscreen-login-box@DP-8",
+    "lockscreen-login-box@eDP-1",
+    "lockscreen-widget-0000000000000001",
+    "lockscreen-widget-0000000000000002",
+    "lockscreen-widget-0000000000000004",
+]
+
+    [lockscreen_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+{{ range $out := list "DP-5" "DP-6" "DP-7" "DP-8" "eDP-1" }}
+    [lockscreen_widgets.widget."lockscreen-login-box@{{ $out }}"]
+    type = "login_box"
+    output = "{{ $out }}"
+    cx = 960.0
+    cy = {{ if eq $out "eDP-1" }}807.0{{ else }}898.0{{ end }}
+    box_width = 810.0
+    box_height = 196.0
+    placement_width = 1920.0
+    placement_height = 1080.0
+    rotation = 0.0
+
+        [lockscreen_widgets.widget."lockscreen-login-box@{{ $out }}".settings]
+        layout = "regular"
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        input_opacity = 1.0
+        input_radius = 6.0
+        center_password_text = false
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+{{ end }}
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000001]
+    type = "clock"
+    output = "DP-5"
+    cx = 960.0
+    cy = 219.5
+    box_width = 0.0
+    box_height = 0.0
+    placement_width = 1920.0
+    placement_height = 1080.0
+    rotation = 0.0
+
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000002]
+    type = "weather"
+    output = "DP-5"
+    cx = 612.0
+    cy = 219.5
+    box_width = 0.0
+    box_height = 0.0
+    placement_width = 1920.0
+    placement_height = 1080.0
+    rotation = 0.0
+
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000004]
+    type = "fancy_audio_visualizer"
+    output = "DP-5"
+    cx = 1462.0
+    cy = 230.0
+    box_width = 0.0
+    box_height = 0.0
+    placement_width = 1920.0
+    placement_height = 1080.0
+    rotation = 0.0
+
+        [lockscreen_widgets.widget.lockscreen-widget-0000000000000004.settings]
+        background = false
