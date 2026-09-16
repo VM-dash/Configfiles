@@ -6,13 +6,16 @@
 #   open:  bring the panel back.
 set -euo pipefail
 case "${1:-}" in
+# NOTE: a Lua-configured Hyprland rejects `hyprctl keyword` — runtime changes
+# go through `hyprctl eval` instead.
 close)
 	if hyprctl monitors -j | jq -e '[.[] | select(.name != "eDP-1")] | length > 0' >/dev/null; then
-		hyprctl keyword monitor "eDP-1, disable"
+		hyprctl eval 'hl.monitor({ output = "eDP-1", disabled = true })'
 	fi
 	;;
 open)
-	hyprctl keyword monitor "eDP-1, preferred, auto, auto"
+	# disabled=false must be explicit — the disable rule persists otherwise.
+	hyprctl eval 'hl.monitor({ output = "eDP-1", disabled = false, mode = "preferred", position = "auto", scale = "auto" })'
 	;;
 *)
 	echo "usage: kd-clamshell close|open" >&2
