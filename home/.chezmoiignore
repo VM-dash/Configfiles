@@ -27,6 +27,7 @@
 .config/tmux/theme.conf
 .config/theme/current.sh
 .config/druk/config.json
+.config/hypr/hyprmoncfg-monitors.lua
 
 # --- Runtime state ----------------------------------------------------------
 .config/nvim/lazy-lock.json

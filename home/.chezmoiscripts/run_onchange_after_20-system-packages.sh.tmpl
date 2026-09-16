@@ -61,12 +61,16 @@ elif is_arch; then
 
 {{- if .gui }}
 	# VS Code and Brave are AUR-only on Arch.
+	AUR_PKGS="{{ .packages.arch.aur_gui | join " " }}"
+{{- if or (eq .desktop "hyprland") (and (hasKey . "hyprland") .hyprland) }}
+	AUR_PKGS="$AUR_PKGS {{ .packages.arch.aur_hyprland | join " " }}"
+{{- end }}
 	AUR_HELPER="$(aur_helper || true)"
 	if [ -n "$AUR_HELPER" ]; then
 		step "AUR packages (via $AUR_HELPER)"
-		try "$AUR_HELPER" -S --needed --noconfirm {{ .packages.arch.aur_gui | join " " }}
+		try "$AUR_HELPER" -S --needed --noconfirm $AUR_PKGS
 	else
-		warn "No AUR helper (paru/yay) — skipped: {{ .packages.arch.aur_gui | join ", " }}"
+		warn "No AUR helper (paru/yay) — skipped: $AUR_PKGS"
 	fi
 {{- end }}
 

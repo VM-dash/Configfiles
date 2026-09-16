@@ -71,6 +71,8 @@ packages:
       - noctalia
       - brightnessctl
       - playerctl
+      # TUI monitor arranger (drag screens, no coordinate math); Super+Shift+M.
+      - hyprmoncfg
     # Third-party repos enabled before the install pass.
     copr:
       - scottames/ghostty
@@ -79,6 +81,7 @@ packages:
     # carries the portal, hyprlock, hypridle, hyprshot).
     copr_hyprland:
       - hermitfeather/hyprland-dev
+      - paolino/hyprmoncfg
 
   # -------------------------------------------------- Arch (Noctalia etc) --
   arch:
@@ -118,6 +121,9 @@ packages:
       - noctalia
       - brightnessctl
       - playerctl
+    # AUR-only on Arch; installed through the AUR helper when flagged.
+    aur_hyprland:
+      - hyprmoncfg-bin
 
   # -------------------------------------------- Cross-distro, cross-desktop --
   common:

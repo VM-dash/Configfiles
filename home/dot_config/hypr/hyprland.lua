@@ -173,6 +173,7 @@ bind(mainMod .. " + S",     hl.dsp.exec_cmd(noctalia .. "panel-toggle control-ce
 bind(mainMod .. " + comma", hl.dsp.exec_cmd(noctalia .. "settings-toggle"),             "Noctalia settings")
 bind("ALT + Tab",           hl.dsp.exec_cmd(noctalia .. "window-switcher"),             "Window switcher")
 bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd(noctalia .. "panel-toggle clipboard"),  "Clipboard history")
+bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd(terminal .. " -e hyprmoncfg"),           "Monitor layout editor (hyprmoncfg)")
 
 -- Parity with the GNOME session
 bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region"), "Screenshot (region)")
@@ -250,3 +251,14 @@ hl.window_rule({
     },
     no_focus = true,
 })
+
+----------------------------
+---- hyprmoncfg LAYOUTS ----
+----------------------------
+
+-- Layouts saved from the hyprmoncfg TUI (Super+Shift+M) are applied from a
+-- file it owns, ~/.config/hypr/hyprmoncfg-monitors.lua. It must load LAST so
+-- the saved layout wins over the MONITORS defaults above. This is the exact
+-- guarded line hyprmoncfg would otherwise append itself (`hyprmoncfg doctor`
+-- checks it) — keeping it here stops the tool from editing this file.
+do local path = os.getenv("HOME") .. "/.config/hypr/hyprmoncfg-monitors.lua"; local file = io.open(path, "r"); if file then file:close(); dofile(path) end end

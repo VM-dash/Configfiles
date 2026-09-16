@@ -292,6 +292,17 @@ jsonc_set_string() {
 	sed -i "s/\"$key\": \"[^\"]*\"/\"$key\": \"$esc\"/" "$file"
 }
 
+# Same, but only inside the `"section": { ... }` object — for keys whose name
+# repeats across objects (Zed has mode/light/dark in both theme and icon_theme).
+jsonc_set_string_in() {
+	local file="$1" section="$2" key="$3" value="$4"
+	grep -q "\"$section\"" "$file" || return 1
+	local esc="${value//\\/\\\\}"
+	esc="${esc//&/\\&}"
+	esc="${esc//\//\\/}"
+	sed -i "/\"$section\": {/,/^[[:space:]]*}/ s/\"$key\": \"[^\"]*\"/\"$key\": \"$esc\"/" "$file"
+}
+
 # --- VS Code ----------------------------------------------------------------
 # VS Code follows GNOME light/dark (autoDetectColorScheme stays on), so the
 # catalog theme lands in the preferred slot for its polarity rather than in
@@ -327,11 +338,14 @@ apply_zed() {
 	local mode="dark"
 	[ "$polarity" = "light" ] && mode="light"
 
-	jsonc_set_string "$file" "mode" "$mode" || true
+	# Like VS Code, Zed follows the desktop: theme.mode stays "system" (chezmoi
+	# owns it) and only the slot for this theme's polarity is written here —
+	# apply_gnome then flips the desktop, which is what makes it show.
+	# Scoped to the "theme" object: icon_theme has the same keys.
 	if [ "$mode" = "light" ]; then
-		jsonc_set_string "$file" "light" "$name" || true
+		jsonc_set_string_in "$file" "theme" "light" "$name" || true
 	else
-		jsonc_set_string "$file" "dark" "$name" || true
+		jsonc_set_string_in "$file" "theme" "dark" "$name" || true
 	fi
 	ok "zed      → $name"
 }
