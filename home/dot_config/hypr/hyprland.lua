@@ -78,10 +78,13 @@ hl.on("hyprland.start", function()
     -- Bring up graphical-session.target (see hyprland-session.target): the
     -- portals, the polkit agent and every WantedBy=graphical-session.target
     -- user unit (icon sync, QuickAccent) hang off it.
-    hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE"
-        .. " && dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE"
+    hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE XCURSOR_THEME XCURSOR_SIZE HYPRCURSOR_THEME HYPRCURSOR_SIZE"
+        .. " && dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE XCURSOR_THEME XCURSOR_SIZE HYPRCURSOR_THEME HYPRCURSOR_SIZE"
         .. " && systemctl --user start hyprland-session.target")
     hl.exec_cmd("noctalia")
+    -- env only affects new clients; this switches the compositor's own
+    -- cursor (and, via gsettings sync, running GTK apps) right away.
+    hl.exec_cmd("hyprctl setcursor " .. cursorTheme .. " " .. cursorSize)
 end)
 
 hl.on("hyprland.shutdown", function()
@@ -92,8 +95,17 @@ end)
 ---- ENVIRONMENT VARIABLES ----
 -------------------------------
 
-hl.env("XCURSOR_SIZE", "24")
-hl.env("HYPRCURSOR_SIZE", "24")
+-- Same Rosé Pine cursor as the GNOME session (seeded into ~/.local/share/icons
+-- by .chezmoiexternal.toml; XCursor format — Hyprland falls back to it when
+-- there is no hyprcursor manifest). Hyprland's cursor:sync_gsettings_theme
+-- then pushes theme + size into org.gnome.desktop.interface itself, which is
+-- what GTK apps read — so this is the single source for both.
+local cursorTheme = "BreezeX-RosePine-Linux"
+local cursorSize  = 24
+hl.env("XCURSOR_THEME", cursorTheme)
+hl.env("HYPRCURSOR_THEME", cursorTheme)
+hl.env("XCURSOR_SIZE", tostring(cursorSize))
+hl.env("HYPRCURSOR_SIZE", tostring(cursorSize))
 
 -----------------------
 ---- LOOK AND FEEL ----
