@@ -7,27 +7,26 @@
 -- see ~/.config/noctalia/config.toml). The `theme` script deliberately does
 -- not touch this session's colors; it keeps owning terminals and editors.
 
-------------------
----- MONITORS ----
-------------------
+-------------------------------
+---- MONITORS & WORKSPACES ----
+-------------------------------
 
--- Sensible default for any output not matched below.
-hl.monitor({
-    output   = "",
-    mode     = "preferred",
-    position = "auto",
-    scale    = "auto",
-})
+-- Two desks, one config. Which external screens are connected decides the
+-- arrangement AND where workspaces live:
+--   office  two Dell P2422H on the dock: laptop left, Dells to the right;
+--           ws 1-3 left Dell, 4-6 right Dell, 7 laptop
+--   home    Dell U2415 over HDMI, standing ABOVE the laptop;
+--           ws 1-3 laptop, 4-6 U2415
+--   alone   everything on the laptop
+-- Externals are matched by desc: — DP-N port names drift between replugs.
+-- KD.apply_layout() runs at load and on every monitor (dis)connect; the
+-- lid script calls it too (KD is global so `hyprctl eval` can reach it).
 
--- Desk layout, left to right: laptop · Dell 87Y9ZY3 · Dell 17T9ZY3.
--- The Dells are pinned by desc: their DP-N port names change between replugs
--- (DP-7/DP-8 one day, DP-5/DP-6 the next). All three are 1920x1080.
+local laptop    = "eDP-1"
 local dellLeft  = "desc:Dell Inc. DELL P2422H 87Y9ZY3"
 local dellRight = "desc:Dell Inc. DELL P2422H 17T9ZY3"
+local dellHome  = "desc:Dell Inc. DELL U2415 7MT0186C0C5U"
 
--- The panel is declared disabled when the config loads with the lid shut,
--- otherwise every `hyprctl reload` would wake it in clamshell mode. Live
--- open/close is kd-clamshell's job (LID / CLAMSHELL section below).
 local function lidClosed()
     local f = io.open("/proc/acpi/button/lid/LID/state")
     if not f then return false end
@@ -36,31 +35,61 @@ local function lidClosed()
     return state:find("closed") ~= nil
 end
 
-hl.monitor({ output = "eDP-1",   mode = "preferred", position = "0x0",    scale = 1, disabled = lidClosed() })
-hl.monitor({ output = dellLeft,  mode = "preferred", position = "1920x0", scale = 1 })
-hl.monitor({ output = dellRight, mode = "preferred", position = "3840x0", scale = 1 })
+local function present(sel)
+    for _, m in ipairs(hl.get_monitors()) do
+        if sel == m.name or sel == "desc:" .. m.description then return true end
+    end
+    return false
+end
 
---------------------
----- WORKSPACES ----
---------------------
+KD = KD or {}
 
--- Fixed numbering: 1-3 left Dell, 4-6 right Dell, 7 the laptop panel (only
--- when the lid is open — not persistent, so it doesn't linger on a Dell in
--- clamshell mode). Undocked, none of the Dell rules match and workspaces
--- fall back to Hyprland's dynamic behaviour.
--- Every workspace tiles with the scrolling layout; a workspace keeps the
--- layout it was created with otherwise. Super+T (hypr-layout) overrides it
--- for the current workspace only, at runtime.
-for i = 1, 3 do
-    hl.workspace_rule({ workspace = tostring(i), monitor = dellLeft,  persistent = true, default = (i == 1), layout = "scrolling" })
+function KD.apply_layout()
+    local office = present(dellLeft) or present(dellRight)
+    local home   = present(dellHome)
+    -- The panel goes dark with the lid shut only while an external screen
+    -- can take over; alone, logind's lid-close suspend is the right answer.
+    local panelOff = lidClosed() and (office or home)
+
+    hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
+    if home then
+        hl.monitor({ output = dellHome, mode = "preferred", position = "0x0",    scale = 1 })
+        hl.monitor({ output = laptop,   mode = "preferred", position = "0x1200", scale = 1, disabled = panelOff })
+    else
+        hl.monitor({ output = laptop,    mode = "preferred", position = "0x0",    scale = 1, disabled = panelOff })
+        hl.monitor({ output = dellLeft,  mode = "preferred", position = "1920x0", scale = 1 })
+        hl.monitor({ output = dellRight, mode = "preferred", position = "3840x0", scale = 1 })
+    end
+
+    local low, high  -- monitors for ws 1-3 and 4-6
+    if home then
+        low, high = laptop, dellHome
+    elseif office then
+        low, high = dellLeft, dellRight
+    else
+        low, high = laptop, laptop
+    end
+    -- Every workspace tiles with the scrolling layout (a workspace otherwise
+    -- keeps the layout it was created with); Super+T overrides per workspace.
+    for i = 1, 3 do
+        hl.workspace_rule({ workspace = tostring(i), monitor = low,  persistent = true, default = (i == 1), layout = "scrolling" })
+    end
+    for i = 4, 6 do
+        hl.workspace_rule({ workspace = tostring(i), monitor = high, persistent = true, default = (i == 4), layout = "scrolling" })
+    end
+    -- ws 7: the laptop panel at the office (the Dells own 1-6 there).
+    hl.workspace_rule({ workspace = "7", monitor = laptop, default = office, layout = "scrolling" })
+    for i = 8, 10 do
+        hl.workspace_rule({ workspace = tostring(i), layout = "scrolling" })
+    end
+    if office and not panelOff then
+        pcall(function() hl.dispatch(hl.dsp.workspace.move({ workspace = 7, monitor = laptop })) end)
+    end
 end
-for i = 4, 6 do
-    hl.workspace_rule({ workspace = tostring(i), monitor = dellRight, persistent = true, default = (i == 4), layout = "scrolling" })
-end
-hl.workspace_rule({ workspace = "7", monitor = "eDP-1", default = true, layout = "scrolling" })
-for i = 8, 10 do
-    hl.workspace_rule({ workspace = tostring(i), layout = "scrolling" })
-end
+
+KD.apply_layout()
+hl.on("monitor.added",   function() KD.apply_layout() end)
+hl.on("monitor.removed", function() KD.apply_layout() end)
 
 ---------------------
 ---- MY PROGRAMS ----
@@ -239,7 +268,7 @@ for i = 1, 10 do
     hl.bind(mainMod .. " + " .. key,         hl.dsp.focus({ workspace = i }))
     hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
 end
-cheat(mainMod .. " + 1..9,0",         "Go to workspace (1-3 left Dell, 4-6 right Dell, 7 laptop)")
+cheat(mainMod .. " + 1..9,0",         "Go to workspace (office: 1-3/4-6 Dells, 7 laptop · home: 1-3 laptop, 4-6 U2415)")
 cheat(mainMod .. " + SHIFT + 1..9,0", "Move window to workspace 1-10")
 
 -- mainMod + scroll cycles workspaces; mainMod + LMB/RMB drags/resizes
