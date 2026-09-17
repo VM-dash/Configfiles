@@ -45,7 +45,9 @@
   "window.autoDetectColorScheme": true,
   "workbench.preferredDarkColorTheme": "Rosé Pine Moon",
   "workbench.preferredLightColorTheme": "Rosé Pine Dawn",
-  "workbench.iconTheme": "catppuccin-mocha",
+  {{- /* Seed the icon slot with whatever kd-vscode-icon-sync would write for the
+         current GNOME mode, so an apply never fights the watcher over it. */}}
+  "workbench.iconTheme": "{{ if and (lookPath "gsettings") (contains "light" (output "gsettings" "get" "org.gnome.desktop.interface" "color-scheme")) }}catppuccin-latte{{ else }}catppuccin-mocha{{ end }}",
 
   // ------------------------------------------------------------- editor --
   "editor.renderWhitespace": "boundary",
