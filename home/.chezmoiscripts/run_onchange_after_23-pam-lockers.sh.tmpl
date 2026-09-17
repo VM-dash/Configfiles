@@ -1,0 +1,46 @@
+{{ template "lib.sh" . }}
+{{ template "gui-only.sh" . }}
+{{- if not (or (eq .desktop "hyprland") (and (hasKey . "hyprland") .hyprland)) }}
+exit 0
+{{- end }}
+
+# PAM service for Noctalia's lock screen (it authenticates as service
+# "noctalia" and otherwise falls back to "login" → system-auth).
+#
+# Fedora's system-auth (authselect with-fingerprint) lists pam_fprintd BEFORE
+# pam_unix, so a locker that collects the password up front still sits
+# through the fingerprint prompt's timeout before the password is even
+# checked — that is the "unlock takes forever" symptom. GDM dodges it with a
+# parallel fingerprint stack; a locker cannot. Here the order is flipped:
+# a typed password is verified immediately; submit an EMPTY password to fall
+# through to the fingerprint reader instead. Only this service changes —
+# sudo, GDM and everything else keep using system-auth as is.
+
+step "PAM: locker service (password first, fingerprint fallback)"
+
+if ! can_root; then
+	warn "no sudo — skipping /etc/pam.d/noctalia"
+	exit 0
+fi
+
+want="$(cat <<-'PAM'
+	#%PAM-1.0
+	# Managed by chezmoi (.chezmoiscripts/23-pam-lockers). Password first,
+	# fingerprint only when the submitted password is empty.
+	auth        required      pam_env.so
+	auth        sufficient    pam_unix.so try_first_pass nullok
+	auth        sufficient    pam_fprintd.so
+	auth        required      pam_deny.so
+	account     include       system-auth
+	password    include       system-auth
+	session     include       system-auth
+	PAM
+)"
+
+if [ "$(cat /etc/pam.d/noctalia 2>/dev/null)" = "$want" ]; then
+	ok "/etc/pam.d/noctalia up to date"
+else
+	printf '%s\n' "$want" | $SUDO tee /etc/pam.d/noctalia >/dev/null \
+		&& ok "/etc/pam.d/noctalia written" \
+		|| warn "could not write /etc/pam.d/noctalia"
+fi
