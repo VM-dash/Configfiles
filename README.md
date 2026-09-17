@@ -25,7 +25,7 @@ re-provisioning any machine later is just `chezmoi apply`.
 | **Terminal** | Ghostty |
 | **Editor** | Neovim + LazyVim · VS Code · Zed · druk |
 | **Multiplexer** | tmux + TPM, tmux-yank, tmux-fingers · herdr |
-| **Dev toolchain** | mise: .NET 9, Node 22, neovim, tmux, herdr, rclone, starship, lazygit, fzf, ripgrep, fd, bat, eza, zoxide, opencode, druk |
+| **Dev toolchain** | mise: .NET 9, Node 22, neovim, tmux, herdr, starship, lazygit, fzf, ripgrep, fd, bat, eza, zoxide, opencode, druk |
 | **Containers** | Docker CE (rootless group configured) |
 | **Browsers** | Brave (native, policy-managed) · Zen |
 | **Apps** | DBeaver · Bruno · Obsidian · Inkscape · LibreOffice |
@@ -275,20 +275,6 @@ theme                       # pick a theme, watch everything change
 Neovim: `nvim`, then `:checkhealth`. LazyVim language extras (C#, Docker, JSON,
 TypeScript…) are opt-in — run `:LazyExtras` and enable what you want; the
 selection is saved to `~/.config/nvim/lazyvim.json`.
-
-### KD-Obsidian → OneDrive
-
-The vault at `~/Documents/kardham/doc/KD-Obsidian` bisyncs to Kardham OneDrive
-via rclone. Tokens live in `~/.config/rclone/obsidian.conf` (untracked).
-
-```sh
-rclone config --config ~/.config/rclone/obsidian.conf
-kd-obsidian-sync --resync
-systemctl --user enable --now kd-obsidian-sync.timer
-```
-
-On Windows, open `OneDrive - KARDHAM/KD-Obsidian` as the vault. Plugins
-(Hearth, Iconize, settings) sync; `workspace.json` / cache / `.trash` do not.
 
 ---
 

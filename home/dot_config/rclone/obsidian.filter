@@ -1,7 +1,0 @@
-# Volatile Obsidian state — rewritten constantly, machine-specific.
-- /.obsidian/workspace.json
-- /.obsidian/workspace-mobile.json
-- /.obsidian/cache/**
-- /.trash/**
-
-# Plugin code + data.json, community-plugins.json, appearance, etc. stay in.

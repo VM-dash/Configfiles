@@ -151,9 +151,6 @@ packages:
       # aqua backend, so Arch gets the same version and there is no third-party
       # rebuild to trust or wait on after a Fedora bump.
       - opencode@latest
-      # rclone: OneDrive bisync for the KD-Obsidian vault. Dedicated config at
-      # ~/.config/rclone/obsidian.conf (tokens — never committed).
-      - rclone@latest
       # herdr: agent-runtime multiplexer. Official mise registry entry; fallback
       # is `github:herdrdev/herdr` if an older mise lacks the package.
       - herdr@latest
