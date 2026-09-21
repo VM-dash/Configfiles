@@ -4,43 +4,64 @@
 exit 0
 {{- end }}
 
-# PAM service for Noctalia's lock screen (it authenticates as service
-# "noctalia" and otherwise falls back to "login" → system-auth).
+# PAM "login" stack: password first, fingerprint only as a fallback.
 #
-# Fedora's system-auth (authselect with-fingerprint) lists pam_fprintd BEFORE
-# pam_unix, so a locker that collects the password up front still sits
-# through the fingerprint prompt's timeout before the password is even
-# checked — that is the "unlock takes forever" symptom. GDM dodges it with a
-# parallel fingerprint stack; a locker cannot. Here the order is flipped:
-# a typed password is verified immediately; submit an EMPTY password to fall
-# through to the fingerprint reader instead. Only this service changes —
-# sudo, GDM and everything else keep using system-auth as is.
+# Noctalia's lock screen checks the password against the hard-coded PAM
+# service "login" (src/shell/lockscreen/lock_screen.cpp) while it drives the
+# fingerprint reader itself over D-Bus. Fedora's system-auth (authselect
+# with-fingerprint) lists pam_fprintd BEFORE pam_unix, so the typed password
+# is only verified after pam_fprintd fought Noctalia for the sensor and gave
+# up on a D-Bus timeout — a minute-long unlock. Only "login" is touched
+# (TTY logins and the locker); sudo and GDM keep using system-auth as is.
+# The file is otherwise util-linux's stock one, so it must be revisited if a
+# util-linux update drops a login.rpmnew.
+#
+# Submit an EMPTY password to fall through to the fingerprint reader
+# (Noctalia's allow_empty_password must be on for that; off by default).
 
-step "PAM: locker service (password first, fingerprint fallback)"
+step "PAM: login stack — password first, fingerprint fallback"
 
 if ! can_root; then
-	warn "no sudo — skipping /etc/pam.d/noctalia"
+	warn "no sudo — skipping /etc/pam.d/login"
 	exit 0
+fi
+
+# Leftover from the first attempt (Noctalia never reads it).
+if [ -f /etc/pam.d/noctalia ]; then
+	$SUDO rm -f /etc/pam.d/noctalia && ok "removed unused /etc/pam.d/noctalia"
 fi
 
 want="$(cat <<-'PAM'
 	#%PAM-1.0
-	# Managed by chezmoi (.chezmoiscripts/23-pam-lockers). Password first,
-	# fingerprint only when the submitted password is empty.
-	auth        required      pam_env.so
-	auth        sufficient    pam_unix.so try_first_pass nullok
-	auth        sufficient    pam_fprintd.so
-	auth        required      pam_deny.so
-	account     include       system-auth
-	password    include       system-auth
-	session     include       system-auth
+	# Managed by chezmoi (.chezmoiscripts/23-pam-lockers): the auth section is
+	# password-first (pam_unix before pam_fprintd); the rest is util-linux's.
+	auth       required     pam_env.so
+	auth       required     pam_faildelay.so delay=2000000
+	auth       sufficient   pam_unix.so try_first_pass nullok
+	auth       sufficient   pam_fprintd.so
+	auth       required     pam_deny.so
+	auth       include      postlogin
+	account    required     pam_nologin.so
+	account    include      system-auth
+	password   include      system-auth
+	# pam_selinux.so close should be the first session rule
+	session    required     pam_selinux.so close
+	session    required     pam_loginuid.so
+	# pam_selinux.so open should only be followed by sessions to be executed in the user context
+	session    required     pam_selinux.so open
+	session    required     pam_namespace.so
+	session    optional     pam_keyinit.so force revoke
+	session    include      system-auth
+	session    include      postlogin
+	-session   optional     pam_ck_connector.so
 	PAM
 )"
 
-if [ "$(cat /etc/pam.d/noctalia 2>/dev/null)" = "$want" ]; then
-	ok "/etc/pam.d/noctalia up to date"
+if [ "$(cat /etc/pam.d/login 2>/dev/null)" = "$want" ]; then
+	ok "/etc/pam.d/login up to date"
 else
-	printf '%s\n' "$want" | $SUDO tee /etc/pam.d/noctalia >/dev/null \
-		&& ok "/etc/pam.d/noctalia written" \
-		|| warn "could not write /etc/pam.d/noctalia"
+	[ -f /etc/pam.d/login.orig ] || $SUDO cp /etc/pam.d/login /etc/pam.d/login.orig
+	printf '%s\n' "$want" | $SUDO tee /etc/pam.d/login >/dev/null \
+		&& ok "/etc/pam.d/login written (stock copy kept as login.orig)" \
+		|| warn "could not write /etc/pam.d/login"
 fi
