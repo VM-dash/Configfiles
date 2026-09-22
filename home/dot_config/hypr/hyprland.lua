@@ -114,6 +114,8 @@ hl.on("hyprland.start", function()
     -- env only affects new clients; this switches the compositor's own
     -- cursor (and, via gsettings sync, running GTK apps) right away.
     hl.exec_cmd("hyprctl setcursor " .. cursorTheme .. " " .. cursorSize)
+    -- hyprpm-managed plugins (ScrollOverview); built by 24-hypr-plugins.
+    hl.exec_cmd("hyprpm reload -n")
 end)
 
 hl.on("hyprland.shutdown", function()
@@ -187,6 +189,24 @@ hl.config({
 
 hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 
+-- ScrollOverview (yayuuu/hyprland-scroll-overview): niri-style zoomed-out
+-- view of every workspace on every monitor — Super+G. Loaded by hyprpm at
+-- start; the plugin registers these keys when it loads, so a fresh session
+-- without the build just ignores them.
+hl.config({
+    plugin = {
+        scrolloverview = {
+            gesture_distance = 300,
+            scale            = 0.5,
+            workspace_gap    = 100,
+            layout           = "auto",   -- per-monitor orientation
+            wallpaper        = 2,
+            blur             = true,
+            shadow = { enabled = true, range = 50 },
+        },
+    },
+})
+
 -- Noctalia surfaces: blur them, and let Noctalia animate itself.
 hl.layer_rule({
     name  = "noctalia",
@@ -252,6 +272,15 @@ bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region"), "Screensh
 bind(mainMod .. " + SHIFT + ALT + S", hl.dsp.exec_cmd(home .. "/.local/bin/kd-shot-delayed"), "Screenshot in 3 s → Gradia (keeps popups open)")
 bind(mainMod .. " + L",         hl.dsp.exec_cmd(noctalia .. "session lock"), "Lock screen (Noctalia)")
 bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("theme next --quiet"), "Cycle terminal/editor theme")
+
+-- Overview of all workspaces (ScrollOverview plugin)
+bind(mainMod .. " + G", function()
+    if hl.plugin and hl.plugin.scrolloverview then
+        hl.plugin.scrolloverview.overview("toggle all")
+    else
+        hl.exec_cmd("notify-send -a hyprland 'ScrollOverview not loaded' 'run: chezmoi apply (24-hypr-plugins)'")
+    end
+end, "Overview of all workspaces (ScrollOverview)")
 
 -- This cheatsheet
 bind(mainMod .. " + slash", hl.dsp.exec_cmd(home .. "/.local/bin/hypr-cheatsheet"), "Keybinding cheatsheet")

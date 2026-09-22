@@ -76,6 +76,9 @@ packages:
       - playerctl
       # TUI monitor arranger (drag screens, no coordinate math); Super+Shift+M.
       - hyprmoncfg
+      # Headers + toolchain for hyprpm plugin builds (24-hypr-plugins); must
+      # match the hyprland build, hence the same COPR.
+      - hyprland-devel
     # Third-party repos enabled before the install pass.
     copr:
       - scottames/ghostty
@@ -125,6 +128,7 @@ packages:
     # AUR-only on Arch; installed through the AUR helper when flagged.
     aur_hyprland:
       - hyprmoncfg-bin
+      # hyprland-headers come with the hyprland package on Arch.
 
   # -------------------------------------------- Cross-distro, cross-desktop --
   common:

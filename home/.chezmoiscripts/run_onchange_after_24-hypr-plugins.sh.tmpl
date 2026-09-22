@@ -1,0 +1,37 @@
+{{ template "lib.sh" . }}
+{{ template "gui-only.sh" . }}
+{{- if not (or (eq .desktop "hyprland") (and (hasKey . "hyprland") .hyprland)) }}
+exit 0
+{{- end }}
+
+# Hyprland plugins via hyprpm. Plugins are compiled against the exact running
+# Hyprland, so this re-runs whenever the packages list changes — a Hyprland
+# update means a rebuild (`hyprpm update` does it).
+# packages hash: {{ .packages.fedora.dnf_hyprland | toJson | sha256sum }}
+#
+# hyprpm's state store is /var/cache/hyprpm/<user> and EVERY write to it
+# goes through sudo (add, enable, update alike), so this needs the cached
+# sudo ticket like the other privileged steps — no sudo, no plugins. hyprpm
+# refuses the COPR hyprland-devel headers (no commit stamp) and builds its
+# own from the Hyprland tag on `update`, which must run BEFORE `add`.
+# hyprland-devel is still needed: it pulls in the whole build toolchain.
+
+step "Hyprland plugins (hyprpm)"
+
+has hyprpm || { warn "hyprpm not installed — skipping"; exit 0; }
+can_root   || { warn "no sudo — hyprpm cannot write its state store; skipping"; exit 0; }
+[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] || { info "not inside Hyprland — plugins build on the next apply from the session"; exit 0; }
+
+# Headers matching the running compositor (no-op when already current).
+try hyprpm update
+
+# --- ScrollOverview: niri-style overview of all workspaces (Super+G) --------
+REPO="https://github.com/yayuuu/hyprland-scroll-overview.git"
+if hyprpm list 2>/dev/null | grep -q 'hyprland-scroll-overview'; then
+	ok "scroll-overview repo already added"
+else
+	try hyprpm add "$REPO"
+fi
+try hyprpm enable scrolloverview
+try hyprpm reload -n
+ok "plugins ready"
