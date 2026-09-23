@@ -300,9 +300,11 @@ end
 cheat(mainMod .. " + 1..9,0",         "Go to workspace (office: 1-3/4-6 Dells, 7 laptop · home: 1-3 laptop, 4-6 U2415)")
 cheat(mainMod .. " + SHIFT + 1..9,0", "Move window to workspace 1-10")
 
--- mainMod + scroll cycles workspaces; mainMod + LMB/RMB drags/resizes
-bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }), "Next workspace (scroll)")
-bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }), "Prev workspace (scroll)")
+-- mainMod + scroll cycles workspaces; mainMod + LMB/RMB drags/resizes.
+-- "m+1"/"m-1" stay on the focused monitor and wrap (1-3 here, 4-6 there);
+-- "e+1"/"e-1" would walk onto the other screen's workspaces instead.
+bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "m+1" }), "Next workspace on this screen (scroll)")
+bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "m-1" }), "Prev workspace on this screen (scroll)")
 bind(mainMod .. " + mouse:272",  hl.dsp.window.drag(),   "Drag window (LMB)",   { mouse = true })
 bind(mainMod .. " + mouse:273",  hl.dsp.window.resize(), "Resize window (RMB)", { mouse = true })
 
