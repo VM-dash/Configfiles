@@ -359,6 +359,24 @@ hl.window_rule({
     center = true,
 })
 
+-- Browser picture-in-picture (Brave says "Picture in picture", Zen/Firefox
+-- "Picture-in-Picture", other locales differ) — floating, pinned to every
+-- workspace of its monitor, parked bottom-right and never stealing focus.
+-- pin only works on floating windows, hence both.
+hl.window_rule({
+    name  = "browser-pip",
+    match = { title = "(?i)^picture[- ]in[- ]picture$" },
+    float             = true,
+    pin               = true,
+    no_initial_focus  = true,
+    keep_aspect_ratio = true,
+    size = { 480, 270 },
+    -- Bottom-right, 24px margin. Expressions must not contain spaces, and
+    -- window_w/window_h are not resolved here — hence the size baked in
+    -- (480+24, 270+24). Both are honoured on either monitor.
+    move = { "monitor_w-504", "monitor_h-294" },
+})
+
 -- Space-bar file preview (sushi): a quick-look overlay, never a tile.
 hl.window_rule({
     name  = "nautilus-preview-floating",
