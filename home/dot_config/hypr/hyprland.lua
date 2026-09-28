@@ -133,6 +133,17 @@ end)
 -- what GTK apps read — so this is the single source for both.
 local cursorTheme = "BreezeX-RosePine-Linux"
 local cursorSize  = 24
+-- GDM starts Hyprland with PATH=~/.cargo/bin:/usr/local/bin:/usr/bin, so
+-- exec_cmd() cannot find anything in ~/.local/bin (omasnap, theme, the kd-*
+-- helpers). Prepend it once — for the compositor and everything it spawns.
+do
+    local path = os.getenv("PATH") or ""
+    local mine = (os.getenv("HOME") or "") .. "/.local/bin"
+    if not path:find(mine, 1, true) then
+        hl.env("PATH", mine .. ":" .. path)
+    end
+end
+
 hl.env("XCURSOR_THEME", cursorTheme)
 hl.env("HYPRCURSOR_THEME", cursorTheme)
 hl.env("XCURSOR_SIZE", tostring(cursorSize))
@@ -279,7 +290,7 @@ bind(mainMod .. " + M",                 hl.dsp.layout("swapwithmaster"),     "Ma
 -- omasnap: capture, then annotate in its own overlay (drag = region, click a
 -- window = that window, click empty space = whole monitor). Same key toggles
 -- it off. Built by 26-omasnap; hyprshot stays for the delayed capture below.
-bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("omasnap"), "Screenshot + annotate (omasnap)")
+bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(home .. "/.local/bin/omasnap"), "Screenshot + annotate (omasnap)")
 -- For things that close on focus loss (menus, Noctalia panels): no picker,
 -- a 3 s countdown, the whole active screen, straight into Gradia to crop.
 bind(mainMod .. " + SHIFT + ALT + S", hl.dsp.exec_cmd(home .. "/.local/bin/kd-shot-delayed"), "Screenshot in 3 s → Gradia (keeps popups open)")
