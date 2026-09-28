@@ -207,6 +207,16 @@ hl.config({
     },
 })
 
+-- omasnap's overlay: no compositor animation (it animates itself) and never
+-- part of a screen share.
+hl.layer_rule({
+    name  = "omasnap",
+    match = { namespace = "^omasnap$" },
+    no_anim         = true,
+    animation       = "none",
+    no_screen_share = true,
+})
+
 -- Noctalia surfaces: blur them, and let Noctalia animate itself.
 hl.layer_rule({
     name  = "noctalia",
@@ -266,7 +276,10 @@ bind(mainMod .. " + minus",             hl.dsp.layout("colresize -conf"),    "Sc
 bind(mainMod .. " + M",                 hl.dsp.layout("swapwithmaster"),     "Master: swap focused with master")
 
 -- Parity with the GNOME session
-bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region"), "Screenshot (region)")
+-- omasnap: capture, then annotate in its own overlay (drag = region, click a
+-- window = that window, click empty space = whole monitor). Same key toggles
+-- it off. Built by 26-omasnap; hyprshot stays for the delayed capture below.
+bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("omasnap"), "Screenshot + annotate (omasnap)")
 -- For things that close on focus loss (menus, Noctalia panels): no picker,
 -- a 3 s countdown, the whole active screen, straight into Gradia to crop.
 bind(mainMod .. " + SHIFT + ALT + S", hl.dsp.exec_cmd(home .. "/.local/bin/kd-shot-delayed"), "Screenshot in 3 s → Gradia (keeps popups open)")

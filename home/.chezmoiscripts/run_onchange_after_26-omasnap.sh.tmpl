@@ -1,0 +1,60 @@
+{{ template "lib.sh" . }}
+{{ template "gui-only.sh" . }}
+{{- if not (or (eq .desktop "hyprland") (and (hasKey . "hyprland") .hyprland)) }}
+exit 0
+{{- end }}
+
+# omasnap — Wayland screenshot + annotation overlay (Super+Shift+S).
+# Built from source: upstream ships no Fedora package, and the bundled
+# install-omarchy script requires Omarchy's pacman helper. The pinned rev in
+# .chezmoidata/packages.yaml is what re-triggers this script, so bumping it is
+# the way to update; everything else here is idempotent.
+# rev: {{ .externals.omasnap_rev }}
+#
+# NOTE: this is the upstream project ({{ .externals.omasnap_repo }}), not the
+# pch/omasnap fork — that fork carries no commits of its own and trails
+# upstream, so it is the same code minus the fixes.
+
+REPO="https://github.com/{{ .externals.omasnap_repo }}.git"
+REV="{{ .externals.omasnap_rev }}"
+SRC="$HOME/.local/src/omasnap"
+BUILD="${XDG_CACHE_HOME:-$HOME/.cache}/omasnap/build"
+
+step "omasnap ($REV)"
+
+# Already at the pinned version? Nothing to do.
+if has omasnap && omasnap --version 2>/dev/null | grep -qF "${REV#v}"; then
+	ok "omasnap ${REV} already installed"
+	exit 0
+fi
+
+for tool in cmake ninja git; do
+	has "$tool" || { warn "$tool missing — skipping omasnap build"; exit 0; }
+done
+pkg-config --exists wayland-client || { warn "wayland-client headers missing — skipping"; exit 0; }
+
+if [ -d "$SRC/.git" ]; then
+	try git -C "$SRC" fetch --tags --depth 1 origin "$REV"
+else
+	mkdir -p "$(dirname "$SRC")"
+	try git clone --depth 1 --branch "$REV" "$REPO" "$SRC"
+fi
+git -C "$SRC" checkout --quiet --detach "$REV" 2>/dev/null \
+	|| git -C "$SRC" checkout --quiet --detach FETCH_HEAD 2>/dev/null \
+	|| { warn "could not check out $REV"; exit 0; }
+
+step "Building omasnap"
+if ! cmake -S "$SRC" -B "$BUILD" -G Ninja \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_INSTALL_PREFIX="$HOME/.local" >/dev/null; then
+	warn "cmake configure failed — is qt6-qtbase-devel/layer-shell-qt-devel installed?"
+	exit 0
+fi
+try cmake --build "$BUILD" --parallel
+try cmake --install "$BUILD"
+
+if has omasnap; then
+	ok "omasnap installed ($(omasnap --version 2>/dev/null | head -1))"
+else
+	warn "omasnap not on PATH after install — check $HOME/.local/bin"
+fi

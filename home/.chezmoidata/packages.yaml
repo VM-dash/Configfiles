@@ -79,6 +79,16 @@ packages:
       # Headers + toolchain for hyprpm plugin builds (24-hypr-plugins); must
       # match the hyprland build, hence the same COPR.
       - hyprland-devel
+      # Build + runtime deps for omasnap (26-omasnap): Qt6 layer-shell
+      # screenshot/annotation overlay. cmake/gcc come with hyprland-devel.
+      - ninja-build
+      - qt6-qtbase-devel
+      - layer-shell-qt-devel
+      - wayland-devel
+      - libdeflate-devel
+      - tesseract              # omasnap's OCR tool
+      - tesseract-langpack-eng
+      - xdg-utils
     # Third-party repos enabled before the install pass.
     copr:
       - scottames/ghostty
@@ -214,5 +224,9 @@ packages:
 # ------------------------------------------------------------- Repo pins ----
 # Pinned so a run is reproducible; bump deliberately.
 externals:
+  # Screenshot + annotation overlay for Hyprland, built from source by
+  # 26-omasnap. Bump the rev deliberately; the script rebuilds when it changes.
+  omasnap_repo: omacom/omasnap
+  omasnap_rev: v1.21.0
   claude_desktop_repo: aaddrick/claude-desktop-debian
   nerd_fonts_repo: ryanoasis/nerd-fonts
