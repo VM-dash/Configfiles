@@ -1,0 +1,27 @@
+#!/bin/bash
+# Keep the terminal/editor colours in step with Noctalia's dark/light mode.
+#
+# Run by Noctalia as a template post_hook with the resolved mode as $1, so it
+# fires however the mode changed: the control centre toggle, `noctalia msg
+# theme-mode-toggle`, or the sunrise/sunset schedule when mode = "auto".
+#
+# The polarity check makes it idempotent, which is what keeps it from looping:
+# `theme` itself flips GNOME's color-scheme, and anything that makes Noctalia
+# re-apply its templates runs this hook again — the second time it is a no-op.
+set -euo pipefail
+
+want="${1:-}"
+[ -n "$want" ] || want="$(noctalia msg theme-mode-get 2>/dev/null || true)"
+case "$want" in
+dark | light) ;;
+*) exit 0 ;;
+esac
+
+state="${XDG_CONFIG_HOME:-$HOME/.config}/theme/current.sh"
+cur=""
+# shellcheck source=/dev/null
+[ -r "$state" ] && . "$state" && cur="${THEME_POLARITY:-}"
+
+[ "$want" = "$cur" ] && exit 0
+
+exec "$HOME/.local/bin/theme" toggle --quiet

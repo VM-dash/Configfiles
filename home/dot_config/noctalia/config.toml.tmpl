@@ -131,6 +131,16 @@ builtin = "Rosé Pine"
 mode = "auto"
 wallpaper_scheme = "m3-tonal-spot"
 
+# Terminals and editors follow Noctalia's dark/light switch: this template
+# renders the resolved mode, and its post_hook runs `theme toggle` when the
+# two are out of step (the script no-ops when they already agree, so there is
+# no loop). {{ "{{ mode }}" }} is Noctalia's own token, not chezmoi's.
+[theme.templates.user.kd_theme_sync]
+input_path  = "$XDG_CONFIG_HOME/noctalia/templates/mode.txt"
+output_path = "$XDG_CACHE_HOME/noctalia/mode.txt"
+post_hook   = "{{ .chezmoi.homeDir }}/.local/bin/kd-theme-follow-noctalia {{ "{{ mode }}" }}"
+hook_async  = false
+
 [wallpaper.default]
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 
