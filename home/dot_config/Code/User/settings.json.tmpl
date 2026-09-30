@@ -43,7 +43,7 @@
   // Requires Catppuccin.catppuccin-vsc, Catppuccin.catppuccin-vsc-icons,
   // mvllow.rose-pine.
   "window.autoDetectColorScheme": true,
-  "workbench.preferredDarkColorTheme": "Rosé Pine Moon",
+  "workbench.preferredDarkColorTheme": "Rosé Pine",
   "workbench.preferredLightColorTheme": "Rosé Pine Dawn",
   {{- /* Seed the icon slot with whatever kd-vscode-icon-sync would write for the
          current GNOME mode, so an apply never fights the watcher over it. */}}
@@ -97,5 +97,10 @@
   "workbench.editor.pinnedTabsOnSeparateRow": true,
   "workbench.editor.scrollToSwitchTabs": true,
   "git.suggestSmartCommit": false,
-  "claudeCode.preferredLocation": "panel"
+  "claudeCode.preferredLocation": "panel",
+  "gitlens.gitCommands.skipConfirmations": [
+    "fetch:command",
+    "stash-push:command",
+    "pull:command"
+  ]
 }
