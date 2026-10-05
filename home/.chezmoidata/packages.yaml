@@ -190,6 +190,14 @@ packages:
       - org.inkscape.Inkscape        # vector graphics
       - org.libreoffice.LibreOffice  # office suite
 
+    # `flatpak override --user` per app, as "<app> <flag>" pairs.
+    flatpak_overrides:
+      # DBeaver is Eclipse/SWT, whose content-assist popup is broken under
+      # native Wayland: Ctrl+Space either does nothing or throws
+      # "Control.getShell() ... control is null". XWayland is the upstream
+      # workaround; the app already holds the fallback-x11 permission.
+      - io.dbeaver.DBeaverCommunity --env=GDK_BACKEND=x11
+
     # Installed by UUID via `gext`. GNOME only.
     gnome_extensions:
       - copyous@boerdereinar.dev     # clipboard manager (EGO 8834)

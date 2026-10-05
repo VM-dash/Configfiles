@@ -29,4 +29,11 @@ try flatpak install --user --noninteractive --assumeyes flathub $APPS
 # Deliberately no `flatpak update` here: the install above already fetches the
 # latest, and this script only re-runs when the app list itself changed.
 
+# --- Per-app overrides ------------------------------------------------------
+{{ range .packages.common.flatpak_overrides }}
+step "flatpak override: {{ . }}"
+# shellcheck disable=SC2086
+try flatpak override --user {{ . }}
+{{- end }}
+
 ok "GUI applications ready"
