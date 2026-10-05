@@ -196,7 +196,10 @@ packages:
       # native Wayland: Ctrl+Space either does nothing or throws
       # "Control.getShell() ... control is null". XWayland is the upstream
       # workaround; the app already holds the fallback-x11 permission.
-      - io.dbeaver.DBeaverCommunity --env=GDK_BACKEND=x11
+      # --socket=x11 is required alongside it: the app ships fallback-x11,
+      # which grants X11 only when Wayland is absent, so forcing the backend
+      # without it leaves DBeaver with "Cannot open display".
+      - io.dbeaver.DBeaverCommunity --env=GDK_BACKEND=x11 --socket=x11
 
     # Installed by UUID via `gext`. GNOME only.
     gnome_extensions:
