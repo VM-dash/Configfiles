@@ -1,0 +1,51 @@
+{{ template "lib.sh" . }}
+{{ template "gui-only.sh" . }}
+{{- if not (or (eq .desktop "hyprland") (and (hasKey . "hyprland") .hyprland)) }}
+exit 0
+{{- end }}
+
+# HyprMod — GTK4/libadwaita settings app for Hyprland (monitors, keybinds,
+# window rules, animation curves), with live preview and Lua-config support.
+#
+# Installed with pipx from a pinned commit: there is no Fedora package, and the
+# upstream tag (v0.4.0, July) predates every Lua-config fix — this machine's
+# config is hyprland.lua, so main is the only sane target. Bump hyprmod_rev in
+# .chezmoidata/packages.yaml to update; that is what re-triggers this script.
+# rev: {{ .externals.hyprmod_rev }}
+#
+# --system-site-packages: PyGObject/pycairo come from dnf (same reason gext
+# is installed that way in 80-gnome); building them inside the venv would
+# need the whole GObject-introspection toolchain.
+#
+# NOTE: HyprMod WRITES ~/.config/hypr/hyprland.lua, which chezmoi owns. After
+# changing something in the GUI, fold it back with
+#   chezmoi re-add ~/.config/hypr/hyprland.lua
+# or the next `chezmoi apply` silently reverts it.
+
+REV="{{ .externals.hyprmod_rev }}"
+SPEC="git+https://github.com/{{ .externals.hyprmod_repo }}.git@$REV"
+STAMP="${XDG_STATE_HOME:-$HOME/.local/state}/kd/hyprmod.rev"
+
+step "HyprMod ($(printf '%.12s' "$REV"))"
+
+has pipx || { warn "pipx not installed — skipping HyprMod"; exit 0; }
+
+if [ "$(cat "$STAMP" 2>/dev/null)" = "$REV" ] && has hyprmod; then
+	ok "HyprMod already at the pinned revision"
+else
+	if try pipx install --force --system-site-packages "$SPEC"; then
+		mkdir -p "$(dirname "$STAMP")"
+		printf '%s\n' "$REV" > "$STAMP"
+	else
+		warn "pipx install failed — skipping"
+		exit 0
+	fi
+fi
+
+# Desktop entry + icon under ~/.local/share. Idempotent; HyprMod also does
+# this on first launch, but doing it here means the launcher finds it
+# straight after provisioning.
+has hyprmod && try hyprmod --install
+
+# No --version flag upstream; the pipx entry carries the version.
+ok "HyprMod ready ($(pipx list --short 2>/dev/null | grep -m1 '^hyprmod ' || echo hyprmod))"

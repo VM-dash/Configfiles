@@ -89,6 +89,12 @@ packages:
       - tesseract              # omasnap's OCR tool
       - tesseract-langpack-eng
       - xdg-utils
+      # hyprmod (27-hyprmod) is a GTK4/libadwaita app installed with pipx
+      # --system-site-packages, so PyGObject and friends come from dnf.
+      - python3-gobject
+      - python3-cairo
+      - gtk4
+      - libadwaita
     # Third-party repos enabled before the install pass.
     copr:
       - scottames/ghostty
@@ -228,5 +234,9 @@ externals:
   # 26-omasnap. Bump the rev deliberately; the script rebuilds when it changes.
   omasnap_repo: omacom/omasnap
   omasnap_rev: v1.21.0
+  # GTK4 settings app for Hyprland. Pinned to a commit rather than the v0.4.0
+  # tag: every Lua-config fix is still unreleased, and this config is Lua.
+  hyprmod_repo: BlueManCZ/hyprmod
+  hyprmod_rev: 4fe54f2ee5f1943a2007959e0d67479879fb2c92
   claude_desktop_repo: aaddrick/claude-desktop-debian
   nerd_fonts_repo: ryanoasis/nerd-fonts
