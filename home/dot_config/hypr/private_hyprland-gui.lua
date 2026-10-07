@@ -6,8 +6,10 @@ hl.config({
         preserve_split = true,
     },
     general = {
-        border_size = 0,
         gaps_in = 1,
-        gaps_out = 3,
+        gaps_out = 6,
+    },
+    input = {
+        kb_options = "caps:escape",
     },
 })
