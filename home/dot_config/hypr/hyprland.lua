@@ -432,3 +432,14 @@ hl.window_rule({
 -- guarded line hyprmoncfg would otherwise append itself (`hyprmoncfg doctor`
 -- checks it) — keeping it here stops the tool from editing this file.
 do local path = os.getenv("HOME") .. "/.config/hypr/hyprmoncfg-monitors.lua"; local file = io.open(path, "r"); if file then file:close(); dofile(path) end end
+
+-------------------------
+---- HyprMod SETTINGS ----
+-------------------------
+
+-- Written by HyprMod (Super+Space → HyprMod) into hyprland-gui.lua, which it
+-- owns; it appends this require itself when you first save, so keeping the
+-- line here stops it from rewriting this file. Settings saved in the GUI win
+-- over the blocks above, since this loads last — promote anything worth
+-- keeping into LOOK AND FEEL and the generated file stays a scratch pad.
+require("hyprland-gui")
