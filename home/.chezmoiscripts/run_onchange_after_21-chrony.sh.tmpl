@@ -1,0 +1,49 @@
+{{ template "lib.sh" . }}
+
+# Let chrony correct a badly wrong clock at any time, not just at startup.
+#
+# This laptop dual-boots Windows, so the RTC is kept in local time
+# (`timedatectl set-local-rtc 1`). Whenever the two systems disagree about
+# what the RTC means, Linux boots up to two hours off — and Fedora's default
+# `makestep 1.0 3` only lets chrony *step* the clock during its first three
+# updates after chronyd starts. An offset that appears later (after a Windows
+# session, a suspend, a DST change) is only ever slewed, which for two hours
+# means it is never fixed: `timedatectl` just keeps reporting
+# "System clock synchronized: no".
+#
+# `makestep 1 -1` = step whenever the offset exceeds one second, forever.
+# Jumping the clock can confuse long-running timers, which is why it is not
+# the default; on a dual-booting laptop a correct clock is worth more.
+#
+# chrony 4.9 on Fedora has no drop-in directory (only `sourcedir` for NTP
+# sources), so the single directive is edited into /etc/chrony.conf in place.
+
+step "chrony: allow stepping the clock at any time"
+
+CONF="/etc/chrony.conf"
+WANT="makestep 1 -1"
+
+[ -f "$CONF" ] || { info "no $CONF — skipping"; exit 0; }
+
+if grep -qxF "$WANT" "$CONF"; then
+	ok "chrony already steps on demand"
+	exit 0
+fi
+
+can_root || { warn "no sudo — leaving $CONF alone"; exit 0; }
+
+[ -f "$CONF.orig" ] || $SUDO cp -n "$CONF" "$CONF.orig"
+
+# Replace the stock `makestep 1.0 3`; append if a future release drops it.
+if grep -qE '^makestep ' "$CONF"; then
+	$SUDO sed -i "s|^makestep .*|$WANT|" "$CONF"
+else
+	printf '%s\n' "$WANT" | $SUDO tee -a "$CONF" >/dev/null
+fi
+
+if grep -qxF "$WANT" "$CONF"; then
+	try $SUDO systemctl restart chronyd
+	ok "chrony will now step the clock whenever it drifts past a second"
+else
+	warn "could not update $CONF"
+fi
