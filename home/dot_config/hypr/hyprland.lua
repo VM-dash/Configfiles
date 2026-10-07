@@ -275,6 +275,8 @@ bind(mainMod .. " + S",     hl.dsp.exec_cmd(noctalia .. "panel-toggle control-ce
 bind(mainMod .. " + comma", hl.dsp.exec_cmd(noctalia .. "settings-toggle"),             "Noctalia settings")
 bind("ALT + Tab",           hl.dsp.exec_cmd(noctalia .. "window-switcher"),             "Window switcher")
 bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd(noctalia .. "panel-toggle clipboard"),  "Clipboard history")
+-- Plugin panels are addressed as "<author>/<plugin>:<panel>".
+bind(mainMod .. " + N",         hl.dsp.exec_cmd(noctalia .. "panel-toggle noctalia/notes:panel"), "Notes")
 bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd(terminal .. " -e hyprmoncfg"),           "Monitor layout editor (hyprmoncfg)")
 
 -- Tiling layouts: scrolling (niri-style columns) or master
