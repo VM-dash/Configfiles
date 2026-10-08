@@ -35,14 +35,19 @@ type = "maddingo/hypr-layout-switcher:toggle"
 [widget.widget]
 type = "oldirtty/color_picker:widget"
 
+# Deliberately NOT here: blackbartblues/audio-switcher. It is deprecated, and
+# it fires on every Bluetooth connection — including the Logitech mouse and
+# the IQUNIX keyboard — then warns that no PipeWire sink appeared. WirePlumber
+# switches to Bluetooth audio by itself anyway.
 [plugins]
 enabled = [
     "liamwh/emoji-picker",
     "jrohland/claudecode",
     "oldirtty/color_picker",
     "noctalia/notes",
-    "noctalia/bongocat",
     "maddingo/hypr-layout-switcher",
+    "baizhu/paged-todo",
+    "ahmedhossamdev/sticky-notes",
 ]
 
 [[control_center.shortcuts]]
