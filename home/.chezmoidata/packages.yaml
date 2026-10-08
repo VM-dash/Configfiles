@@ -41,6 +41,12 @@ packages:
       # fixes native messaging for the password-manager extensions and lets
       # Brave use gnome-keyring.
       - brave-browser
+      # FUSE 2 runtime. Fedora ships only fuse3 now, but type-2 AppImages
+      # still dlopen("libfuse.so.2") to self-mount and refuse to start
+      # without it ("AppImages require FUSE to run"). fuse3 is not a
+      # drop-in replacement, and the `fuse` package carries the 2.x tools
+      # but not this library.
+      - fuse-libs
     # GNOME-only; skipped automatically on other desktops.
     dnf_gnome:
       - gnome-tweaks
@@ -126,6 +132,7 @@ packages:
       - docker-compose
     pacman_gui:
       - ghostty
+      - fuse2                        # libfuse.so.2 for AppImages, see dnf_gui
     # AUR-only on Arch; installed via paru/yay in the packages script.
     aur_gui:
       - visual-studio-code-bin
