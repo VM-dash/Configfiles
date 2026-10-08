@@ -47,6 +47,11 @@ packages:
       # drop-in replacement, and the `fuse` package carries the 2.x tools
       # but not this library.
       - fuse-libs
+      # T3 Code (pingdotgg/t3code). Upstream ships only an AppImage; this is
+      # an RPM repackaging of the same stable release binaries, so the app
+      # gets a desktop entry, an icon and dnf updates. Unofficial COPR — it
+      # tracks upstream tags closely (see copr below).
+      - t3code-bin
     # GNOME-only; skipped automatically on other desktops.
     dnf_gnome:
       - gnome-tweaks
@@ -104,6 +109,7 @@ packages:
     # Third-party repos enabled before the install pass.
     copr:
       - scottames/ghostty
+      - ponesicek/t3code-bin
     # Enabled only when the hyprland flag is on. Fedora proper stopped
     # shipping hyprland; this COPR tracks it for F44 (hermitfeather also
     # carries the portal, hyprlock, hypridle, hyprshot).
@@ -194,6 +200,7 @@ packages:
       - io.dbeaver.DBeaverCommunity  # database client
       - com.usebruno.Bruno           # API testing
       - md.obsidian.Obsidian         # notes
+      - io.anytype.anytype           # notes/knowledge base (official Flathub)
       - org.inkscape.Inkscape        # vector graphics
       - org.libreoffice.LibreOffice  # office suite
 
