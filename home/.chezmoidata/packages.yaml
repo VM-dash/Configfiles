@@ -201,6 +201,7 @@ packages:
       - com.usebruno.Bruno           # API testing
       - md.obsidian.Obsidian         # notes
       - io.anytype.anytype           # notes/knowledge base (official Flathub)
+      - app.inkdrop.Inkdrop          # markdown notes (developer-verified Flathub)
       - org.inkscape.Inkscape        # vector graphics
       - org.libreoffice.LibreOffice  # office suite
 
