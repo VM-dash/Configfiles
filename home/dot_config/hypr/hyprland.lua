@@ -290,9 +290,23 @@ bind(mainMod .. " + M",                 hl.dsp.layout("swapwithmaster"),     "Ma
 -- 3 s / 5 s), then all screens / current screen / window / region, then
 -- Gradia. Keyboard: I|3|5 then A|S|W|R, or arrows + Enter.
 bind(mainMod .. " + SHIFT + S", hl.dsp.global("menu.kando.Kando:screenshot"), "Screenshot menu (Kando → Gradia)")
--- Tap Super alone (press + release, no other key) → session pie menu:
+-- Double-tap Super (alone, within 400 ms) → session pie menu:
 -- Settings S · Lock L · Log out O · Lock & suspend U · Reboot R · Shut down P.
-bind(mainMod .. " + Super_L", hl.dsp.global("menu.kando.Kando:session"), "Session menu (tap Super)", { release = true })
+-- Hyprland has no double-tap binds: a release bind arms a short timer and the
+-- second tap fires if it lands before the timer disarms it. ponytail: the
+-- 400 ms window is the knob if taps feel too strict or too loose.
+local superArmed, superGen = false, 0
+bind(mainMod .. " + Super_L", function()
+    if superArmed then
+        superArmed = false
+        hl.dispatch(hl.dsp.global("menu.kando.Kando:session"))
+        return
+    end
+    superArmed, superGen = true, superGen + 1
+    local gen = superGen
+    hl.timer(function() if gen == superGen then superArmed = false end end,
+             { timeout = 400, type = "oneshot" })
+end, "Session menu (double-tap Super)", { release = true })
 bind(mainMod .. " + L",         hl.dsp.exec_cmd(noctalia .. "session lock"), "Lock screen (Noctalia)")
 bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("theme next --quiet"), "Cycle terminal/editor theme")
 
