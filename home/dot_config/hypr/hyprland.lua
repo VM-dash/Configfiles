@@ -288,7 +288,7 @@ bind(mainMod .. " + M",                 hl.dsp.layout("swapwithmaster"),     "Ma
 -- Parity with the GNOME session
 -- Screenshot pie menu (Kando, ~/.config/kando/menus.json): delay (instant /
 -- 3 s / 5 s), then all screens / current screen / window / region, then
--- Gradia. Keyboard: 1|3|5 then A|S|W|R, or arrows + Enter.
+-- Gradia. Keyboard: I|3|5 then A|S|W|R, or arrows + Enter.
 bind(mainMod .. " + SHIFT + S", hl.dsp.global("menu.kando.Kando:screenshot"), "Screenshot menu (Kando → Gradia)")
 bind(mainMod .. " + L",         hl.dsp.exec_cmd(noctalia .. "session lock"), "Lock screen (Noctalia)")
 bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("theme next --quiet"), "Cycle terminal/editor theme")

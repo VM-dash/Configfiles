@@ -27,7 +27,7 @@
             "icon": "bolt",
             "iconTheme": "material-symbols-rounded",
             "openWorkflow": {
-              "quickSelectKey": "1",
+              "quickSelectKey": "I",
               "actions": []
             },
             "activateWorkflow": {
