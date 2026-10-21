@@ -261,9 +261,6 @@ externals:
   omasnap_rev: v1.21.0
   # GTK4 settings app for Hyprland. Pinned to a commit rather than the v0.4.0
   # tag: every Lua-config fix is still unreleased, and this config is Lua.
-  # Music player: upstream RPM per release, no repo (28-parachord).
-  parachord_repo: Parachord/parachord
-  parachord_rev: v0.9.9
   hyprmod_repo: BlueManCZ/hyprmod
   hyprmod_rev: 4fe54f2ee5f1943a2007959e0d67479879fb2c92
   claude_desktop_repo: aaddrick/claude-desktop-debian
