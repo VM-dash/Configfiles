@@ -2,16 +2,11 @@
   "version": "3.0.0",
   "menus": [
     {
-      "shortcut": "",
-      "shortcutID": "screenshot",
-      "centered": false,
-      "anchored": false,
-      "hoverMode": false,
       "root": {
-        "type": "root",
         "name": "Screenshot",
         "icon": "photo_camera",
         "iconTheme": "material-symbols-rounded",
+        "type": "root",
         "activateWorkflow": {
           "quickSelectKey": "Backspace",
           "actions": [
@@ -22,10 +17,10 @@
         },
         "children": [
           {
-            "type": "submenu",
             "name": "Instant",
             "icon": "bolt",
             "iconTheme": "material-symbols-rounded",
+            "type": "submenu",
             "openWorkflow": {
               "quickSelectKey": "I",
               "actions": []
@@ -40,30 +35,10 @@
             },
             "children": [
               {
-                "type": "button",
-                "name": "All screens",
-                "icon": "desktop_windows",
-                "iconTheme": "material-symbols-rounded",
-                "selectWorkflow": {
-                  "quickSelectKey": "A",
-                  "actions": [
-                    {
-                      "type": "close-menu"
-                    },
-                    {
-                      "type": "execute-command",
-                      "command": "kd-shot 0 all",
-                      "detached": true,
-                      "isolated": false
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "button",
                 "name": "Current screen",
                 "icon": "monitor",
                 "iconTheme": "material-symbols-rounded",
+                "type": "button",
                 "selectWorkflow": {
                   "quickSelectKey": "S",
                   "actions": [
@@ -80,19 +55,19 @@
                 }
               },
               {
-                "type": "button",
-                "name": "Current window",
-                "icon": "select_window",
+                "name": "All screens",
+                "icon": "auto_awesome_mosaic",
                 "iconTheme": "material-symbols-rounded",
+                "type": "button",
                 "selectWorkflow": {
-                  "quickSelectKey": "W",
+                  "quickSelectKey": "A",
                   "actions": [
                     {
                       "type": "close-menu"
                     },
                     {
                       "type": "execute-command",
-                      "command": "kd-shot 0 window",
+                      "command": "kd-shot 0 all",
                       "detached": true,
                       "isolated": false
                     }
@@ -100,10 +75,10 @@
                 }
               },
               {
-                "type": "button",
                 "name": "Region",
                 "icon": "screenshot_region",
                 "iconTheme": "material-symbols-rounded",
+                "type": "button",
                 "selectWorkflow": {
                   "quickSelectKey": "R",
                   "actions": [
@@ -118,14 +93,34 @@
                     }
                   ]
                 }
+              },
+              {
+                "name": "Current window",
+                "icon": "select_window",
+                "iconTheme": "material-symbols-rounded",
+                "type": "button",
+                "selectWorkflow": {
+                  "quickSelectKey": "W",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 0 window",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
               }
             ]
           },
           {
-            "type": "submenu",
             "name": "In 3 s",
             "icon": "timer_3",
             "iconTheme": "material-symbols-rounded",
+            "type": "submenu",
             "openWorkflow": {
               "quickSelectKey": "3",
               "actions": []
@@ -140,19 +135,19 @@
             },
             "children": [
               {
-                "type": "button",
-                "name": "All screens",
-                "icon": "desktop_windows",
+                "name": "Region",
+                "icon": "screenshot_region",
                 "iconTheme": "material-symbols-rounded",
+                "type": "button",
                 "selectWorkflow": {
-                  "quickSelectKey": "A",
+                  "quickSelectKey": "R",
                   "actions": [
                     {
                       "type": "close-menu"
                     },
                     {
                       "type": "execute-command",
-                      "command": "kd-shot 3 all",
+                      "command": "kd-shot 3 region",
                       "detached": true,
                       "isolated": false
                     }
@@ -160,30 +155,10 @@
                 }
               },
               {
-                "type": "button",
-                "name": "Current screen",
-                "icon": "monitor",
-                "iconTheme": "material-symbols-rounded",
-                "selectWorkflow": {
-                  "quickSelectKey": "S",
-                  "actions": [
-                    {
-                      "type": "close-menu"
-                    },
-                    {
-                      "type": "execute-command",
-                      "command": "kd-shot 3 screen",
-                      "detached": true,
-                      "isolated": false
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "button",
                 "name": "Current window",
                 "icon": "select_window",
                 "iconTheme": "material-symbols-rounded",
+                "type": "button",
                 "selectWorkflow": {
                   "quickSelectKey": "W",
                   "actions": [
@@ -200,19 +175,39 @@
                 }
               },
               {
-                "type": "button",
-                "name": "Region",
-                "icon": "screenshot_region",
+                "name": "Current screen",
+                "icon": "monitor",
                 "iconTheme": "material-symbols-rounded",
+                "type": "button",
                 "selectWorkflow": {
-                  "quickSelectKey": "R",
+                  "quickSelectKey": "S",
                   "actions": [
                     {
                       "type": "close-menu"
                     },
                     {
                       "type": "execute-command",
-                      "command": "kd-shot 3 region",
+                      "command": "kd-shot 3 screen",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "All screens",
+                "icon": "auto_awesome_mosaic",
+                "iconTheme": "material-symbols-rounded",
+                "type": "button",
+                "selectWorkflow": {
+                  "quickSelectKey": "A",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 3 all",
                       "detached": true,
                       "isolated": false
                     }
@@ -222,10 +217,10 @@
             ]
           },
           {
-            "type": "submenu",
             "name": "In 5 s",
             "icon": "timer_5",
             "iconTheme": "material-symbols-rounded",
+            "type": "submenu",
             "openWorkflow": {
               "quickSelectKey": "5",
               "actions": []
@@ -240,19 +235,19 @@
             },
             "children": [
               {
-                "type": "button",
-                "name": "All screens",
-                "icon": "desktop_windows",
+                "name": "Region",
+                "icon": "screenshot_region",
                 "iconTheme": "material-symbols-rounded",
+                "type": "button",
                 "selectWorkflow": {
-                  "quickSelectKey": "A",
+                  "quickSelectKey": "R",
                   "actions": [
                     {
                       "type": "close-menu"
                     },
                     {
                       "type": "execute-command",
-                      "command": "kd-shot 5 all",
+                      "command": "kd-shot 5 region",
                       "detached": true,
                       "isolated": false
                     }
@@ -260,30 +255,10 @@
                 }
               },
               {
-                "type": "button",
-                "name": "Current screen",
-                "icon": "monitor",
-                "iconTheme": "material-symbols-rounded",
-                "selectWorkflow": {
-                  "quickSelectKey": "S",
-                  "actions": [
-                    {
-                      "type": "close-menu"
-                    },
-                    {
-                      "type": "execute-command",
-                      "command": "kd-shot 5 screen",
-                      "detached": true,
-                      "isolated": false
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "button",
                 "name": "Current window",
                 "icon": "select_window",
                 "iconTheme": "material-symbols-rounded",
+                "type": "button",
                 "selectWorkflow": {
                   "quickSelectKey": "W",
                   "actions": [
@@ -300,19 +275,39 @@
                 }
               },
               {
-                "type": "button",
-                "name": "Region",
-                "icon": "screenshot_region",
+                "name": "Current screen",
+                "icon": "monitor",
                 "iconTheme": "material-symbols-rounded",
+                "type": "button",
                 "selectWorkflow": {
-                  "quickSelectKey": "R",
+                  "quickSelectKey": "S",
                   "actions": [
                     {
                       "type": "close-menu"
                     },
                     {
                       "type": "execute-command",
-                      "command": "kd-shot 5 region",
+                      "command": "kd-shot 5 screen",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "All screens",
+                "icon": "auto_awesome_mosaic",
+                "iconTheme": "material-symbols-rounded",
+                "type": "button",
+                "selectWorkflow": {
+                  "quickSelectKey": "A",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 5 all",
                       "detached": true,
                       "isolated": false
                     }
@@ -322,7 +317,165 @@
             ]
           }
         ]
-      }
+      },
+      "shortcut": "",
+      "shortcutID": "screenshot",
+      "useFixedPosition": false,
+      "fixedMenuPosition": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "anchored": false,
+      "hoverMode": false,
+      "tags": []
+    },
+    {
+      "shortcut": "",
+      "shortcutID": "session",
+      "anchored": false,
+      "hoverMode": false,
+      "root": {
+        "type": "root",
+        "name": "Session",
+        "icon": "power_settings_new",
+        "iconTheme": "material-symbols-rounded",
+        "activateWorkflow": {
+          "quickSelectKey": "Backspace",
+          "actions": [
+            {
+              "type": "close-menu"
+            }
+          ]
+        },
+        "children": [
+          {
+            "type": "button",
+            "name": "Settings",
+            "icon": "settings",
+            "iconTheme": "material-symbols-rounded",
+            "selectWorkflow": {
+              "quickSelectKey": "S",
+              "actions": [
+                {
+                  "type": "close-menu"
+                },
+                {
+                  "type": "execute-command",
+                  "command": "noctalia msg settings-open",
+                  "detached": true,
+                  "isolated": false
+                }
+              ]
+            }
+          },
+          {
+            "type": "button",
+            "name": "Lock",
+            "icon": "lock",
+            "iconTheme": "material-symbols-rounded",
+            "selectWorkflow": {
+              "quickSelectKey": "L",
+              "actions": [
+                {
+                  "type": "close-menu"
+                },
+                {
+                  "type": "execute-command",
+                  "command": "noctalia msg session lock",
+                  "detached": true,
+                  "isolated": false
+                }
+              ]
+            }
+          },
+          {
+            "type": "button",
+            "name": "Log out",
+            "icon": "logout",
+            "iconTheme": "material-symbols-rounded",
+            "selectWorkflow": {
+              "quickSelectKey": "O",
+              "actions": [
+                {
+                  "type": "close-menu"
+                },
+                {
+                  "type": "execute-command",
+                  "command": "noctalia msg session logout",
+                  "detached": true,
+                  "isolated": false
+                }
+              ]
+            }
+          },
+          {
+            "type": "button",
+            "name": "Lock & suspend",
+            "icon": "bedtime",
+            "iconTheme": "material-symbols-rounded",
+            "selectWorkflow": {
+              "quickSelectKey": "U",
+              "actions": [
+                {
+                  "type": "close-menu"
+                },
+                {
+                  "type": "execute-command",
+                  "command": "noctalia msg session lock-and-suspend",
+                  "detached": true,
+                  "isolated": false
+                }
+              ]
+            }
+          },
+          {
+            "type": "button",
+            "name": "Reboot",
+            "icon": "restart_alt",
+            "iconTheme": "material-symbols-rounded",
+            "selectWorkflow": {
+              "quickSelectKey": "R",
+              "actions": [
+                {
+                  "type": "close-menu"
+                },
+                {
+                  "type": "execute-command",
+                  "command": "noctalia msg session reboot",
+                  "detached": true,
+                  "isolated": false
+                }
+              ]
+            }
+          },
+          {
+            "type": "button",
+            "name": "Shut down",
+            "icon": "power_settings_new",
+            "iconTheme": "material-symbols-rounded",
+            "selectWorkflow": {
+              "quickSelectKey": "P",
+              "actions": [
+                {
+                  "type": "close-menu"
+                },
+                {
+                  "type": "execute-command",
+                  "command": "noctalia msg session shutdown",
+                  "detached": true,
+                  "isolated": false
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "useFixedPosition": false,
+      "fixedMenuPosition": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "tags": []
     }
   ],
   "collections": []

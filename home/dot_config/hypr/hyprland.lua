@@ -290,6 +290,9 @@ bind(mainMod .. " + M",                 hl.dsp.layout("swapwithmaster"),     "Ma
 -- 3 s / 5 s), then all screens / current screen / window / region, then
 -- Gradia. Keyboard: I|3|5 then A|S|W|R, or arrows + Enter.
 bind(mainMod .. " + SHIFT + S", hl.dsp.global("menu.kando.Kando:screenshot"), "Screenshot menu (Kando → Gradia)")
+-- Tap Super alone (press + release, no other key) → session pie menu:
+-- Settings S · Lock L · Log out O · Lock & suspend U · Reboot R · Shut down P.
+bind(mainMod .. " + Super_L", hl.dsp.global("menu.kando.Kando:session"), "Session menu (tap Super)", { release = true })
 bind(mainMod .. " + L",         hl.dsp.exec_cmd(noctalia .. "session lock"), "Lock screen (Noctalia)")
 bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("theme next --quiet"), "Cycle terminal/editor theme")
 
