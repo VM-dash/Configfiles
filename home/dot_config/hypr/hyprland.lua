@@ -139,7 +139,11 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE XCURSOR_THEME XCURSOR_SIZE HYPRCURSOR_THEME HYPRCURSOR_SIZE"
         .. " && dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE XCURSOR_THEME XCURSOR_SIZE HYPRCURSOR_THEME HYPRCURSOR_SIZE"
         .. " && systemctl --user start hyprland-session.target")
-    hl.exec_cmd("noctalia")
+    -- Wait until Hyprland answers IPC: Noctalia probes `j/status` once at
+    -- startup (500 ms timeout) to detect the Lua config; a miss leaves it
+    -- sending legacy dispatches all session, so workspace clicks silently
+    -- fail. ponytail: drop once noctalia-dev/noctalia#4890 is fixed.
+    hl.exec_cmd("for i in $(seq 1 40); do timeout 0.3 hyprctl -j status >/dev/null 2>&1 && break; sleep 0.25; done; noctalia")
     -- env only affects new clients; this switches the compositor's own
     -- cursor (and, via gsettings sync, running GTK apps) right away.
     hl.exec_cmd("hyprctl setcursor " .. cursorTheme .. " " .. cursorSize)
