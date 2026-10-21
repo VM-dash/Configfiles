@@ -1,0 +1,329 @@
+{
+  "version": "3.0.0",
+  "menus": [
+    {
+      "shortcut": "",
+      "shortcutID": "screenshot",
+      "centered": false,
+      "anchored": false,
+      "hoverMode": false,
+      "root": {
+        "type": "root",
+        "name": "Screenshot",
+        "icon": "photo_camera",
+        "iconTheme": "material-symbols-rounded",
+        "activateWorkflow": {
+          "quickSelectKey": "Backspace",
+          "actions": [
+            {
+              "type": "close-menu"
+            }
+          ]
+        },
+        "children": [
+          {
+            "type": "submenu",
+            "name": "Instant",
+            "icon": "bolt",
+            "iconTheme": "material-symbols-rounded",
+            "openWorkflow": {
+              "quickSelectKey": "1",
+              "actions": []
+            },
+            "activateWorkflow": {
+              "quickSelectKey": "Backspace",
+              "actions": [
+                {
+                  "type": "close-submenu"
+                }
+              ]
+            },
+            "children": [
+              {
+                "type": "button",
+                "name": "All screens",
+                "icon": "desktop_windows",
+                "iconTheme": "material-symbols-rounded",
+                "selectWorkflow": {
+                  "quickSelectKey": "A",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 0 all",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "button",
+                "name": "Current screen",
+                "icon": "monitor",
+                "iconTheme": "material-symbols-rounded",
+                "selectWorkflow": {
+                  "quickSelectKey": "S",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 0 screen",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "button",
+                "name": "Current window",
+                "icon": "select_window",
+                "iconTheme": "material-symbols-rounded",
+                "selectWorkflow": {
+                  "quickSelectKey": "W",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 0 window",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "button",
+                "name": "Region",
+                "icon": "screenshot_region",
+                "iconTheme": "material-symbols-rounded",
+                "selectWorkflow": {
+                  "quickSelectKey": "R",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 0 region",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "submenu",
+            "name": "In 3 s",
+            "icon": "timer_3",
+            "iconTheme": "material-symbols-rounded",
+            "openWorkflow": {
+              "quickSelectKey": "3",
+              "actions": []
+            },
+            "activateWorkflow": {
+              "quickSelectKey": "Backspace",
+              "actions": [
+                {
+                  "type": "close-submenu"
+                }
+              ]
+            },
+            "children": [
+              {
+                "type": "button",
+                "name": "All screens",
+                "icon": "desktop_windows",
+                "iconTheme": "material-symbols-rounded",
+                "selectWorkflow": {
+                  "quickSelectKey": "A",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 3 all",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "button",
+                "name": "Current screen",
+                "icon": "monitor",
+                "iconTheme": "material-symbols-rounded",
+                "selectWorkflow": {
+                  "quickSelectKey": "S",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 3 screen",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "button",
+                "name": "Current window",
+                "icon": "select_window",
+                "iconTheme": "material-symbols-rounded",
+                "selectWorkflow": {
+                  "quickSelectKey": "W",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 3 window",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "button",
+                "name": "Region",
+                "icon": "screenshot_region",
+                "iconTheme": "material-symbols-rounded",
+                "selectWorkflow": {
+                  "quickSelectKey": "R",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 3 region",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "submenu",
+            "name": "In 5 s",
+            "icon": "timer_5",
+            "iconTheme": "material-symbols-rounded",
+            "openWorkflow": {
+              "quickSelectKey": "5",
+              "actions": []
+            },
+            "activateWorkflow": {
+              "quickSelectKey": "Backspace",
+              "actions": [
+                {
+                  "type": "close-submenu"
+                }
+              ]
+            },
+            "children": [
+              {
+                "type": "button",
+                "name": "All screens",
+                "icon": "desktop_windows",
+                "iconTheme": "material-symbols-rounded",
+                "selectWorkflow": {
+                  "quickSelectKey": "A",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 5 all",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "button",
+                "name": "Current screen",
+                "icon": "monitor",
+                "iconTheme": "material-symbols-rounded",
+                "selectWorkflow": {
+                  "quickSelectKey": "S",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 5 screen",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "button",
+                "name": "Current window",
+                "icon": "select_window",
+                "iconTheme": "material-symbols-rounded",
+                "selectWorkflow": {
+                  "quickSelectKey": "W",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 5 window",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "button",
+                "name": "Region",
+                "icon": "screenshot_region",
+                "iconTheme": "material-symbols-rounded",
+                "selectWorkflow": {
+                  "quickSelectKey": "R",
+                  "actions": [
+                    {
+                      "type": "close-menu"
+                    },
+                    {
+                      "type": "execute-command",
+                      "command": "kd-shot 5 region",
+                      "detached": true,
+                      "isolated": false
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "collections": []
+}

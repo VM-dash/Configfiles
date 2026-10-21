@@ -1,0 +1,23 @@
+{{ template "lib.sh" . }}
+{{ template "gui-only.sh" . }}
+{{- if not (and (eq .chezmoi.osRelease.id "fedora") (or (eq .desktop "hyprland") (and (hasKey . "hyprland") .hyprland))) }}
+exit 0
+{{- end }}
+
+# Kando — pie menu, drives the Super+Shift+S screenshot menu. Upstream ships a
+# plain RPM per release (no repo), so dnf cannot update it: bump kando_rev.
+# Arch gets kando-bin from the AUR instead.
+# rev: {{ .externals.kando_rev }}
+
+REV="{{ .externals.kando_rev }}"
+URL="https://github.com/{{ .externals.kando_repo }}/releases/download/$REV/kando-${REV#v}-1.x86_64.rpm"
+
+step "Kando $REV"
+
+if rpm -q "kando-${REV#v}" >/dev/null 2>&1; then
+	ok "already installed"
+	exit 0
+fi
+
+can_root || { warn "no sudo — skipping"; exit 0; }
+try $SUDO dnf install -y "$URL"

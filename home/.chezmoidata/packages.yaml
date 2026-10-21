@@ -81,7 +81,8 @@ packages:
       - hyprpolkitagent              # polkit dialogs (GNOME's agent is shell-bound)
       # No hyprlock/hypridle: Noctalia ships its own lock screen and idle
       # handling (Super+L → `noctalia msg session lock`).
-      - hyprshot                     # Super+Shift+S region screenshots
+      - grim                         # screenshots (kd-shot, Kando menu)
+      - slurp                        # region picker for kd-shot
       - noctalia
       - brightnessctl
       - playerctl
@@ -90,16 +91,6 @@ packages:
       # Headers + toolchain for hyprpm plugin builds (24-hypr-plugins); must
       # match the hyprland build, hence the same COPR.
       - hyprland-devel
-      # Build + runtime deps for omasnap (26-omasnap): Qt6 layer-shell
-      # screenshot/annotation overlay. cmake/gcc come with hyprland-devel.
-      - ninja-build
-      - qt6-qtbase-devel
-      - layer-shell-qt-devel
-      - wayland-devel
-      - libdeflate-devel
-      - tesseract              # omasnap's OCR tool
-      - tesseract-langpack-eng
-      - xdg-utils
       # hyprmod (27-hyprmod) is a GTK4/libadwaita app installed with pipx
       # --system-site-packages, so PyGObject and friends come from dnf.
       - python3-gobject
@@ -150,13 +141,15 @@ packages:
       - hyprland
       - xdg-desktop-portal-hyprland
       - hyprpolkitagent
-      - hyprshot
+      - grim
+      - slurp
       - noctalia
       - brightnessctl
       - playerctl
     # AUR-only on Arch; installed through the AUR helper when flagged.
     aur_hyprland:
       - hyprmoncfg-bin
+      - kando-bin                    # pie menu (Super+Shift+S screenshots)
       # hyprland-headers come with the hyprland package on Arch.
 
   # -------------------------------------------- Cross-distro, cross-desktop --
@@ -255,10 +248,10 @@ packages:
 # ------------------------------------------------------------- Repo pins ----
 # Pinned so a run is reproducible; bump deliberately.
 externals:
-  # Screenshot + annotation overlay for Hyprland, built from source by
-  # 26-omasnap. Bump the rev deliberately; the script rebuilds when it changes.
-  omasnap_repo: omacom/omasnap
-  omasnap_rev: v1.21.0
+  # Pie menu (Super+Shift+S screenshots): upstream RPM per release, no repo
+  # (28-kando).
+  kando_repo: kando-menu/kando
+  kando_rev: v3.0.0
   # GTK4 settings app for Hyprland. Pinned to a commit rather than the v0.4.0
   # tag: every Lua-config fix is still unreleased, and this config is Lua.
   hyprmod_repo: BlueManCZ/hyprmod

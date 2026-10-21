@@ -113,7 +113,7 @@ local noctalia    = "noctalia msg " -- IPC to the shell
 local cursorTheme = "BreezeX-RosePine-Linux"
 local cursorSize  = 24
 -- GDM starts Hyprland with PATH=~/.cargo/bin:/usr/local/bin:/usr/bin, so
--- exec_cmd() cannot find anything in ~/.local/bin (omasnap, theme, the kd-*
+-- exec_cmd() cannot find anything in ~/.local/bin (theme, the kd-*
 -- helpers). Prepend it once — for the compositor and everything it spawns.
 do
     local path = os.getenv("PATH") or ""
@@ -146,6 +146,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("for i in $(seq 1 40); do timeout 0.3 hyprctl -j status >/dev/null 2>&1 && break; sleep 0.25; done; noctalia")
     -- env only affects new clients; this switches the compositor's own
     -- cursor (and, via gsettings sync, running GTK apps) right away.
+    hl.exec_cmd("kando") -- pie menus; must run for the global binds below
     hl.exec_cmd("hyprctl setcursor " .. cursorTheme .. " " .. cursorSize)
     -- hyprpm-managed plugins (ScrollOverview); built by 24-hypr-plugins.
     hl.exec_cmd("hyprpm reload -n")
@@ -224,16 +225,6 @@ hl.config({
     },
 })
 
--- omasnap's overlay: no compositor animation (it animates itself) and never
--- part of a screen share.
-hl.layer_rule({
-    name  = "omasnap",
-    match = { namespace = "^omasnap$" },
-    no_anim         = true,
-    animation       = "none",
-    no_screen_share = true,
-})
-
 -- Noctalia surfaces: blur them, and let Noctalia animate itself.
 hl.layer_rule({
     name  = "noctalia",
@@ -295,13 +286,10 @@ bind(mainMod .. " + minus",             hl.dsp.layout("colresize -conf"),    "Sc
 bind(mainMod .. " + M",                 hl.dsp.layout("swapwithmaster"),     "Master: swap focused with master")
 
 -- Parity with the GNOME session
--- omasnap: capture, then annotate in its own overlay (drag = region, click a
--- window = that window, click empty space = whole monitor). Same key toggles
--- it off. Built by 26-omasnap; hyprshot stays for the delayed capture below.
-bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(home .. "/.local/bin/omasnap"), "Screenshot + annotate (omasnap)")
--- For things that close on focus loss (menus, Noctalia panels): no picker,
--- a 3 s countdown, the whole active screen, straight into Gradia to crop.
-bind(mainMod .. " + SHIFT + ALT + S", hl.dsp.exec_cmd(home .. "/.local/bin/kd-shot-delayed"), "Screenshot in 3 s → Gradia (keeps popups open)")
+-- Screenshot pie menu (Kando, ~/.config/kando/menus.json): delay (instant /
+-- 3 s / 5 s), then all screens / current screen / window / region, then
+-- Gradia. Keyboard: 1|3|5 then A|S|W|R, or arrows + Enter.
+bind(mainMod .. " + SHIFT + S", hl.dsp.global("menu.kando.Kando:screenshot"), "Screenshot menu (Kando → Gradia)")
 bind(mainMod .. " + L",         hl.dsp.exec_cmd(noctalia .. "session lock"), "Lock screen (Noctalia)")
 bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("theme next --quiet"), "Cycle terminal/editor theme")
 
@@ -380,6 +368,21 @@ hl.window_rule({
     name  = "suppress-maximize-events",
     match = { class = ".*" },
     suppress_event = "maximize",
+})
+
+-- Kando's menu is a fullscreen transparent overlay (rules from kando.menu).
+hl.window_rule({
+    name  = "kando",
+    match = { class = "menu.kando.Kando", title = "Kando Menu" },
+    no_blur     = true,
+    opaque      = true,
+    move        = { 0, 0 },
+    rounding    = 0,
+    size        = { "100%", "100%" },
+    border_size = 0,
+    no_anim     = true,
+    float       = true,
+    pin         = true,
 })
 
 -- Nautilus is a quick-look tool here, not a tiled workspace citizen.

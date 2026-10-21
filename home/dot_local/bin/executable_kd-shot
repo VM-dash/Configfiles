@@ -1,0 +1,35 @@
+#!/bin/bash
+# Screenshot → Gradia. Driven by the Kando menu on Super+Shift+S.
+#   kd-shot <delay-seconds> <all|screen|window|region>
+#     all     every monitor
+#     screen  the focused monitor (its current workspace)
+#     window  the focused window, as it is when the countdown ends
+#     region  drag a box — picked BEFORE the countdown, so menus and popups
+#             opened during the wait stay open (the picker grabs focus)
+set -euo pipefail
+delay="${1:-0}" mode="${2:-region}"
+dir="${XDG_PICTURES_DIR:-$HOME/Pictures}/Screenshots"
+file="$dir/$(date +%Y-%m-%d-%H%M%S)_$mode.png"
+mkdir -p "$dir"
+
+# Let Kando's fade-out finish so it isn't in the shot.
+sleep 0.3
+[ "$mode" = region ] && { geom=$(slurp) || exit 0; }   # Esc cancels
+if [ "$delay" -gt 0 ]; then
+	notify-send -a screenshot -t $((delay * 1000)) "Screenshot in ${delay}s" 2>/dev/null || true
+	sleep "$delay"
+fi
+
+case "$mode" in
+all)    grim "$file" ;;
+screen) grim -o "$(hyprctl -j monitors | jq -r '.[] | select(.focused) | .name')" "$file" ;;
+window) grim -g "$(hyprctl -j activewindow | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')" "$file" ;;
+region) grim -g "$geom" "$file" ;;
+*)      echo "kd-shot: unknown mode '$mode'" >&2; exit 2 ;;
+esac
+
+if command -v gradia >/dev/null 2>&1; then
+	exec gradia "$file"
+else
+	exec flatpak run be.alexandervanhee.gradia "$file"
+fi
