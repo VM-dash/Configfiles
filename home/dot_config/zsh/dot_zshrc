@@ -148,6 +148,7 @@ alias dc='docker compose'
 alias cm='chezmoi'
 alias cme='chezmoi edit --apply'
 alias cma='chezmoi apply'
+alias mode='noctalia msg theme-mode-toggle'   # dark ⇄ light (Noctalia → GNOME, apps)
 
 # `mkcd foo/bar` — make a directory and enter it.
 mkcd() { mkdir -p "$1" && cd "$1"; }
