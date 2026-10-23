@@ -176,7 +176,11 @@ packages:
       # (sureclaw/opencode): mise pulls upstream's own release binaries via the
       # aqua backend, so Arch gets the same version and there is no third-party
       # rebuild to trust or wait on after a Fedora bump.
-      - opencode@latest
+      # Exact pin, bumped by hand: upstream pushes v2.x git tags with no
+      # release binaries, and mise's version list holds only those, so
+      # "latest" 404s and "1" resolves to nothing. Releases page is the truth:
+      # gh api repos/anomalyco/opencode/releases/latest --jq .tag_name
+      - opencode@1.19.4
       # herdr: agent-runtime multiplexer. Official mise registry entry; fallback
       # is `github:herdrdev/herdr` if an older mise lacks the package.
       - herdr@latest
