@@ -172,15 +172,12 @@ packages:
       - bat@latest
       - eza@latest
       - zoxide@latest
-      # opencode CLI. Deliberately here rather than the Fedora COPR
-      # (sureclaw/opencode): mise pulls upstream's own release binaries via the
-      # aqua backend, so Arch gets the same version and there is no third-party
-      # rebuild to trust or wait on after a Fedora bump.
-      # Exact pin, bumped by hand: upstream pushes v2.x git tags with no
-      # release binaries, and mise's version list holds only those, so
-      # "latest" 404s and "1" resolves to nothing. Releases page is the truth:
-      # gh api repos/anomalyco/opencode/releases/latest --jq .tag_name
-      - opencode@1.19.4
+      # opencode CLI 2 (T3 Code needs >=2.0.18). OpenCode 2 ships only on npm
+      # as @opencode/cli, not on GitHub releases (those, and the aqua
+      # "opencode" entry, are the frozen 1.x line). Its postinstall copies
+      # the native binary out of the platform package, so it must be allowed
+      # to run (mise skips package scripts by default).
+      - "npm:@opencode/cli[allow_builds=@opencode/cli]@latest"
       # herdr: agent-runtime multiplexer. Official mise registry entry; fallback
       # is `github:herdrdev/herdr` if an older mise lacks the package.
       - herdr@latest
