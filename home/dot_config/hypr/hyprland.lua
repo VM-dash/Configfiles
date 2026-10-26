@@ -13,8 +13,9 @@
 
 -- Two desks, one config. Which external screens are connected decides the
 -- arrangement AND where workspaces live:
---   office  two Dell P2422H on the dock: laptop left, Dells to the right;
---           ws 1-3 left Dell, 4-6 right Dell, 7 laptop
+--   dual    any two external screens (office Dells or any other desk):
+--           ws 1-3 left external, 4-6 right external, 8 laptop. Left/right
+--           is by x position; the office Dells are pinned laptop|left|right
 --   home    Dell U2415 over HDMI, standing ABOVE the laptop;
 --           ws 1-3 laptop, 4-6 U2415
 --   alone   everything on the laptop
@@ -35,6 +36,16 @@ local function lidClosed()
     return state:find("closed") ~= nil
 end
 
+-- External screens, leftmost first.
+local function externals()
+    local ext = {}
+    for _, m in ipairs(hl.get_monitors()) do
+        if m.name ~= laptop then table.insert(ext, m) end
+    end
+    table.sort(ext, function(a, b) return a.x < b.x end)
+    return ext
+end
+
 local function present(sel)
     for _, m in ipairs(hl.get_monitors()) do
         if sel == m.name or sel == "desc:" .. m.description then return true end
@@ -44,12 +55,13 @@ end
 
 KD = KD or {}
 
-function KD.apply_layout()
-    local office = present(dellLeft) or present(dellRight)
-    local home   = present(dellHome)
+-- show: also switch each screen to its first workspace (on plug/unplug only,
+-- so a config reload never yanks the view).
+function KD.apply_layout(show)
+    local home = present(dellHome)
     -- The panel goes dark with the lid shut only while an external screen
     -- can take over; alone, logind's lid-close suspend is the right answer.
-    local panelOff = lidClosed() and (office or home)
+    local panelOff = lidClosed() and #externals() > 0
 
     hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
     if home then
@@ -61,11 +73,15 @@ function KD.apply_layout()
         hl.monitor({ output = dellRight, mode = "preferred", position = "3840x0", scale = 1 })
     end
 
+    -- Read after the hl.monitor() calls above so x reflects the new layout.
+    local ext  = externals()
+    local dual = not home and #ext >= 2
+
     local low, high  -- monitors for ws 1-3 and 4-6
     if home then
         low, high = laptop, dellHome
-    elseif office then
-        low, high = dellLeft, dellRight
+    elseif dual then
+        low, high = ext[1].name, ext[2].name
     else
         low, high = laptop, laptop
     end
@@ -77,19 +93,30 @@ function KD.apply_layout()
     for i = 4, 6 do
         hl.workspace_rule({ workspace = tostring(i), monitor = high, persistent = true, default = (i == 4), layout = "scrolling" })
     end
-    -- ws 7: the laptop panel at the office (the Dells own 1-6 there).
-    hl.workspace_rule({ workspace = "7", monitor = laptop, default = office, layout = "scrolling" })
-    for i = 8, 10 do
+    -- ws 8: the laptop panel when two externals own 1-6.
+    hl.workspace_rule({ workspace = "8", monitor = laptop, persistent = dual, default = dual, layout = "scrolling" })
+    for _, i in ipairs({ 7, 9, 10 }) do
         hl.workspace_rule({ workspace = tostring(i), layout = "scrolling" })
     end
-    if office and not panelOff then
-        pcall(function() hl.dispatch(hl.dsp.workspace.move({ workspace = 7, monitor = laptop })) end)
+    -- Rules only place NEW workspaces; move the existing ones over too.
+    if dual then
+        local function move(ws, mon)
+            pcall(function() hl.dispatch(hl.dsp.workspace.move({ workspace = ws, monitor = mon })) end)
+        end
+        for i = 1, 3 do move(i, low) end
+        for i = 4, 6 do move(i, high) end
+        if not panelOff then move(8, laptop) end
+        if show then
+            for _, ws in ipairs(panelOff and { "4", "1" } or { "8", "4", "1" }) do
+                pcall(function() hl.dispatch(hl.dsp.focus({ workspace = ws })) end)
+            end
+        end
     end
 end
 
 KD.apply_layout()
-hl.on("monitor.added",   function() KD.apply_layout() end)
-hl.on("monitor.removed", function() KD.apply_layout() end)
+hl.on("monitor.added",   function() KD.apply_layout(true) end)
+hl.on("monitor.removed", function() KD.apply_layout(true) end)
 
 ---------------------
 ---- MY PROGRAMS ----
@@ -320,7 +347,7 @@ for i = 1, 10 do
     hl.bind(mainMod .. " + " .. key,         hl.dsp.focus({ workspace = i }))
     hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
 end
-cheat(mainMod .. " + 1..9,0",         "Go to workspace (office: 1-3/4-6 Dells, 7 laptop · home: 1-3 laptop, 4-6 U2415)")
+cheat(mainMod .. " + 1..9,0",         "Go to workspace (2 externals: 1-3 left, 4-6 right, 8 laptop · home: 1-3 laptop, 4-6 U2415)")
 cheat(mainMod .. " + SHIFT + 1..9,0", "Move window to workspace 1-10")
 
 -- mainMod + scroll cycles workspaces; mainMod + LMB/RMB drags/resizes.
