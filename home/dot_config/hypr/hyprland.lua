@@ -15,7 +15,7 @@
 -- arrangement AND where workspaces live:
 --   dual    any two external screens (office Dells or any other desk):
 --           ws 1-3 left external, 4-6 right external, 8 laptop. Left/right
---           is by x position; known pairs (pairs2) are pinned laptop|left|right
+--           is by x position; the office Dells are pinned laptop|left|right
 --   home    Dell U2415 over HDMI, standing ABOVE the laptop;
 --           ws 1-3 laptop, 4-6 U2415
 --   alone   everything on the laptop
@@ -24,12 +24,8 @@
 -- lid script calls it too (KD is global so `hyprctl eval` can reach it).
 
 local laptop    = "eDP-1"
--- Known external pairs, pinned { left, right } (auto placement flips the
--- order between replugs). Unknown pairs fall back to auto placement.
-local pairs2 = {
-    { "desc:Dell Inc. DELL P2422H 87Y9ZY3", "desc:Dell Inc. DELL P2422H 17T9ZY3" }, -- office
-    { "desc:Dell Inc. DELL P2422H 27Y9ZY3", "desc:Dell Inc. DELL P2422H 1CRLBR3" },
-}
+local dellLeft  = "desc:Dell Inc. DELL P2422H 87Y9ZY3"
+local dellRight = "desc:Dell Inc. DELL P2422H 17T9ZY3"
 local dellHome  = "desc:Dell Inc. DELL U2415 7MT0186C0C5U"
 
 local function lidClosed()
@@ -73,10 +69,8 @@ function KD.apply_layout(show)
         hl.monitor({ output = laptop,   mode = "preferred", position = "0x1200", scale = 1, disabled = panelOff })
     else
         hl.monitor({ output = laptop,    mode = "preferred", position = "0x0",    scale = 1, disabled = panelOff })
-        for _, pair in ipairs(pairs2) do
-            hl.monitor({ output = pair[1], mode = "preferred", position = "1920x0", scale = 1 })
-            hl.monitor({ output = pair[2], mode = "preferred", position = "3840x0", scale = 1 })
-        end
+        hl.monitor({ output = dellLeft,  mode = "preferred", position = "1920x0", scale = 1 })
+        hl.monitor({ output = dellRight, mode = "preferred", position = "3840x0", scale = 1 })
     end
 
     -- Read after the hl.monitor() calls above so x reflects the new layout.
