@@ -322,6 +322,16 @@ bind(mainMod .. " + SHIFT + S", hl.dsp.global("menu.kando.Kando:screenshot"), "S
 bind(mainMod .. " + CTRL + Space", hl.dsp.global("menu.kando.Kando:session"), "Session menu (Kando)")
 bind(mainMod .. " + L",         hl.dsp.exec_cmd(noctalia .. "session lock"), "Lock screen (Noctalia)")
 bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("theme next --quiet"), "Cycle terminal/editor theme")
+-- disable_while_typing (on by default) only pauses ~0.5 s and ignores a palm
+-- already resting on the pad, so keep a manual off switch.
+local touchpadOn = true
+local function toggleTouchpad()
+    touchpadOn = not touchpadOn
+    hl.device({ name = "syna30be:00-06cb:ce09", enabled = touchpadOn })
+    hl.exec_cmd("notify-send -a touchpad -t 1500 'Touchpad " .. (touchpadOn and "on" or "off") .. "'")
+end
+bind(mainMod .. " + CTRL + T", toggleTouchpad, "Touchpad on/off")
+hl.bind("XF86TouchpadToggle", toggleTouchpad)
 
 -- Overview of all workspaces (ScrollOverview plugin)
 bind(mainMod .. " + G", function()
