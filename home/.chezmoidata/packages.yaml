@@ -28,6 +28,10 @@ packages:
       # Logitech HID++ daemon: forces the MX MagSpeed wheel to one classic
       # click per ratchet detent (see 22-logiops), taming TUI scroll speed.
       - logiops
+      - ansible
+      - openfortivpn
+      - podman
+      - fastfetch
     # Deliberate exceptions to Flatpak-first — these need host integration.
     dnf_gui:
       # No Flatpak exists for Ghostty, and a sandboxed terminal cannot host
@@ -197,6 +201,17 @@ packages:
       - io.anytype.anytype           # notes/knowledge base (official Flathub)
       - org.inkscape.Inkscape        # vector graphics
       - org.libreoffice.LibreOffice  # office suite
+      - be.alexandervanhee.gradia    # screenshot editor (kd-shot opens it)
+      - com.github.finefindus.eyedropper
+      - com.github.marhkb.Pods       # podman GUI
+      - com.jeffser.Nocturne
+      - de.haeckerfelix.Fragments    # torrents
+      - io.github.mfat.sshpilot
+      - io.github.plrigaux.sysd-manager
+      - io.missioncenter.MissionCenter
+      - it.mijorus.smile             # emoji picker
+      - org.gnome.gThumb
+      - org.gnome.Mines
 
     # `flatpak override --user` per app, as "<app> <flag>" pairs.
     flatpak_overrides:

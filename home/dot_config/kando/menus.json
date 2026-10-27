@@ -320,7 +320,7 @@
       },
       "shortcut": "",
       "shortcutID": "screenshot",
-      "useFixedPosition": false,
+      "useFixedPosition": true,
       "fixedMenuPosition": {
         "x": 0.5,
         "y": 0.5
@@ -330,15 +330,11 @@
       "tags": []
     },
     {
-      "shortcut": "",
-      "shortcutID": "session",
-      "anchored": false,
-      "hoverMode": false,
       "root": {
-        "type": "root",
         "name": "Session",
         "icon": "power_settings_new",
         "iconTheme": "material-symbols-rounded",
+        "type": "root",
         "activateWorkflow": {
           "quickSelectKey": "Backspace",
           "actions": [
@@ -349,30 +345,65 @@
         },
         "children": [
           {
-            "type": "button",
-            "name": "Settings",
-            "icon": "settings",
-            "iconTheme": "material-symbols-rounded",
-            "selectWorkflow": {
-              "quickSelectKey": "S",
+            "name": "Parameters",
+            "icon": "submenu-item.svg",
+            "iconTheme": "kando",
+            "type": "submenu",
+            "activateWorkflow": {
+              "quickSelectKey": "Backspace",
               "actions": [
                 {
-                  "type": "close-menu"
-                },
-                {
-                  "type": "execute-command",
-                  "command": "noctalia msg settings-open",
-                  "detached": true,
-                  "isolated": false
+                  "type": "close-submenu"
                 }
               ]
-            }
+            },
+            "children": [
+              {
+                "name": "Open Settings",
+                "icon": "settings-item.svg",
+                "iconTheme": "kando",
+                "type": "button",
+                "selectWorkflow": {
+                  "actions": [
+                    {
+                      "type": "execute-command",
+                      "command": "noctalia msg settings-open",
+                      "detached": true,
+                      "isolated": false
+                    },
+                    {
+                      "type": "close-menu"
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "Execute Command",
+                "icon": "join_right",
+                "iconTheme": "material-symbols-rounded",
+                "type": "button",
+                "selectWorkflow": {
+                  "quickSelectKey": "T",
+                  "actions": [
+                    {
+                      "type": "execute-command",
+                      "command": "noctalia msg theme-mode-toggle",
+                      "detached": true,
+                      "isolated": false
+                    },
+                    {
+                      "type": "close-menu"
+                    }
+                  ]
+                }
+              }
+            ]
           },
           {
-            "type": "button",
             "name": "Lock",
             "icon": "lock",
             "iconTheme": "material-symbols-rounded",
+            "type": "button",
             "selectWorkflow": {
               "quickSelectKey": "L",
               "actions": [
@@ -389,10 +420,10 @@
             }
           },
           {
-            "type": "button",
             "name": "Log out",
             "icon": "logout",
             "iconTheme": "material-symbols-rounded",
+            "type": "button",
             "selectWorkflow": {
               "quickSelectKey": "O",
               "actions": [
@@ -409,12 +440,12 @@
             }
           },
           {
-            "type": "button",
             "name": "Lock & suspend",
             "icon": "bedtime",
             "iconTheme": "material-symbols-rounded",
+            "type": "button",
             "selectWorkflow": {
-              "quickSelectKey": "U",
+              "quickSelectKey": "S",
               "actions": [
                 {
                   "type": "close-menu"
@@ -429,10 +460,10 @@
             }
           },
           {
-            "type": "button",
             "name": "Reboot",
             "icon": "restart_alt",
             "iconTheme": "material-symbols-rounded",
+            "type": "button",
             "selectWorkflow": {
               "quickSelectKey": "R",
               "actions": [
@@ -449,10 +480,10 @@
             }
           },
           {
-            "type": "button",
             "name": "Shut down",
             "icon": "power_settings_new",
             "iconTheme": "material-symbols-rounded",
+            "type": "button",
             "selectWorkflow": {
               "quickSelectKey": "P",
               "actions": [
@@ -470,11 +501,15 @@
           }
         ]
       },
-      "useFixedPosition": false,
+      "shortcut": "",
+      "shortcutID": "session",
+      "useFixedPosition": true,
       "fixedMenuPosition": {
         "x": 0.5,
         "y": 0.5
       },
+      "anchored": true,
+      "hoverMode": false,
       "tags": []
     }
   ],
