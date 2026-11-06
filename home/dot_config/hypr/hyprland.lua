@@ -2,7 +2,7 @@
 --
 -- Hyprland ≥0.55 is configured in Lua (hyprlang .conf is deprecated). This
 -- session runs ALONGSIDE GNOME: GDM shows both, pick at login. Noctalia
--- (noctalia.dev) provides the shell layer — bar, launcher, notifications,
+-- (noctalia.dev) provides the shell layer — bar, notifications,
 -- control center, OSD, wallpaper — and owns desktop theming (wallpaper-driven;
 -- see ~/.config/noctalia/config.toml). The `theme` script deliberately does
 -- not touch this session's colors; it keeps owning terminals and editors.
@@ -15,7 +15,8 @@
 -- arrangement AND where workspaces live:
 --   dual    any two external screens (office Dells or any other desk):
 --           ws 1-3 left external, 4-6 right external, 8 laptop. Left/right
---           is by x position; the office Dells are pinned laptop|left|right
+--           is by x position; the office Dells are pinned laptop|left|right,
+--           the second Dell pair left|right|laptop
 --   home    Dell U2415 over HDMI, standing ABOVE the laptop;
 --           ws 1-3 laptop, 4-6 U2415
 --   alone   everything on the laptop
@@ -26,6 +27,9 @@
 local laptop    = "eDP-1"
 local dellLeft  = "desc:Dell Inc. DELL P2422H 87Y9ZY3"
 local dellRight = "desc:Dell Inc. DELL P2422H 17T9ZY3"
+-- Second Dell pair: the laptop sits to the RIGHT of it (left|center|laptop).
+local dell2Left  = "desc:Dell Inc. DELL P2422H 1CRLBR3"
+local dell2Right = "desc:Dell Inc. DELL P2422H 27Y9ZY3"
 local dellHome  = "desc:Dell Inc. DELL U2415 7MT0186C0C5U"
 
 local function lidClosed()
@@ -67,6 +71,10 @@ function KD.apply_layout(show)
     if home then
         hl.monitor({ output = dellHome, mode = "preferred", position = "0x0",    scale = 1 })
         hl.monitor({ output = laptop,   mode = "preferred", position = "0x1200", scale = 1, disabled = panelOff })
+    elseif present(dell2Left) and present(dell2Right) then
+        hl.monitor({ output = dell2Left,  mode = "preferred", position = "0x0",    scale = 1 })
+        hl.monitor({ output = dell2Right, mode = "preferred", position = "1920x0", scale = 1 })
+        hl.monitor({ output = laptop,     mode = "preferred", position = "3840x0", scale = 1, disabled = panelOff })
     else
         hl.monitor({ output = laptop,    mode = "preferred", position = "0x0",    scale = 1, disabled = panelOff })
         hl.monitor({ output = dellLeft,  mode = "preferred", position = "1920x0", scale = 1 })
@@ -173,6 +181,9 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("for i in $(seq 1 40); do timeout 0.3 hyprctl -j status >/dev/null 2>&1 && break; sleep 0.25; done; noctalia")
     -- env only affects new clients; this switches the compositor's own
     -- cursor (and, via gsettings sync, running GTK apps) right away.
+    -- Vicinae (Super+Space launcher) runs as its packaged user unit; started
+    -- here rather than enabled so it stays out of the GNOME session.
+    hl.exec_cmd("systemctl --user start vicinae.service")
     hl.exec_cmd("kando") -- pie menus; must run for the global binds below
     hl.exec_cmd("hyprctl setcursor " .. cursorTheme .. " " .. cursorSize)
     -- hyprpm-managed plugins (ScrollOverview); built by 24-hypr-plugins.
@@ -213,7 +224,7 @@ hl.config({
     },
     scrolling = {
         fullscreen_on_one_column = true,
-        column_width = 0.5,
+        column_width = 0.667,
     },
     master = {
         new_status = "master",
@@ -236,21 +247,25 @@ hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 
 -- ScrollOverview (yayuuu/hyprland-scroll-overview): niri-style zoomed-out
 -- view of every workspace on every monitor — Super+G. Loaded by hyprpm at
--- start; the plugin registers these keys when it loads, so a fresh session
--- without the build just ignores them.
-hl.config({
-    plugin = {
-        scrolloverview = {
-            gesture_distance = 300,
-            scale            = 0.5,
-            workspace_gap    = 100,
-            layout           = "auto",   -- per-monitor orientation
-            wallpaper        = 2,
-            blur             = true,
-            shadow = { enabled = true, range = 50 },
+-- start; the plugin registers these keys only once it is loaded, and Hyprland
+-- flags every key it does not know ("unknown config key" overlay), so the
+-- block is skipped until the plugin is present. `hyprpm reload` re-parses
+-- the config, which is when these land.
+if hl.plugin and hl.plugin.scrolloverview then
+    hl.config({
+        plugin = {
+            scrolloverview = {
+                gesture_distance = 300,
+                scale            = 0.5,
+                workspace_gap    = 100,
+                layout           = "auto",   -- per-monitor orientation
+                wallpaper        = 2,
+                blur             = true,
+                shadow = { enabled = true, range = 50 },
+            },
         },
-    },
-})
+    })
+end
 
 -- Noctalia surfaces: blur them, and let Noctalia animate itself.
 hl.layer_rule({
@@ -273,7 +288,7 @@ local home    = os.getenv("HOME")
 
 -- Every bind goes through this helper so the cheatsheet stays in lockstep
 -- with reality: it registers the bind AND records "keys — description".
--- `hypr-cheatsheet` (Super + /) shows the recorded list in the launcher —
+-- `hypr-cheatsheet` (Super + /) shows the recorded list in Vicinae —
 -- `hyprctl binds` is useless for this, Lua binds all report as "__lua".
 local cheatsheet = {}
 local function bind(keys, action, desc, opts)
@@ -292,7 +307,7 @@ bind(mainMod .. " + F",      hl.dsp.window.fullscreen({ action = "toggle" }), "F
 bind(mainMod .. " + V",      hl.dsp.window.float({ action = "toggle" }),      "Float window")
 
 -- Noctalia shell
-bind(mainMod .. " + Space", hl.dsp.exec_cmd(noctalia .. "panel-toggle launcher"),       "App launcher")
+bind(mainMod .. " + Space", hl.dsp.exec_cmd("vicinae toggle"),                         "App launcher (Vicinae)")
 bind(mainMod .. " + S",     hl.dsp.exec_cmd(noctalia .. "panel-toggle control-center"), "Control center")
 bind(mainMod .. " + comma", hl.dsp.exec_cmd(noctalia .. "settings-toggle"),             "Noctalia settings")
 bind("ALT + Tab",           hl.dsp.exec_cmd(noctalia .. "window-switcher"),             "Window switcher")

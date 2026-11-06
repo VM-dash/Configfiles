@@ -10,4 +10,4 @@ if [ ! -r "$f" ]; then
 	[ -r "$f" ] || { echo "no cheatsheet at $f — is this the Hyprland session?" >&2; exit 1; }
 fi
 # Selection is meaningless (it's a reference list); ignore it.
-noctalia dmenu -p "Keybinds" < "$f" >/dev/null || true
+vicinae dmenu -n "Keybinds" -p "Search keybinds" --no-quick-look < "$f" >/dev/null || true

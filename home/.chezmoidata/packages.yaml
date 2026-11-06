@@ -88,6 +88,10 @@ packages:
       - grim                         # screenshots (kd-shot, Kando menu)
       - slurp                        # region picker for kd-shot
       - noctalia
+      # App launcher (Super+Space) instead of Noctalia's: Raycast-compatible,
+      # so Raycast Store extensions (e.g. Dashlane Vault) can run. Noctalia
+      # keeps the bar, lock screen and notifications.
+      - vicinae
       - brightnessctl
       - playerctl
       # TUI monitor arranger (drag screens, no coordinate math); Super+Shift+M.
@@ -111,6 +115,7 @@ packages:
     copr_hyprland:
       - hermitfeather/hyprland-dev
       - paolino/hyprmoncfg
+      - quadratech188/vicinae          # the COPR Vicinae's own docs point to
 
   # -------------------------------------------------- Arch (Noctalia etc) --
   arch:
@@ -190,6 +195,10 @@ packages:
       # the official curl installer: that writes ~/.druk/bin and appends PATH
       # to .zshrc, which chezmoi owns.
       - github:letstri/druk@latest
+      # Dashlane CLI (dcli): vault access for the Vicinae "Dashlane Vault"
+      # extension. Not in aqua; upstream releases a single static binary
+      # (dcli-linux-x64), which the github backend installs as `dcli`.
+      - github:Dashlane/dashlane-cli@latest
 
     # Self-contained GUI apps. Same IDs on every distro.
     # NOTE: Brave is deliberately NOT here — see packages.fedora.dnf_gui.
