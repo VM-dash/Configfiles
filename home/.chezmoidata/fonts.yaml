@@ -20,6 +20,8 @@ font:
   install:
     - archive: JetBrainsMono
       family: "JetBrainsMono Nerd Font"
+      # Same archive, no-ligatures cut (`=>` stays two glyphs).
+      extra_families: ["JetBrainsMonoNL Nerd Font"]
     - archive: FiraCode
       family: "FiraCode Nerd Font"
 

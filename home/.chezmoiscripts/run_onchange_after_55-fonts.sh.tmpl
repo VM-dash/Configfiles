@@ -82,6 +82,13 @@ if has fc-list; then
 		warn "  .chezmoidata/fonts.yaml references it — check the real name with"
 		warn "  'fc-list : family | tr , '\\''\\n'\\'' | grep -i nerd'"
 	fi
+	{{- range (get . "extra_families" | default list) }}
+	if printf '%s' "$FAMILIES" | tr ',' '\n' | grep -qxF {{ . | quote }}; then
+		ok "font family available: {{ . }}"
+	else
+		warn "font family NOT found: {{ . | quote }}"
+	fi
+	{{- end }}
 	{{- end }}
 fi
 
