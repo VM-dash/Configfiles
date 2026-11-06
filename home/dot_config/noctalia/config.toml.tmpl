@@ -11,15 +11,14 @@
 capsule = true
 capsule_thickness = 1.0
 thickness = 21
-margin_ends = 10
-start  = [ "workspaces", "cat", "weather", "pill" ]
+margin_ends = 0
+background_opacity = 0.0
+concave_edge_corners = false
+start  = [ "workspaces", "weather", "pill" ]
 center = [ "toggle", "notes", "clock", "notifications", "widget" ]
-end    = [ "media", "tray", "clipboard", "network", "bluetooth", "volume", "brightness", "battery", "session" ]
+end    = [ "teams", "media", "tray", "clipboard", "network", "bluetooth", "volume", "brightness", "battery", "session" ]
 
 # Bar widgets provided by plugins
-[widget.cat]
-type = "noctalia/bongocat:cat"
-
 [widget.clock]
 anchor = true
 
@@ -29,8 +28,18 @@ type = "noctalia/notes:notes"
 [widget.pill]
 type = "jrohland/claudecode:pill"
 
+[widget.teams]
+type = "vmasson/teams-presence:status"
+
 [widget.toggle]
 type = "maddingo/hypr-layout-switcher:toggle"
+enabled = false
+
+[widget.tray]
+enabled = false
+
+[widget.workspaces]
+style = "focus_hint"
 
 [widget.widget]
 type = "oldirtty/color_picker:widget"
@@ -48,7 +57,29 @@ enabled = [
     "maddingo/hypr-layout-switcher",
     "baizhu/paged-todo",
     "ahmedhossamdev/sticky-notes",
+    "vmasson/teams-presence",
 ]
+
+# Listing any source replaces the built-in list, so official + community are
+# repeated here. "local" is my own plugin checkout (Teams Presence: keeps
+# Teams active on other workspaces during the hours set in its bar panel).
+[[plugins.source]]
+kind = "git"
+name = "official"
+location = "https://github.com/noctalia-dev/official-plugins"
+
+[[plugins.source]]
+kind = "git"
+name = "community"
+location = "https://github.com/noctalia-dev/community-plugins"
+
+[[plugins.source]]
+kind = "path"
+name = "local"
+location = "{{ .chezmoi.homeDir }}/Documents/perso/TeamsPlugin"
+
+[plugin_settings."jrohland/claudecode"]
+popout_placement = "floating"
 
 [[control_center.shortcuts]]
 type = "wifi"
@@ -69,16 +100,16 @@ active_monitor_only = true
 enabled = true
 
     [hot_corners.top_left]
-    action = "launcher"
+    action = "none"
 
     [hot_corners.top_right]
-    action = "launcher"
+    action = "none"
 
     [hot_corners.bottom_left]
-    action = "window_switcher"
+    action = "none"
 
     [hot_corners.bottom_right]
-    action = "window_switcher"
+    action = "none"
 
 [location]
 address = "Dijon, France"
@@ -86,9 +117,11 @@ address = "Dijon, France"
 [shell]
 font_family = "JetBrainsMono NFP"
 lang = "en"
+show_close_buttons = false
 
     [shell.launcher]
     app_grid = true
+    default_view = "pinned"
     categories = false
     show_app_actions = true
     pinned = [
@@ -128,13 +161,15 @@ lang = "en"
     directory = "{{ .chezmoi.homeDir }}/Pictures/Screenshots"
 
 # Desktop theming is Noctalia's on this session (`theme` only does terminals
-# and editors). Rosé Pine built-in palette, dark/light following the
-# sunrise/sunset schedule for the location above.
+# and editors). Rosé Pine built-in palette, always dark.
 [theme]
 source = "builtin"
 builtin = "Rosé Pine"
-mode = "auto"
+mode = "dark"
 wallpaper_scheme = "m3-tonal-spot"
+
+[theme.templates]
+enable_builtin_templates = false
 
 # Terminals and editors follow Noctalia's dark/light switch: this template
 # renders the resolved mode, and its post_hook runs `theme toggle` when the
@@ -146,8 +181,14 @@ output_path = "$XDG_CACHE_HOME/noctalia/mode.txt"
 post_hook   = "{{ .chezmoi.homeDir }}/.local/bin/kd-theme-follow-noctalia {{ "{{ mode }}" }}"
 hook_async  = false
 
-[wallpaper.default]
-path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
+[wallpaper]
+directory = "{{ .chezmoi.homeDir }}/Pictures/wallpapers"
+
+    [wallpaper.automation]
+    recursive = true
+
+    [wallpaper.default]
+    path = "{{ .chezmoi.homeDir }}/Pictures/wallpapers/illustration/16scale.png"
 
 # Lock screen: a login box per output plus clock / weather / visualizer on
 # the left Dell. Outputs that are not connected are simply skipped.
@@ -155,6 +196,8 @@ path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 enabled = true
 schema_version = 2
 widget_order = [
+    "lockscreen-login-box@FALLBACK",
+    "lockscreen-login-box@HDMI-A-1",
     "lockscreen-login-box@DP-5",
     "lockscreen-login-box@DP-6",
     "lockscreen-login-box@DP-7",
@@ -169,16 +212,16 @@ widget_order = [
     cell_size = 16
     major_interval = 4
     visible = true
-{{ range $out := list "DP-5" "DP-6" "DP-7" "DP-8" "eDP-1" }}
+{{ range $out := list "FALLBACK" "HDMI-A-1" "DP-5" "DP-6" "DP-7" "DP-8" "eDP-1" }}
     [lockscreen_widgets.widget."lockscreen-login-box@{{ $out }}"]
     type = "login_box"
     output = "{{ $out }}"
     cx = 960.0
-    cy = {{ if eq $out "eDP-1" }}807.0{{ else }}898.0{{ end }}
+    cy = {{ if eq $out "eDP-1" }}807.0{{ else if eq $out "HDMI-A-1" }}1018.0{{ else }}898.0{{ end }}
     box_width = 810.0
     box_height = 196.0
     placement_width = 1920.0
-    placement_height = 1080.0
+    placement_height = {{ if eq $out "HDMI-A-1" }}1200.0{{ else }}1080.0{{ end }}
     rotation = 0.0
 
         [lockscreen_widgets.widget."lockscreen-login-box@{{ $out }}".settings]
@@ -193,6 +236,7 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true

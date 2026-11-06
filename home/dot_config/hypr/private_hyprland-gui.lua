@@ -2,14 +2,17 @@
 
 -- Settings
 hl.config({
+    decoration = {
+        inactive_opacity = 0.9,
+    },
     dwindle = {
         preserve_split = true,
     },
     general = {
-        gaps_in = 1,
         gaps_out = 6,
     },
     input = {
-        kb_options = "caps:escape",
+        kb_options = "caps:escape,quickaccent:accents",
     },
 })
+
